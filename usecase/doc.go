@@ -1,4 +1,4 @@
 /*
-Package usecase provides the Provider Sidecar daemon implementation.
+Package usecase provides the Authorization Proxy daemon implementation.
 */
 package usecase

@@ -16,7 +16,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/usecase"
 )
 
-// params is the data model for Provider Sidecar command line arguments.
+// params is the data model for Authorization Proxy command line arguments.
 type params struct {
 	configFilePath string
 	showVersion    bool

@@ -14,7 +14,7 @@ import (
 )
 
 // New creates a handler for handling different HTTP requests based on the given services. It also contains a reverse proxy for handling proxy request.
-func New(cfg config.Proxy, bp httputil.BufferPool, prov providerd.Providerd) http.Handler {
+func New(cfg config.Proxy, bp httputil.BufferPool, prov providerd.Authorizationd) http.Handler {
 	return &httputil.ReverseProxy{
 		BufferPool: bp,
 		Director: func(r *http.Request) {

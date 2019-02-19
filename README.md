@@ -1,11 +1,11 @@
-# Provider Sidecar
+# Authorization Proxy
 
 <img src="https://github.com/yahoojapan/authorization-proxy/raw/master/images/logo.png" width="200">
 
 ---
 
-## What is Provider Sidecar
-Provider Sidecar is API for a Kubernetes authentication and authorization webhook that integrates with
+## What is Authorization Proxy
+Authorization Proxy is API for a Kubernetes authentication and authorization webhook that integrates with
 [Athenz](https://github.com/yahoo/athenz) for access checks. It allows flexible resource
 mapping from K8s resources to Athenz ones.
 
@@ -26,11 +26,11 @@ Requires go 1.9 or later.
 	- Athenz server contains the user authorization information for access control
 	- ask Athenz server is the user action is allowed based on pre-configurated policy
 
-Provider Sidecar convert the K8s request to Athenz request based on the mapping rules in `config.yaml` ([example](./config/example_config.yaml)).
+Authorization Proxy convert the K8s request to Athenz request based on the mapping rules in `config.yaml` ([example](./config/example_config.yaml)).
 - [conversion logic](./doc/authorization-proxy-functional-overview.md)
 - [config details](./doc/config-detail.md)
 
-P.S. It is just a sample deployment solution above. Provider Sidecar can work on any environment as long as it can access both the API server and the Athenz server.
+P.S. It is just a sample deployment solution above. Authorization Proxy can work on any environment as long as it can access both the API server and the Athenz server.
 
 ---
 

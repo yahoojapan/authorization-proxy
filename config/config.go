@@ -26,12 +26,12 @@ type Config struct {
 	// Server represents webhook server and health check server configuration.
 	Server Server `yaml:"server"`
 
-	// Athenz represents Athenz configuration for Provider Sidecar to connect to Athenz server.
+	// Athenz represents Athenz configuration for Authorization Proxy to connect to Athenz server.
 	Athenz Athenz `yaml:"athenz"`
 
 	Proxy Proxy `yaml:"proxy"`
 
-	Provider Provider `yaml:"provider"`
+	Authorization Authorization `yaml:"provider"`
 }
 
 // Server represents webhook server and health check server configuration.
@@ -98,7 +98,7 @@ type Proxy struct {
 	BufferSize uint64 `yaml:"buffer_size"`
 }
 
-type Provider struct {
+type Authorization struct {
 	// athenzConfd parameters
 	AthenzConfRefreshDuration string `yaml:"athenzConfRefreshDuration"`
 	AthenzConfSysAuthDomain   string `yaml:"athenzConfSysAuthDomain"`
@@ -128,7 +128,7 @@ func New(path string) (*Config, error) {
 	return cfg, nil
 }
 
-// GetVersion returns the current configuration version of Provider Sidecar.
+// GetVersion returns the current configuration version of Authorization Proxy.
 func GetVersion() string {
 	return currentVersion
 }

@@ -12,7 +12,7 @@ import (
 type transport struct {
 	http.RoundTripper
 
-	prov providerd.Providerd
+	prov providerd.Authorizationd
 	cfg  config.Proxy
 }
 

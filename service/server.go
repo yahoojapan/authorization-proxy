@@ -13,13 +13,13 @@ import (
 	"github.com/kpango/glg"
 )
 
-// Server represents a provider sidecar server behavior
+// Server represents a authorization proxy server behavior
 type Server interface {
 	ListenAndServe(context.Context) chan []error
 }
 
 type server struct {
-	// provider sidecar server
+	// authorization proxy server
 	srv        *http.Server
 	srvRunning bool
 
@@ -55,8 +55,8 @@ var (
 	ErrContextClosed = errors.New("context Closed")
 )
 
-// NewServer returns a Server interface, which includes provider sidecar server and health check server structs.
-// The provider sidecar server is a http.Server instance, which the port number is read from "config.Server.Port"
+// NewServer returns a Server interface, which includes authorization proxy server and health check server structs.
+// The authorization proxy server is a http.Server instance, which the port number is read from "config.Server.Port"
 // , and set the handler as this function argument "handler".
 //
 // The health check server is a http.Server instance, which the port number is read from "config.Server.HealthzPort"
@@ -93,9 +93,9 @@ func NewServer(cfg config.Server, h http.Handler) Server {
 	}
 }
 
-// ListenAndServe returns a error channel, which includes error returned from provider sidecar server.
-// This function start both health check and provider sidecar server, and the server will close whenever the context receive a Done signal.
-// Whenever the server closed, the provider sidecar server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
+// ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
+// This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
+// Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
 func (s *server) ListenAndServe(ctx context.Context) chan []error {
 	echan := make(chan []error, 1)
 
@@ -106,14 +106,14 @@ func (s *server) ListenAndServe(ctx context.Context) chan []error {
 	wg := new(sync.WaitGroup)
 	wg.Add(2)
 
-	// start both provider sidecar server and health check server
+	// start both authorization proxy server and health check server
 	go func() {
 		s.mu.Lock()
 		s.srvRunning = true
 		s.mu.Unlock()
 		wg.Done()
 
-		glg.Info("provider sidecar api server starting")
+		glg.Info("authorization proxy api server starting")
 		sech <- s.listenAndServeAPI()
 		close(sech)
 
@@ -128,7 +128,7 @@ func (s *server) ListenAndServe(ctx context.Context) chan []error {
 		s.mu.Unlock()
 		wg.Done()
 
-		glg.Info("provider sidecar health check server starting")
+		glg.Info("authorization proxy health check server starting")
 		hech <- s.hcsrv.ListenAndServe()
 		close(hech)
 
@@ -154,11 +154,11 @@ func (s *server) ListenAndServe(ctx context.Context) chan []error {
 			case <-ctx.Done(): // when context receive done signal, close running servers and return any error
 				s.mu.RLock()
 				if s.hcrunning {
-					glg.Info("provider sidecar health check server will shutdown")
+					glg.Info("authorization proxy health check server will shutdown")
 					errs = appendErr(errs, s.hcShutdown(context.Background()))
 				}
 				if s.srvRunning {
-					glg.Info("provider sidecar api server will shutdown")
+					glg.Info("authorization proxy api server will shutdown")
 					errs = appendErr(errs, s.apiShutdown(context.Background()))
 				}
 				s.mu.RUnlock()
@@ -166,28 +166,28 @@ func (s *server) ListenAndServe(ctx context.Context) chan []error {
 				echan <- appendErr(errs, ctx.Err())
 				return
 
-			case err := <-sech: // when provider sidecar server returns, close running health check server and return any error
+			case err := <-sech: // when authorization proxy server returns, close running health check server and return any error
 				if err != nil {
 					errs = appendErr(errs, errors.Wrap(err, "close running health check server and return any error"))
 				}
 
 				s.mu.RLock()
 				if s.hcrunning {
-					glg.Info("provider sidecar health check server will shutdown")
+					glg.Info("authorization proxy health check server will shutdown")
 					errs = appendErr(errs, s.hcShutdown(ctx))
 				}
 				s.mu.RUnlock()
 				echan <- errs
 				return
 
-			case err := <-hech: // when health check server returns, close running provider sidecar server and return any error
+			case err := <-hech: // when health check server returns, close running authorization proxy server and return any error
 				if err != nil {
-					errs = append(errs, errors.Wrap(err, "close running provider sidecar server and return any error"))
+					errs = append(errs, errors.Wrap(err, "close running authorization proxy server and return any error"))
 				}
 
 				s.mu.RLock()
 				if s.srvRunning {
-					glg.Info("provider sidecar api server will shutdown")
+					glg.Info("authorization proxy api server will shutdown")
 					errs = appendErr(errs, s.apiShutdown(ctx))
 				}
 				s.mu.RUnlock()
@@ -206,8 +206,8 @@ func (s *server) hcShutdown(ctx context.Context) error {
 	return s.hcsrv.Shutdown(hctx)
 }
 
-// apiShutdown returns any error when shutdown the provider sidecar server.
-// Before shutdown the provider sidecar server, it will sleep config.ProbeWaitTime to prevent any issue from K8s
+// apiShutdown returns any error when shutdown the authorization proxy server.
+// Before shutdown the authorization proxy server, it will sleep config.ProbeWaitTime to prevent any issue from K8s
 func (s *server) apiShutdown(ctx context.Context) error {
 	time.Sleep(s.pwt)
 	sctx, scancel := context.WithTimeout(ctx, s.sddur)
