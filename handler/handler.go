@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/yahoojapan/authorization-proxy/config"
-	providerd "github.com/yahoojapan/athenz-policy-updater"
+	"github.com/yahoojapan/authorization-proxy/service"
 )
 
 // New creates a handler for handling different HTTP requests based on the given services. It also contains a reverse proxy for handling proxy request.
-func New(cfg config.Proxy, bp httputil.BufferPool, prov providerd.Authorizationd) http.Handler {
+func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) http.Handler {
 	return &httputil.ReverseProxy{
 		BufferPool: bp,
 		Director: func(r *http.Request) {

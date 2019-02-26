@@ -20,7 +20,7 @@ type AuthorizationDaemon interface {
 
 type providerDaemon struct {
 	cfg    config.Config
-	athenz service.Authorization
+	athenz service.Authorizationd
 	server service.Server
 }
 
@@ -42,11 +42,11 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 
 // Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
 func (g *providerDaemon) Start(ctx context.Context) chan []error {
-	g.athenz.StartAuthorizationd(ctx)
+	g.athenz.StartProviderd(ctx)
 	return g.server.ListenAndServe(ctx)
 }
 
-func newAuthorizationd(cfg config.Config) (providerd.Authorizationd, error) {
+func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
 		providerd.AthenzURL(cfg.Athenz.URL),
 

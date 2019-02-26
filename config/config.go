@@ -20,23 +20,25 @@ type Config struct {
 	// Version represents configuration file version.
 	Version string `yaml:"version"`
 
-	// Debug represents debug print function
+	// Debug represents to print debug message or not.
 	Debug bool `yaml:"debug"`
 
-	// Server represents webhook server and health check server configuration.
+	// Server represents the authorization proxy and health check server configuration.
 	Server Server `yaml:"server"`
 
-	// Athenz represents Athenz configuration for Authorization Proxy to connect to Athenz server.
+	// Athenz represents Athenz configuration for authorization proxy to connect to Athenz server.
 	Athenz Athenz `yaml:"athenz"`
 
+	// Proxy represents the proxy destination of the authorization proxy.
 	Proxy Proxy `yaml:"proxy"`
 
+	// Authorization represents the detail configuration of the authorization proxy.
 	Authorization Authorization `yaml:"provider"`
 }
 
-// Server represents webhook server and health check server configuration.
+// Server represents authorization proxy server and health check server configuration.
 type Server struct {
-	// Port represents webhook server port.
+	// Port represents the server port.
 	Port int `yaml:"port"`
 
 	// HealthzPort represents health check server port.
@@ -45,35 +47,35 @@ type Server struct {
 	// HealthzPath represents the API path (pattern) for health check server.
 	HealthzPath string `yaml:"health_check_path"`
 
-	// Timeout represents the maximum webhook server request handling duration.
+	// Timeout represents the maximum authorization proxy server request handling duration.
 	Timeout string `yaml:"timeout"`
 
 	// ShutdownDuration represents the maximum shutdown duration.
 	ShutdownDuration string `yaml:"shutdown_duration"`
 
-	// ProbeWaitTime represents the pause duration before shutting down webhook server after health check server shutdown.
+	// ProbeWaitTime represents the pause duration before shutting down authorization proxy server after health check server shutdown.
 	ProbeWaitTime string `yaml:"probe_wait_time"`
 
-	// TLS represents the TLS configuration for webhook server.
+	// TLS represents the TLS configuration for authorization proxy server.
 	TLS TLS `yaml:"tls"`
 }
 
-// TLS represents the TLS configuration for webhook server.
+// TLS represents the TLS configuration for authorization proxy server.
 type TLS struct {
-	// Enable represents the webhook server enable TLS or not.
+	// Enable represents the authorization proxy server enable TLS or not.
 	Enabled bool `yaml:"enabled"`
 
-	// CertKey represents the environment variable name having the certificate file path of webhook server.
+	// CertKey represents the environment variable name having the certificate file path of authorization proxy server.
 	CertKey string `yaml:"cert_key"`
 
-	// KeyKey represents the environment variable name having the private key file path of webhook server certificate.
+	// KeyKey represents the environment variable name having the private key file path of authorization proxy server certificate.
 	KeyKey string `yaml:"key_key"`
 
-	// CAKey represents the environment variable name having the CA certificates file path for verifying clients connecting to webhook server.
+	// CAKey represents the environment variable name having the CA certificates file path for verifying clients connecting to authorization proxy server.
 	CAKey string `yaml:"ca_key"`
 }
 
-// Athenz represents the configuration for webhook server to connect to Athenz.
+// Athenz represents the configuration for authorization proxy server to connect to Athenz.
 type Athenz struct {
 	// URL represents the Athenz (ZMS and ZTS) URL handle authentication and authorization request.
 	URL string `yaml:"url"`
@@ -85,32 +87,59 @@ type Athenz struct {
 	AthenzRootCA string `yaml:"root_ca"`
 }
 
-// Proxy represent the reverse proxy configuration to connect to Athenz server
+// Proxy represent the proxy destination of the authorization proxy.
 type Proxy struct {
+	// Scheme represent the HTTP URL scheme of the proxy destination, default is http.
 	Scheme string `yaml:"scheme"`
-	Host   string `yaml:"host"`
-	Port   uint16 `yaml:"port"`
 
-	// RoleHeader represent the HTTP header key name of the role token for Role token proxy request
+	// Host represent the proxy destination host, for example localhost.
+	Host string `yaml:"host"`
+
+	// Port represent the proxy destination port number.
+	Port uint16 `yaml:"port"`
+
+	// RoleHeader represent the HTTP header key name of the role token for Role token proxy request.
 	RoleHeader string `yaml:"role_header_key"`
 
-	// BufferSize represent the reverse proxy buffer size
+	// BufferSize represent the reverse proxy buffer size.
 	BufferSize uint64 `yaml:"buffer_size"`
 }
 
+// Authorization represents the detail configuration of the authorization proxy.
 type Authorization struct {
-	// athenzConfd parameters
-	AthenzConfRefreshDuration string `yaml:"athenzConfRefreshDuration"`
-	AthenzConfSysAuthDomain   string `yaml:"athenzConfSysAuthDomain"`
-	AthenzConfEtagExpTime     string `yaml:"athenzConfEtagExpTime"`
-	AthenzConfEtagFlushDur    string `yaml:"athenzConfEtagFlushDur"`
+	athenzConfdParams
+	policydParams
+}
 
-	// policyd parameters
-	AthenzDomains         []string `yaml:"athenzDomains"`
-	PolicyExpireMargin    string   `yaml:"policyExpireMargin"`
-	PolicyRefreshDuration string   `yaml:"policyRefreshDuration"`
-	PolicyEtagFlushDur    string   `yaml:"policyEtagFlushDur"`
-	PolicyEtagExpTime     string   `yaml:"policyEtagExpTime"`
+type athenzConfdParams struct {
+	// AthenzConfRefreshDuration represents the refresh duration of Athenz conf.
+	AthenzConfRefreshDuration string `yaml:"athenzConfRefreshDuration"`
+
+	// AthenzConfSysAuthDomain represents the system authenicate domain of Athenz.
+	AthenzConfSysAuthDomain string `yaml:"athenzConfSysAuthDomain"`
+
+	// AthenzConfEtagExpTime represents the Etag cache expiration time of Athenz conf.
+	AthenzConfEtagExpTime string `yaml:"athenzConfEtagExpTime"`
+
+	// AthenzConfEtagFlushDur represent the Etag cache expiration check duration.
+	AthenzConfEtagFlushDur string `yaml:"athenzConfEtagFlushDur"`
+}
+
+type policydParams struct {
+	// AthenzDomains represents the Athenz domains to fetch the policy.
+	AthenzDomains []string `yaml:"athenzDomains"`
+
+	// PolicyExpireMargin represents the policy expire margin to force refresh policies of Athenz domains.
+	PolicyExpireMargin string `yaml:"policyExpireMargin"`
+
+	// PolicyRefreshDuration represents the refresh duration of policy.
+	PolicyRefreshDuration string `yaml:"policyRefreshDuration"`
+
+	// PolicyEtagExpTime represents the Etag cache expiration time of policy.
+	PolicyEtagExpTime string `yaml:"policyEtagExpTime"`
+
+	// PolicyEtagFlushDur represent the Etag cache expiration check duration.
+	PolicyEtagFlushDur string `yaml:"policyEtagFlushDur"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
