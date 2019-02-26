@@ -1,57 +1,68 @@
 # Authorization Proxy
 
-<img src="https://github.com/yahoojapan/authorization-proxy/raw/master/images/logo.png" width="200">
+![logo](./images/logo.png)
 
 ---
 
 ## What is Authorization Proxy
-Authorization Proxy is API for a Kubernetes authentication and authorization webhook that integrates with
-[Athenz](https://github.com/yahoo/athenz) for access checks. It allows flexible resource
-mapping from K8s resources to Athenz ones.
 
-You can also use just the authorization hook without also using the authentication hook.
-Use of the authentication hook requires Athenz to be able to sign tokens for users.
+Authorization Proxy is an implementation of [Kubernetes sidecar container](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/) to provide a common interface for the user to do authentication and authorization check for specific URL resources. It caches the policies from [Athenz](https://github.com/yahoo/athenz), and provide a reverse proxy interface for the user to authenticate the role token written on the request header, to allow or reject user's specific URL request.
 
 Requires go 1.9 or later.
 
----
-
 ## Use case
-### Authorization
-![Use case](./doc/assets/use-case.png)
 
-1. K8s webhook request (SubjectAccessReview) ([Webhook Mode - Kubernetes](https://kubernetes.io/docs/reference/access-authn-authz/webhook/))
-	- the K8s API server wants to know if the user is allowed to do the requested action
-2. Athenz RBAC request ([Athenz](http://www.athenz.io/))
-	- Athenz server contains the user authorization information for access control
-	- ask Athenz server is the user action is allowed based on pre-configurated policy
+### Authenicate and Authorizate request
 
-Authorization Proxy convert the K8s request to Athenz request based on the mapping rules in `config.yaml` ([example](./config/example_config.yaml)).
-- [conversion logic](./doc/authorization-proxy-functional-overview.md)
-- [config details](./doc/config-detail.md)
+Authorization Proxy acts as a reverse proxy sitting in front of the user application. When the user request for specific URL resource of the user application, the request comes to authorization proxy first.
 
-P.S. It is just a sample deployment solution above. Authorization Proxy can work on any environment as long as it can access both the API server and the Athenz server.
+#### Policy updator
+
+To authenticate the request, the authorization proxy should know which user can access which resource, therefore the policy updator is introduced.
+
+![Policy updator](./doc/assets/auth_proxy_policy_updator.png)
+
+The policy updator periodically update the Athenz Config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updator.
+
+#### Authorizate success
+
+![Auth success](./doc/assets/auth_proxy_use_case_auth_success.png)
+
+The authorization proxy will verify and decode the role token written on the request header and check if the user can access a specific resource. If the user is allowed to access the resource, the request will proxy to the user application and return to the user.
+
+#### Authorizate failed
+
+![Auth fail](./doc/assets/auth_proxy_use_case_auth_failed.png)
+
+The authorization proxy will return unauthorized to the user whenever if the role token is invalid, or the role written on the role token has no privilege to access to the resource user requesting.
 
 ---
 
-## Specification
-```
-Under construction...
-```
+### Mapping rules
 
-### Configuration
+The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updator, and decide if the user is authorized to access the resource.
+
+The mapping rules were described below.
+
+|          | Description                         | Map to (Athenz)  | Example   |   |
+|----------|-------------------------------------|------------------|-----------|---|
+| Role     | Role name written on the role token | Role             | admin     |   |
+| Action   | HTTP/HTTPs request action           | Policy action    | POST      |   |
+| Resource | HTTP/HTTPs request resource         | Policy resources | /user/add |   |
+
+## Configuration
+
 - [config.go](./config/config.go)
-- [config details](./doc/config-detail.md)
 
 ---
-
-## Contact
-```
-Under construction...
-```
 
 ## License
-```
-Under construction...
-```
 
+## TODO
+
+## Authors
+
+- [kpango](https://github.com/kpango)
+- [kevindiu](https://github.com/kevindiu)
+- [TakuyaMatsu](https://github.com/TakuyaMatsu)
+- [tatyano](https://github.com/tatyano)
