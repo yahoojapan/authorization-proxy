@@ -50,7 +50,7 @@ The mapping rules were described below.
 | Action   | HTTP/HTTPS request action           | Action           | POST      |   |
 | Resource | HTTP/HTTPS request resource         | Resource         | /user/add |   |
 
-All the HTTP methods and URI path will be automatically converted to lower case. 
+All the HTTP/HTTPS methods and URI path will be automatically converted to lower case. 
 
 ## Configuration
 
