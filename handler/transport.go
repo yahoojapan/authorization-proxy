@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/yahoojapan/authorization-proxy/config"
-	providerd "github.com/yahoojapan/athenz-policy-updater"
+	"github.com/yahoojapan/authorization-proxy/service"
 
 	"github.com/pkg/errors"
 )
@@ -12,7 +12,7 @@ import (
 type transport struct {
 	http.RoundTripper
 
-	prov providerd.Authorizationd
+	prov service.Authorizationd
 	cfg  config.Proxy
 }
 
