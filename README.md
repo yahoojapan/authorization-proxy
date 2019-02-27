@@ -12,43 +12,45 @@ Requires go 1.9 or later.
 
 ## Use case
 
-### Authenicate and Authorizate request
+### Authorization and Authorization request
 
 Authorization Proxy acts as a reverse proxy sitting in front of the user application. When the user request for specific URL resource of the user application, the request comes to authorization proxy first.
 
 #### Policy updator
 
-To authenticate the request, the authorization proxy should know which user can access which resource, therefore the policy updator is introduced.
+To authenticate the request, the authorization proxy should know which user can take an action to which resource, therefore the policy updator is introduced.
 
 ![Policy updator](./doc/assets/auth_proxy_policy_updator.png)
 
-The policy updator periodically update the Athenz Config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updator.
+The policy updator periodically updates the Athenz config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updator.
 
-#### Authorizate success
+#### Authorization success
 
 ![Auth success](./doc/assets/auth_proxy_use_case_auth_success.png)
 
-The authorization proxy will verify and decode the role token written on the request header and check if the user can access a specific resource. If the user is allowed to access the resource, the request will proxy to the user application and return to the user.
+The authorization proxy will verify and decode the role token written on the request header and check if the user can take an action to a specific resource. If the user is allowed to take an action the resource, the request will proxy to the user application.
 
-#### Authorizate failed
+#### Authorization failed
 
 ![Auth fail](./doc/assets/auth_proxy_use_case_auth_failed.png)
 
-The authorization proxy will return unauthorized to the user whenever if the role token is invalid, or the role written on the role token has no privilege to access to the resource user requesting.
+The authorization proxy will return unauthorized to the user whenever if the role token is invalid, or the role written on the role token has no privilege to take the action to the resource that user is requesting.
 
 ---
 
 ### Mapping rules
 
-The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updator, and decide if the user is authorized to access the resource.
+The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updator, and decide if the user is authorized to take the action to the resource.
 
 The mapping rules were described below.
 
 |          | Description                         | Map to (Athenz)  | Example   |   |
 |----------|-------------------------------------|------------------|-----------|---|
 | Role     | Role name written on the role token | Role             | admin     |   |
-| Action   | HTTP/HTTPs request action           | Policy action    | POST      |   |
-| Resource | HTTP/HTTPs request resource         | Policy resources | /user/add |   |
+| Action   | HTTP/HTTPS request action           | Action           | POST      |   |
+| Resource | HTTP/HTTPS request resource         | Resource         | /user/add |   |
+
+All the HTTP methods and URI path will be automatically converted to lower case. 
 
 ## Configuration
 
