@@ -4,10 +4,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
-	"os"
 
-	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/pkg/errors"
+	"github.com/yahoojapan/authorization-proxy/config"
 )
 
 // NewTLSConfig returns a *tls.Config struct or error.
@@ -53,9 +52,9 @@ func NewTLSConfig(cfg config.TLS) (*tls.Config, error) {
 		ClientAuth: tls.NoClientCert,
 	}
 
-	cert := os.Getenv(cfg.CertKey)
-	key := os.Getenv(cfg.KeyKey)
-	ca := os.Getenv(cfg.CAKey)
+	cert := config.GetActualValue(cfg.Cert)
+	key := config.GetActualValue(cfg.Key)
+	ca := config.GetActualValue(cfg.CA)
 
 	if cert != "" && key != "" {
 		crt, err := tls.LoadX509KeyPair(cert, key)

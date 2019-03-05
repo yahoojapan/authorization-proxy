@@ -65,14 +65,14 @@ type TLS struct {
 	// Enable represents the authorization proxy server enable TLS or not.
 	Enabled bool `yaml:"enabled"`
 
-	// CertKey represents the environment variable name having the certificate file path of authorization proxy server.
-	CertKey string `yaml:"cert_key"`
+	// Cert represents the certificate file path of authorization proxy server.
+	Cert string `yaml:"cert"`
 
-	// KeyKey represents the environment variable name having the private key file path of authorization proxy server certificate.
-	KeyKey string `yaml:"key_key"`
+	// Key represents the private key file path of authorization proxy server certificate.
+	Key string `yaml:"key"`
 
-	// CAKey represents the environment variable name having the CA certificates file path for verifying clients connecting to authorization proxy server.
-	CAKey string `yaml:"ca_key"`
+	// CA represents the CA certificates file path for verifying clients connecting to authorization proxy server.
+	CA string `yaml:"ca"`
 }
 
 // Athenz represents the configuration for authorization proxy server to connect to Athenz.
@@ -107,11 +107,6 @@ type Proxy struct {
 
 // Authorization represents the detail configuration of the authorization proxy.
 type Authorization struct {
-	athenzConfdParams
-	policydParams
-}
-
-type athenzConfdParams struct {
 	// AthenzConfRefreshDuration represents the refresh duration of Athenz conf.
 	AthenzConfRefreshDuration string `yaml:"athenzConfRefreshDuration"`
 
@@ -123,9 +118,7 @@ type athenzConfdParams struct {
 
 	// AthenzConfEtagFlushDur represent the Etag cache expiration check duration.
 	AthenzConfEtagFlushDur string `yaml:"athenzConfEtagFlushDur"`
-}
 
-type policydParams struct {
 	// AthenzDomains represents the Athenz domains to fetch the policy.
 	AthenzDomains []string `yaml:"athenzDomains"`
 
