@@ -78,6 +78,7 @@ func run(cfg config.Config) []error {
 		case <-sigCh:
 			cancel()
 			glg.Warn("authorization-proxy server shutdown...")
+			//return []error{}
 		case errs := <-ech:
 			return errs
 		}

@@ -9,8 +9,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/kpango/glg"
+	"github.com/yahoojapan/authorization-proxy/config"
 )
 
 // Server represents a authorization proxy server behavior
@@ -162,7 +162,6 @@ func (s *server) ListenAndServe(ctx context.Context) chan []error {
 					errs = appendErr(errs, s.apiShutdown(context.Background()))
 				}
 				s.mu.RUnlock()
-
 				echan <- appendErr(errs, ctx.Err())
 				return
 

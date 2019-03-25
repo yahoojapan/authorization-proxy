@@ -50,10 +50,12 @@ func (g *providerDaemon) Start(ctx context.Context) chan []error {
 		for {
 			select {
 			case <-ctx.Done():
-				return
+				// return
 			case e := <-pch:
 				glg.Error(e)
-			case ech <- <-sch:
+				// ech <- []error{e}
+			case errs := <-sch:
+				ech <- errs
 			}
 		}
 	}()
