@@ -135,7 +135,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 		func() test {
 			ctx, cancel := context.WithCancel(context.Background())
 			return test{
-				name: "Daemon start fail",
+				name: "Server return fail",
 				fields: fields{
 					athenz: &service.AuthorizedMock{
 						StartProviderdFunc: func(context.Context) <-chan error {
@@ -166,6 +166,44 @@ func Test_providerDaemon_Start(t *testing.T) {
 						return errors.Errorf("got error: %v, want: %v", errs[0], "dummy")
 					}
 					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			return test{
+				name: "Providerd return fail",
+				fields: fields{
+					athenz: &service.AuthorizedMock{
+						StartProviderdFunc: func(context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								ech <- errors.New("dummy")
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) chan []error {
+							ech := make(chan []error)
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				checkFunc: func(got chan []error) error {
+					cancel()
+					var err error
+					go func() {
+						select {
+						case errs := <-got:
+							err = errors.Errorf("unexpected returned errors: %v", errs)
+						}
+					}()
+					time.Sleep(time.Second)
+					return err
 				},
 			}
 		}(),
