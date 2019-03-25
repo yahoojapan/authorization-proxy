@@ -51,8 +51,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/vmihailenco/msgpack v4.0.1+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/yahoo/athenz v1.8.17 h1:jY3YKKBTlBpMIjAGQX3HR6KbYdRNN0HQMSssCMro8r4=
 github.com/yahoo/athenz v1.8.17/go.mod h1:wjCPGOyyzHYTzddo9iyGfUAbghVHcsVp08HxsnNjvlQ=
-github.com/yahoojapan/athenz-policy-updater v0.0.0-20190313063714-f2ad8f79c5f5 h1:ocpsWXySuO1E2c4t8UZx0Wqm6oQZxZj3qdAaTb0cOKA=
-github.com/yahoojapan/athenz-policy-updater v0.0.0-20190313063714-f2ad8f79c5f5/go.mod h1:Fq0v7ohUbFi/rGIe4tSwMOG97INKieJSOmaZxhC6AgA=
+github.com/yahoojapan/athenz-policy-updater v0.0.0-20190318053726-40f54050a531 h1:Wg4rqizM90t8kVfFW1rcLoTdZancx8VGuk8wJ9kl/rI=
+github.com/yahoojapan/athenz-policy-updater v0.0.0-20190318053726-40f54050a531/go.mod h1:Fq0v7ohUbFi/rGIe4tSwMOG97INKieJSOmaZxhC6AgA=
 golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/net v0.0.0-20180724234803-3673e40ba225/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/net v0.0.0-20180921000356-2f5d2388922f/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=

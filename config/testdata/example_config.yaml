@@ -1,0 +1,35 @@
+version: v1.0.0
+debug: false
+server:
+  port: 8082
+  health_check_port: 6082
+  health_check_path: /healthz
+  timeout: 10s
+  shutdown_duration: 5s
+  probe_wait_time: 3s
+  tls:
+    enabled: false
+    cert: /etc/athenz/provider/keys/server.crt
+    key: /etc/athenz/provider/keys/private.key
+    ca: /etc/athenz/provider/keys/ca.crt
+athenz:
+  url: https://www.athenz.com:4443/zts/v1
+  timeout: 30s
+  root_ca: ""
+proxy:
+  scheme: http
+  host: localhost
+  port: 80
+  role_header_key: Athenz-Role-Auth
+  buffer_size: 4096
+provider:
+  athenzConfRefreshDuration: 24h
+  athenzConfSysAuthDomain: sys.auth
+  athenzConfEtagExpTime: 168h
+  athenzConfEtagFlushDur: 84h
+  athenzDomains:
+  - domain1
+  policyExpireMargin: 48h
+  policyRefreshDuration: 1h
+  policyEtagExpTime: 48h
+  policyEtagFlushDur: 24h

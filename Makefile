@@ -26,3 +26,8 @@ test:
 docker-push:
 	sudo docker build --pull=true --file=Dockerfile -t yahoojapan/authorization-proxy:latest .
 	sudo docker push yahoojapan/authorization-proxy:latest
+
+coverage:
+	go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	rm -f coverage.out
