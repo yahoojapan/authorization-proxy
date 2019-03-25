@@ -269,8 +269,8 @@ func Test_newAuthorizationd(t *testing.T) {
 				t.Errorf("newAuthorizationd() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if cerr := tt.checkFunc(got); cerr != nil {
-				t.Errorf("newAuthorizationd() error = %v", cerr)
+			if err = tt.checkFunc(got); err != nil {
+				t.Errorf("newAuthorizationd() error = %v", err)
 				return
 			}
 		})
