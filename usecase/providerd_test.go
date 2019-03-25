@@ -103,20 +103,47 @@ func Test_newAuthorizationd(t *testing.T) {
 		cfg config.Config
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    service.Authorizationd
-		wantErr bool
-	}{}
+		name      string
+		args      args
+		checkFunc func(service.Authorizationd) error
+		wantErr   bool
+	}{
+		{
+			name: "test success new Authorization",
+			args: args{
+				cfg: config.Config{
+					Athenz: config.Athenz{
+						URL: "athenz.com",
+					},
+					Authorization: config.Authorization{
+						AthenzConfRefreshDuration: "10s",
+						AthenzConfSysAuthDomain:   "dummy.sys.auth",
+						AthenzConfEtagExpTime:     "10s",
+						AthenzConfEtagFlushDur:    "10s",
+						AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
+						PolicyExpireMargin:        "10s",
+						PolicyRefreshDuration:     "10s",
+						PolicyEtagExpTime:         "10s",
+						PolicyEtagFlushDur:        "10s",
+					},
+				},
+			},
+			checkFunc: func(got service.Authorizationd) error {
+				return nil
+			},
+			wantErr: false,
+		},
+	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := newAuthorizationd(tt.args.cfg)
-			if (err != nil) != tt.wantErr {
+			if err != nil && !tt.wantErr {
 				t.Errorf("newAuthorizationd() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("newAuthorizationd() = %v, want %v", got, tt.want)
+			if cerr := tt.checkFunc(got); cerr != nil {
+				t.Errorf("newAuthorizationd() error = %v", cerr)
+				return
 			}
 		})
 	}
