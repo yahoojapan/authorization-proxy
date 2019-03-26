@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 	"github.com/yahoojapan/authorization-proxy/config"
 )
@@ -77,7 +76,6 @@ func TestParseParams(t *testing.T) {
 			}
 
 			got, err := parseParams()
-			glg.Errorf("err: %v", err)
 			if err != nil && !tt.checkErr {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -159,7 +157,7 @@ func Test_run(t *testing.T) {
 					time.Sleep(time.Second)
 					syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
 
-					time.Sleep(5 * time.Second)
+					time.Sleep(time.Second)
 					mux.Lock()
 					defer mux.Unlock()
 					if len(got) != 1 {

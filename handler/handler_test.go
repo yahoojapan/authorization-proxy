@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/infra"
@@ -236,9 +235,7 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.checkPanic != nil {
-				glg.Debug("recover")
 				defer func() {
-					glg.Debug("recover defer")
 					if r := recover(); r != nil {
 						if err := tt.checkPanic(r); err != nil {
 							t.Errorf("New() error: %v", err)
