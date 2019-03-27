@@ -99,7 +99,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 		fields     fields
 		args       args
 		beforeFunc func() error
-		checkFunc  func(*server, chan []error, error) error
+		checkFunc  func(*server, <-chan []error, error) error
 		afterFunc  func() error
 		want       error
 	}
@@ -163,7 +163,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 					}
 					return nil
 				},
-				checkFunc: func(s *server, got chan []error, want error) error {
+				checkFunc: func(s *server, got <-chan []error, want error) error {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -259,7 +259,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 				args: args{
 					ctx: context.Background(),
 				},
-				checkFunc: func(s *server, got chan []error, want error) error {
+				checkFunc: func(s *server, got <-chan []error, want error) error {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
@@ -346,7 +346,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 				args: args{
 					ctx: context.Background(),
 				},
-				checkFunc: func(s *server, got chan []error, want error) error {
+				checkFunc: func(s *server, got <-chan []error, want error) error {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 

@@ -68,7 +68,7 @@ func run(cfg config.Config) []error {
 
 	defer func() {
 		close(sigCh)
-		close(ech)
+		// close(ech)
 	}()
 
 	signal.Notify(sigCh, syscall.SIGTERM, syscall.SIGINT)

@@ -15,7 +15,7 @@ import (
 
 // Server represents a authorization proxy server behavior
 type Server interface {
-	ListenAndServe(context.Context) chan []error
+	ListenAndServe(context.Context) <-chan []error
 }
 
 type server struct {

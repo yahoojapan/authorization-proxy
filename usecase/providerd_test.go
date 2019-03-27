@@ -95,7 +95,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 		name      string
 		fields    fields
 		args      args
-		checkFunc func(chan []error) error
+		checkFunc func(<-chan []error) error
 	}
 	tests := []test{
 		func() test {
@@ -109,7 +109,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 						},
 					},
 					server: &service.ServerMock{
-						ListenAndServeFunc: func(ctx context.Context) chan []error {
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
 							ech := make(chan []error)
 							return ech
 						},
@@ -118,17 +118,20 @@ func Test_providerDaemon_Start(t *testing.T) {
 				args: args{
 					ctx: ctx,
 				},
-				checkFunc: func(got chan []error) error {
+				checkFunc: func(got <-chan []error) error {
 					cancel()
-					var err error
+					errs := make([][]error, 0)
 					go func() {
 						select {
-						case errs := <-got:
-							err = errors.Errorf("unexpected returned errors: %v", errs)
+						case err := <-got:
+							errs = append(errs, err)
 						}
 					}()
 					time.Sleep(time.Second)
-					return err
+					if len(errs) != 1 || len(errs[0]) != 1 || errs[0][0] != context.Canceled {
+						return errors.Errorf("Invalid err, got: %v", errs)
+					}
+					return nil
 				},
 			}
 		}(),
@@ -143,7 +146,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 						},
 					},
 					server: &service.ServerMock{
-						ListenAndServeFunc: func(ctx context.Context) chan []error {
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
 							ech := make(chan []error)
 							go func() {
 								ech <- []error{errors.New("dummy")}
@@ -155,16 +158,23 @@ func Test_providerDaemon_Start(t *testing.T) {
 				args: args{
 					ctx: ctx,
 				},
-				checkFunc: func(got chan []error) error {
+				checkFunc: func(got <-chan []error) error {
+					got1 := <-got
 					cancel()
 					time.Sleep(time.Second)
-					errs := <-got
-					if errs == nil || len(errs) != 1 {
-						return errors.Errorf("errors is invalid, got: %v", errs)
+					//got2 := <-got
+					if got1 == nil || len(got1) != 1 {
+						return errors.Errorf("errors is invalid, got: %v", got1)
 					}
-					if errs[0].Error() != "dummy" {
-						return errors.Errorf("got error: %v, want: %v", errs[0], "dummy")
+					if got1[0].Error() != "dummy" {
+						return errors.Errorf("got error: %v, want: %v", got1[0], context.Canceled)
 					}
+					//	if got2 == nil || len(got2) != 1 {
+					//		return errors.Errorf("errors 2 is invalid, got: %v", got2)
+					//	}
+					//	if got2[0] != context.Canceled {
+					//		return errors.Errorf("got 2 error: %v, want: %v", got2[0], "dummy")
+					//	}
 					return nil
 				},
 			}
@@ -184,7 +194,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 						},
 					},
 					server: &service.ServerMock{
-						ListenAndServeFunc: func(ctx context.Context) chan []error {
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
 							ech := make(chan []error)
 							return ech
 						},
@@ -193,17 +203,20 @@ func Test_providerDaemon_Start(t *testing.T) {
 				args: args{
 					ctx: ctx,
 				},
-				checkFunc: func(got chan []error) error {
+				checkFunc: func(got <-chan []error) error {
+					time.Sleep(time.Millisecond * 200)
 					cancel()
-					var err error
-					go func() {
-						select {
-						case errs := <-got:
-							err = errors.Errorf("unexpected returned errors: %v", errs)
-						}
-					}()
-					time.Sleep(time.Second)
-					return err
+					errs := <-got
+					if errs == nil || len(errs) != 2 {
+						return errors.Errorf("errors is invalid, got: %v", errs)
+					}
+					if errs[0].Error() != "1 times appeared: dummy" {
+						return errors.Errorf("got error: %v, want: %v", errs[0], "1 times appeared: dummy")
+					}
+					if errs[1] != context.Canceled {
+						return errors.Errorf("got error: %v, want: %v", errs[1], context.Canceled)
+					}
+					return nil
 				},
 			}
 		}(),
