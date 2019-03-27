@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -42,8 +44,12 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			cfg:          cfg,
 		},
 		ErrorHandler: func(rw http.ResponseWriter, r *http.Request, err error) {
+			if r != nil && r.Body != nil {
+				io.Copy(ioutil.Discard, r.Body)
+				r.Body.Close()
+			}
 			status := http.StatusUnauthorized
-			if !strings.Contains(err.Error(), "VerifyRoleToken returned error in RoundTrip") {
+			if strings.Index(err.Error(), ErrMsgVerifyRoleToken) < 0 {
 				status = http.StatusBadGateway
 			}
 			// request context canceled

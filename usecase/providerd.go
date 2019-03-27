@@ -42,20 +42,32 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 }
 
 // Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
-func (g *providerDaemon) Start(ctx context.Context) chan []error {
+func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	pch := g.athenz.StartProviderd(ctx)
 	sch := g.server.ListenAndServe(ctx)
 	go func() {
+		var emap map[error]uint64
 		for {
 			select {
 			case <-ctx.Done():
-				// return
+				errs := make([]error, 0, len(emap)+1)
+				for err, count := range emap {
+					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
+				}
+				errs = append(errs, ctx.Err())
+				ech <- errs[:len(errs)]
+				return
 			case e := <-pch:
 				glg.Error(e)
-				// ech <- []error{e}
+				_, ok := emap[errors.Cause(e)]
+				if !ok {
+					emap[errors.Cause(e)] = 0
+				}
+				emap[errors.Cause(e)]++
 			case errs := <-sch:
 				ech <- errs
+				return
 			}
 		}
 	}()

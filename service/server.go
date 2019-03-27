@@ -96,7 +96,7 @@ func NewServer(cfg config.Server, h http.Handler) Server {
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
 // This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
 // Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
-func (s *server) ListenAndServe(ctx context.Context) chan []error {
+func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	echan := make(chan []error, 1)
 
 	// error channels to keep track server status
