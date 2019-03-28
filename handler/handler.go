@@ -18,8 +18,11 @@ package handler
 import (
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
@@ -30,17 +33,19 @@ import (
 
 // New creates a handler for handling different HTTP requests based on the given services. It also contains a reverse proxy for handling proxy request.
 func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) http.Handler {
+	scheme := "http"
+	if cfg.Scheme != "" {
+		scheme = cfg.Scheme
+	}
+
+	host := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+
 	return &httputil.ReverseProxy{
 		BufferPool: bp,
 		Director: func(r *http.Request) {
 			u := *r.URL
-			u.Scheme = func() string {
-				if cfg.Scheme != "" {
-					return cfg.Scheme
-				}
-				return "http"
-			}()
-			u.Host = fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+			u.Scheme = scheme
+			u.Host = host
 			req, err := http.NewRequest(r.Method, u.String(), r.Body)
 			if err != nil {
 				glg.Fatal(errors.Wrap(err, "NewRequest returned error"))
@@ -54,67 +59,19 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			cfg:          cfg,
 		},
 		ErrorHandler: func(rw http.ResponseWriter, r *http.Request, err error) {
+			if r != nil && r.Body != nil {
+				io.Copy(ioutil.Discard, r.Body)
+				r.Body.Close()
+			}
 			status := http.StatusUnauthorized
-
+			if strings.Index(err.Error(), ErrMsgVerifyRoleToken) < 0 {
+				status = http.StatusBadGateway
+			}
 			// request context canceled
 			if errors.Cause(err) == context.Canceled {
 				status = http.StatusRequestTimeout
 			}
-
-			/*
-				switch err {
-				case providerd.ErrDenyByPolicy:
-					status = http.StatusUnauthorized
-				case providerd.ErrNoMatch:
-					status = http.StatusBadRequest
-				//case providerd.DENY_ROLETOKEN_EXPIRED:
-				//	status = http.StatusUnauthorized
-				case providerd.DENY_ROLETOKEN_INVALID:
-				//	status = http.StatusUnauthorized
-				case providerd.ErrDomainMismatch:
-					status = http.StatusUnauthorized
-				case providerd.ErrDomainNotFound:
-					status = http.StatusUnauthorized
-				//case providerd.DENY_DOMAIN_EXPIRED:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_DOMAIN_EMPTY:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_INVALID_PARAMETERS:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_CERT_MISMATCH_ISSUER:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_CERT_MISSING_SUBJECT:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_CERT_MISSING_DOMAIN:
-				//	status = http.StatusUnauthorized
-				//case providerd.DENY_CERT_MISSING_ROLE_NAME:
-				//	status = http.StatusUnauthorized
-				case providerd.ErrInvalidPolicyResource:
-					status = http.StatusUnauthorized
-				case providerd.ErrInvalidToken:
-					status = http.StatusUnauthorized
-				case context.Canceled:
-					status = HttpStatusClientClosedRequest
-				case io.ErrUnexpectedEOF:
-					status = HttpStatusClientClosedRequest
-				default:
-					// TODO
-				}
-			*/
 			rw.WriteHeader(status)
-			/*
-				rw.Header().Set("Content-Type", ProblemJSONContentType)
-
-					json.NewEncoder(rw).Encode(RFC7807WithAthenz{
-						Type:          "",
-						Title:         err.Error(),
-						Status:        status,
-						Detail:        err.Error(),
-						Instance:      r.RequestURI,
-						RoleToken:     r.Header.Get(cfg.RoleHeader),
-						InvalidParams: []InvalidParam{},
-					})
-			*/
 		},
 	}
 }

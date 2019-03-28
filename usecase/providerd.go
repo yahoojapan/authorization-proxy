@@ -31,7 +31,7 @@ import (
 
 // AuthorizationDaemon represents Authorization Proxy daemon behavior.
 type AuthorizationDaemon interface {
-	Start(ctx context.Context) chan []error
+	Start(ctx context.Context) <-chan []error
 }
 
 type providerDaemon struct {
@@ -57,18 +57,37 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 }
 
 // Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
-func (g *providerDaemon) Start(ctx context.Context) chan []error {
+func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	pch := g.athenz.StartProviderd(ctx)
 	sch := g.server.ListenAndServe(ctx)
 	go func() {
+		emap := make(map[error]uint64, 1)
+		defer close(ech)
+
 		for {
 			select {
 			case <-ctx.Done():
+				errs := make([]error, 0, len(emap)+1)
+				for err, count := range emap {
+					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
+				}
+				errs = append(errs, ctx.Err())
+				ech <- errs
 				return
 			case e := <-pch:
+				glg.Errorf("pch %v", e)
 				glg.Error(e)
-			case ech <- <-sch:
+				cause := errors.Cause(e)
+				_, ok := emap[cause]
+				if !ok {
+					emap[cause] = 0
+				}
+				emap[cause]++
+			case errs := <-sch:
+				glg.Errorf("sch %v", errs)
+				ech <- errs
+				return
 			}
 		}
 	}()

@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nginx
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector
+      app: nginx
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx

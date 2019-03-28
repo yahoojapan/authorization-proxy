@@ -33,4 +33,5 @@ type InvalidParam struct {
 const (
 	ProblemJSONContentType        = "application/problem+json"
 	HttpStatusClientClosedRequest = 499
+	ErrMsgVerifyRoleToken         = "VerifyRoleToken returned error in RoundTrip"
 )

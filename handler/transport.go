@@ -32,9 +32,8 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	//TODO check RoleToken Here
 	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
-		return nil, errors.Wrap(err, "VerifyRoleToken returned error in RoundTrip")
+		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
 	}
 
 	return t.RoundTripper.RoundTrip(r)

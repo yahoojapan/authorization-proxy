@@ -16,7 +16,6 @@ limitations under the License.
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -152,15 +151,14 @@ type Authorization struct {
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
 func New(path string) (*Config, error) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDONLY, 0600)
+	f, err := os.OpenFile(path, os.O_RDONLY, 0600)
 	if err != nil {
 		return nil, errors.Wrap(err, "OpenFile failed")
 	}
 	cfg := new(Config)
 	err = yaml.NewDecoder(f).Decode(&cfg)
 	if err != nil {
-		b, _ := ioutil.ReadFile(path)
-		return nil, errors.Wrap(err, "decode file failed \n\n"+string(b))
+		return nil, errors.Wrap(err, "decode file failed")
 	}
 	return cfg, nil
 }
