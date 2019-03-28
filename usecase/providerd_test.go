@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -120,14 +121,21 @@ func Test_providerDaemon_Start(t *testing.T) {
 				},
 				checkFunc: func(got <-chan []error) error {
 					cancel()
+					mux := &sync.Mutex{}
+
 					errs := make([][]error, 0)
 					go func() {
 						select {
 						case err := <-got:
+							mux.Lock()
 							errs = append(errs, err)
+							mux.Unlock()
 						}
 					}()
 					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
 					if len(errs) != 1 || len(errs[0]) != 1 || errs[0][0] != context.Canceled {
 						return errors.Errorf("Invalid err, got: %v", errs)
 					}
