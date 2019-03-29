@@ -105,7 +105,7 @@ func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 		providerd.AthenzConfEtagFlushDur(cfg.Authorization.AthenzConfEtagFlushDur),
 
 		providerd.AthenzDomains(cfg.Authorization.AthenzDomains),
-		providerd.PolicyRefreshDuration(cfg.Authorization.PolicyExpireMargin),
+		providerd.PolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		providerd.PolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		providerd.PolicyEtagFlushDur(cfg.Authorization.PolicyEtagFlushDur),
 		providerd.PolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
