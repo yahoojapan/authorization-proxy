@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OrlovEvgeny/go-mcache v0.0.0-20181113222421-bed69649df7d/go.mod h1:HyURA1Z5rjNkt9E7XyiegZk1ZBvvB+1vYzkeu52goIc=
-github.com/OrlovEvgeny/go-mcache v0.0.0-20181116193636-154af6d8a4dc/go.mod h1:HyURA1Z5rjNkt9E7XyiegZk1ZBvvB+1vYzkeu52goIc=
+github.com/OrlovEvgeny/go-mcache v0.0.0-20190324090623-ff14629b25ce/go.mod h1:HyURA1Z5rjNkt9E7XyiegZk1ZBvvB+1vYzkeu52goIc=
 github.com/allegro/bigcache v1.1.0/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/allegro/bigcache v1.2.0/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/ardielle/ardielle-go v1.5.1/go.mod h1:I4hy1n795cUhaVt/ojz83SNVCYIGsAFAONtv2Dr7HUI=
@@ -9,7 +9,7 @@ github.com/ardielle/ardielle-go v1.5.2 h1:TilHTpHIQJ27R1Tl/iITBzMwiUGSlVfiVhwDNG
 github.com/ardielle/ardielle-go v1.5.2/go.mod h1:I4hy1n795cUhaVt/ojz83SNVCYIGsAFAONtv2Dr7HUI=
 github.com/ardielle/ardielle-tools v1.14.15/go.mod h1:md5tB6Ld1xXeYT0iETNHj4/Dm+funcuxeZn2yXWmvCY=
 github.com/bluele/gcache v0.0.0-20171010155617-472614239ac7/go.mod h1:8c4/i2VlovMO2gBnHGQPN5EJw+H0lx1u/5p+cgsXtCk=
-github.com/bluele/gcache v0.0.0-20190301055842-79ae3b2d8680/go.mod h1:8c4/i2VlovMO2gBnHGQPN5EJw+H0lx1u/5p+cgsXtCk=
+github.com/bluele/gcache v0.0.0-20190301044115-79ae3b2d8680/go.mod h1:8c4/i2VlovMO2gBnHGQPN5EJw+H0lx1u/5p+cgsXtCk=
 github.com/bouk/monkey v1.0.1/go.mod h1:PG/63f4XEUlVyW1ttIeOJmJhhe1+t9EC/je3eTjvFhE=
 github.com/boynton/repl v0.0.0-20170116235056-348863958e3e/go.mod h1:Crc/GCZ3NXDVCio7Yr0o+SSrytpcFhLmVCIzi0s49t4=
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
@@ -33,14 +33,12 @@ github.com/kpango/fastime v1.0.0/go.mod h1:Y5XY5bLG5yc7g2XmMUzc22XYV1XaH+KgUOHkD
 github.com/kpango/fastime v1.0.8 h1:Wif5eocdsIXmMG+8HHfRP/jD6UUl+/OVTJ+sMzvA1+E=
 github.com/kpango/fastime v1.0.8/go.mod h1:Y5XY5bLG5yc7g2XmMUzc22XYV1XaH+KgUOHkDvLp4SA=
 github.com/kpango/gache v1.1.0/go.mod h1:BHKRCYnJ2pRFFIJNc61KTJb3KXSzlrt/ITfgfCQJAJw=
-github.com/kpango/gache v1.1.9 h1:Y769HoGxA5xi9UbpqVvqXDRsfZ+9vY92dsQfOitau0o=
-github.com/kpango/gache v1.1.9/go.mod h1:T1lBzqpvIr+55XPZxxzdhg5jQZcruJ68zZ/BdVDhNYk=
-github.com/kpango/glg v1.2.10/go.mod h1:VK6nyghBgjAig+nIlROLPDC8fiUQFvgfzgyX0jeUY4o=
-github.com/kpango/glg v1.3.0 h1:77BWdR0kKkFloM2eSAr0A7lWvUyAIlOhj4LV5n2hrB8=
+github.com/kpango/gache v1.1.11 h1:OBsfJcJATcCtQBHiGkp61rVZgzbvDRiHzgRhAmQzCtc=
+github.com/kpango/gache v1.1.11/go.mod h1:2bcJsRrUqqo6lyuq4MLW//ZrOFtxGgZs7Gjx0QwQ8Ek=
 github.com/kpango/glg v1.3.0/go.mod h1:7zzaAoMqvngad+sagWLjr00EQMJaqyGONdg0WYBAO3M=
+github.com/kpango/glg v1.3.1 h1:tOwfDQWkmy8WuubZGBz1kcYO2+tJj8WnAan0WpBrb0g=
+github.com/kpango/glg v1.3.1/go.mod h1:7zzaAoMqvngad+sagWLjr00EQMJaqyGONdg0WYBAO3M=
 github.com/patrickmn/go-cache v2.1.0+incompatible/go.mod h1:3Qf8kWWT7OJRJbdiICTKqZju1ZixQ/KpMGzzAfe6+WQ=
-github.com/pierrec/lz4 v2.0.5+incompatible h1:2xWsjqPFWcplujydGg4WmhC/6fZqK42wMM8aXeqhl0I=
-github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
@@ -52,8 +50,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/vmihailenco/msgpack v4.0.1+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/yahoo/athenz v1.8.17 h1:jY3YKKBTlBpMIjAGQX3HR6KbYdRNN0HQMSssCMro8r4=
 github.com/yahoo/athenz v1.8.17/go.mod h1:wjCPGOyyzHYTzddo9iyGfUAbghVHcsVp08HxsnNjvlQ=
-github.com/yahoojapan/athenz-policy-updater v0.0.0-20190318053726-40f54050a531 h1:Wg4rqizM90t8kVfFW1rcLoTdZancx8VGuk8wJ9kl/rI=
-github.com/yahoojapan/athenz-policy-updater v0.0.0-20190318053726-40f54050a531/go.mod h1:Fq0v7ohUbFi/rGIe4tSwMOG97INKieJSOmaZxhC6AgA=
+github.com/yahoojapan/athenz-policy-updater v0.0.0-20190402062840-4aa1bd9bfdda h1:gG03WGijCWOHmQEpEkQEst4f5tKEUieTue2F+Yx2vQ4=
+github.com/yahoojapan/athenz-policy-updater v0.0.0-20190402062840-4aa1bd9bfdda/go.mod h1:M8Qm9wt7Ac6sbvSBGR9kON0rxWU8U2NknNsmRepL3uw=
 golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/net v0.0.0-20180724234803-3673e40ba225/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/net v0.0.0-20180921000356-2f5d2388922f/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
@@ -62,7 +60,7 @@ golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 h1:bjcUS9ztw9kFmmIxJInhon/0
 golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20180920110915-d641721ec2de/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
-google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
+google.golang.org/appengine v1.5.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/natefinch/lumberjack.v2 v2.0.0/go.mod h1:l0ndWWf7gzL7RNwBG7wST/UCcT4T24xpD6X8LsfU/+k=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
