@@ -18,13 +18,13 @@ Requires go 1.9 or later.
 
 Authorization Proxy acts as a reverse proxy sitting in front of the user application. When the user request for specific URL resource of the user application, the request comes to authorization proxy first.
 
-#### Policy updator
+#### Policy updater
 
-To authenticate the request, the authorization proxy should know which user can take an action to which resource, therefore the policy updator is introduced.
+To authenticate the request, the authorization proxy should know which user can take an action to which resource, therefore the policy updater is introduced.
 
 ![Policy updator](./doc/assets/auth_proxy_policy_updator.png)
 
-The policy updator periodically updates the Athenz config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updator.
+The [policy updater](https://github.com/yahoojapan/athenz-policy-updater) periodically updates the Athenz config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updater.
 
 #### Authorization success
 
