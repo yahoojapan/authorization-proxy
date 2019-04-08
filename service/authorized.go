@@ -17,6 +17,7 @@ package service
 
 import authorizationd "github.com/yahoojapan/athenz-policy-updater"
 
+// Authorizationd represents the authorization daemon to do the authorization check.
 type Authorizationd interface {
 	authorizationd.Providerd
 }
