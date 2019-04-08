@@ -124,6 +124,7 @@ func Test_run(t *testing.T) {
 				name: "run success",
 				args: args{
 					cfg: config.Config{
+						Debug: true,
 						Athenz: config.Athenz{
 							URL: "athenz.com",
 						},
