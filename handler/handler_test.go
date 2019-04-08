@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -141,35 +142,6 @@ func TestNew(t *testing.T) {
 				},
 			}
 		}(),
-		//	func() test {
-		//		return test{
-		//			name: "check request invalid url",
-		//			args: args{
-		//				cfg: config.Proxy{
-		//					Host: " ",
-		//					Port: 8888,
-		//				},
-		//				bp: infra.NewBuffer(64),
-		//				prov: &service.AuthorizedMock{
-		//					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
-		//						return nil
-		//					},
-		//				},
-		//			},
-		//			checkPanic: func(err interface{}) error {
-		//				if fmt.Sprintf("%v", err) != `parse http://%20:8888: invalid URL escape "%20"` {
-		//					return errors.Errorf("Unexcepted panic: got: %v", err)
-		//				}
-		//				return nil
-		//			},
-		//			checkFunc: func(h http.Handler) error {
-		//				rw := httptest.NewRecorder()
-		//				r := httptest.NewRequest("GET", "http://dummy.com", nil)
-		//				h.ServeHTTP(rw, r)
-		//				return errors.New("unexpected")
-		//			},
-		//		}
-		//	}(),
 		func() test {
 			return test{
 				name: "check request destination cannot reach",
@@ -234,18 +206,92 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.checkPanic != nil {
-				defer func() {
+			defer func() {
+				if tt.checkPanic != nil {
 					if r := recover(); r != nil {
 						if err := tt.checkPanic(r); err != nil {
 							t.Errorf("New() error: %v", err)
 						}
 					}
-				}()
-			}
+				}
+			}()
 			got := New(tt.args.cfg, tt.args.bp, tt.args.prov)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("New() error: %v", err)
+			}
+		})
+	}
+}
+
+func Test_handleError(t *testing.T) {
+	type args struct {
+		rw  http.ResponseWriter
+		r   *http.Request
+		err error
+	}
+	type test struct {
+		name      string
+		args      args
+		checkFunc func() error
+	}
+	tests := []test{
+		func() test {
+			rw := httptest.NewRecorder()
+			return test{
+				name: "handleError status return bad gateway",
+				args: args{
+					rw:  rw,
+					r:   httptest.NewRequest("GET", "http://127.0.0.1", bytes.NewBufferString("test")),
+					err: errors.New("other error"),
+				},
+				checkFunc: func() error {
+					if rw.Code != http.StatusBadGateway {
+						return errors.Errorf("invalid status code: %v", rw.Code)
+					}
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			rw := httptest.NewRecorder()
+			return test{
+				name: "handleError status return verify role token",
+				args: args{
+					rw:  rw,
+					r:   httptest.NewRequest("GET", "http://127.0.0.1", bytes.NewBufferString("test")),
+					err: errors.New(ErrMsgVerifyRoleToken),
+				},
+				checkFunc: func() error {
+					if rw.Code != http.StatusUnauthorized {
+						return errors.Errorf("invalid status code: %v", rw.Code)
+					}
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			rw := httptest.NewRecorder()
+			return test{
+				name: "handleError status return request timeout",
+				args: args{
+					rw:  rw,
+					r:   httptest.NewRequest("GET", "http://127.0.0.1", bytes.NewBufferString("test")),
+					err: context.Canceled,
+				},
+				checkFunc: func() error {
+					if rw.Code != http.StatusRequestTimeout {
+						return errors.Errorf("invalid status code: %v", rw.Code)
+					}
+					return nil
+				},
+			}
+		}(),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handleError(tt.args.rw, tt.args.r, tt.args.err)
+			if err := tt.checkFunc(); err != nil {
+				t.Errorf("handleError error: %v", err)
 			}
 		})
 	}
