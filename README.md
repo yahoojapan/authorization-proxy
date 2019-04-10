@@ -45,11 +45,11 @@ The mapping rules describe the elements using in the authorization proxy. The us
 
 The mapping rules were described below.
 
-|          | Description                         | Map to (Athenz)  | Example   |   |
-|----------|-------------------------------------|------------------|-----------|---|
-| Role     | Role name written on the role token | Role             | admin     |   |
-| Action   | HTTP/HTTPS request action           | Action           | POST      |   |
-| Resource | HTTP/HTTPS request resource         | Resource         | /user/add |   |
+|          | Description                                                | Map to (Athenz)  | Example   |
+|----------|------------------------------------------------------------|------------------|-----------|
+| Role     | Role name written on the role token                        | Role             | user      |
+| Action   | HTTP/HTTPS request action                                  | Action           | POST      |
+| Resource | HTTP/HTTPS request resource, it support regular expression | Resource         | /api/*    |
 
 All the HTTP/HTTPS methods and URI path will be automatically converted to lower case. 
 

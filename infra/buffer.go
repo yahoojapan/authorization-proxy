@@ -26,7 +26,7 @@ type buffer struct {
 	size *uint64
 }
 
-// newBuffer implements httputil.BufferPool for providing byte slices of same size.
+// NewBuffer implements httputil.BufferPool for providing byte slices of same size.
 func NewBuffer(size uint64) httputil.BufferPool {
 	if size == 0 {
 		return nil

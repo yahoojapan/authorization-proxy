@@ -58,20 +58,22 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			RoundTripper: &http.Transport{},
 			cfg:          cfg,
 		},
-		ErrorHandler: func(rw http.ResponseWriter, r *http.Request, err error) {
-			if r != nil && r.Body != nil {
-				io.Copy(ioutil.Discard, r.Body)
-				r.Body.Close()
-			}
-			status := http.StatusUnauthorized
-			if strings.Index(err.Error(), ErrMsgVerifyRoleToken) < 0 {
-				status = http.StatusBadGateway
-			}
-			// request context canceled
-			if errors.Cause(err) == context.Canceled {
-				status = http.StatusRequestTimeout
-			}
-			rw.WriteHeader(status)
-		},
+		ErrorHandler: handleError,
 	}
+}
+
+func handleError(rw http.ResponseWriter, r *http.Request, err error) {
+	if r != nil && r.Body != nil {
+		io.Copy(ioutil.Discard, r.Body)
+		r.Body.Close()
+	}
+	status := http.StatusUnauthorized
+	if !strings.Contains(err.Error(), ErrMsgVerifyRoleToken) {
+		status = http.StatusBadGateway
+	}
+	// request context canceled
+	if errors.Cause(err) == context.Canceled {
+		status = http.StatusRequestTimeout
+	}
+	rw.WriteHeader(status)
 }

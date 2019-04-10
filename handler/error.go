@@ -15,7 +15,8 @@ limitations under the License.
 */
 package handler
 
-type RFC7807WithAthenz struct {
+// RFC7807Error represent the error message fulfilling RFC7807 standard.
+type RFC7807Error struct {
 	Type          string `json:"type"`
 	Title         string `json:"title"`
 	Status        int
@@ -25,13 +26,19 @@ type RFC7807WithAthenz struct {
 	RoleToken     string         `json:"role_tolen"`
 }
 
+// InvalidParam represents the invalid parameters requested by the user.
 type InvalidParam struct {
 	Name   string `json:"name"`
 	Reason string `json:"reason"`
 }
 
 const (
-	ProblemJSONContentType        = "application/problem+json"
-	HttpStatusClientClosedRequest = 499
-	ErrMsgVerifyRoleToken         = "VerifyRoleToken returned error in RoundTrip"
+	// ProblemJSONContentType represent the media type of the error response
+	ProblemJSONContentType = "application/problem+json"
+
+	// HTTPStatusClientClosedRequest represents a non-standard status code meaning that the client closed the connection before the server answered the request
+	HTTPStatusClientClosedRequest = 499
+
+	// ErrMsgVerifyRoleToken "VerifyRoleToken returned error in RoundTrip"
+	ErrMsgVerifyRoleToken = "VerifyRoleToken returned error in RoundTrip"
 )
