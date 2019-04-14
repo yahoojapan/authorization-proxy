@@ -21,7 +21,7 @@ Authorization Proxy acts as a reverse proxy sitting in front of the user applica
 
 To authenticate the request, the authorization proxy should know which user can take an action to which resource, therefore the policy updater is introduced.
 
-![Policy updator](./doc/assets/auth_proxy_policy_updator.png)
+![Policy updater](https://github.com/yahoojapan/athenz-policy-updater/raw/master/doc/policy_updater_overview.png)
 
 The [policy updater](https://github.com/yahoojapan/athenz-policy-updater) periodically updates the Athenz config and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updater.
 
@@ -41,7 +41,7 @@ The authorization proxy will return unauthorized to the user whenever if the rol
 
 ### Mapping rules
 
-The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updator, and decide if the user is authorized to take the action to the resource.
+The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updater, and decide if the user is authorized to take the action to the resource.
 
 The mapping rules were described below.
 
