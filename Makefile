@@ -1,27 +1,41 @@
 GO_VERSION:=$(shell go version)
 
-.PHONY: bench profile clean test
+.PHONY: all clean bench bench-all profile lint test contributors update install
 
-all: install
-
-bench:
-	go test -count=5 -run=NONE -bench . -benchmem
-
-profile: clean
-	mkdir pprof
-	mkdir bench
-	go test -count=10 -run=NONE -bench . -benchmem -o pprof/test.bin -cpuprofile pprof/cpu.out -memprofile pprof/mem.out
-	go tool pprof --svg pprof/test.bin pprof/mem.out > bench/mem.svg
-	go tool pprof --svg pprof/test.bin pprof/cpu.out > bench/cpu.svg
+all: clean install lint test bench
 
 clean:
+	go clean ./...
+	go clean -modcache
+	rm -rf ./*.log
+	rm -rf ./*.svg
+	rm -rf ./go.mod
+	rm -rf ./go.sum
 	rm -rf bench
 	rm -rf pprof
-	rm -rf ./*.svg
-	rm -rf ./*.log
+	rm -rf vendor
 
-test:
-	GOCACHE=off go test --race -coverprofile=cover.out ./...
+bench: clean init
+	go test -count=5 -run=NONE -bench . -benchmem
+
+init:
+	GO111MODULE=on go mod init
+	GO111MODULE=on go mod vendor
+	sleep 3
+
+deps: clean
+	GO111MODULE=on go mod init
+	GO111MODULE=on go mod vendor
+	rm -rf vendor
+
+lint:
+	gometalinter --enable-all . | rg -v comment
+
+test: clean init
+	GO111MODULE=on go test --race -v ./...
+
+contributors:
+	git log --format='%aN <%aE>' | sort -fu > CONTRIBUTORS
 
 docker-push:
 	sudo docker build --pull=true --file=Dockerfile -t yahoojapan/authorization-proxy:latest .

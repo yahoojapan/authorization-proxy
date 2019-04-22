@@ -1,4 +1,5 @@
 alias:
+
   default: &default
     working_directory: /go/src/github.com/yahoojapan/authorization-proxy
     docker:
@@ -115,7 +116,7 @@ jobs:
             mkdir -p $HOME/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             LAST_COMMIT=`git log -1 --pretty=%B`
             touch ./.tag
-            if VERSION=`git tag -l --sort=-v:refname | head -n 1` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
+            if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
               VERSION=${VERSION:-'0.0.0'}
               MAJOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
