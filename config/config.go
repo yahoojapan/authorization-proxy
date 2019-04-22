@@ -40,7 +40,7 @@ type Config struct {
 	// Server represents the authorization proxy and health check server configuration.
 	Server Server `yaml:"server"`
 
-	// Athenz represents Athenz configuration for authorization proxy to connect to Athenz server.
+	// Athenz represents Athenz Data for authorization proxy to connect to Athenz server.
 	Athenz Athenz `yaml:"athenz"`
 
 	// Proxy represents the proxy destination of the authorization proxy.
@@ -121,17 +121,17 @@ type Proxy struct {
 
 // Authorization represents the detail configuration of the authorization proxy.
 type Authorization struct {
-	// AthenzConfRefreshDuration represents the refresh duration of Athenz conf.
-	AthenzConfRefreshDuration string `yaml:"athenzConfRefreshDuration"`
+	// PubKeyRefreshDuration represents the refresh duration of Athenz PubKey.
+	PubKeyRefreshDuration string `yaml:"pubKeyRefreshDuration"`
 
-	// AthenzConfSysAuthDomain represents the system authenicate domain of Athenz.
-	AthenzConfSysAuthDomain string `yaml:"athenzConfSysAuthDomain"`
+	// PubKeySysAuthDomain represents the system authenicate domain of Athenz.
+	PubKeySysAuthDomain string `yaml:"pubKeySysAuthDomain"`
 
-	// AthenzConfEtagExpTime represents the Etag cache expiration time of Athenz conf.
-	AthenzConfEtagExpTime string `yaml:"athenzConfEtagExpTime"`
+	// PubKeyEtagExpTime represents the Etag cache expiration time of Athenz PubKey.
+	PubKeyEtagExpTime string `yaml:"pubKeyEtagExpTime"`
 
-	// AthenzConfEtagFlushDur represent the Etag cache expiration check duration.
-	AthenzConfEtagFlushDur string `yaml:"athenzConfEtagFlushDur"`
+	// PubKeyEtagFlushDur represent the Etag cache expiration check duration.
+	PubKeyEtagFlushDur string `yaml:"pubKeyEtagFlushDur"`
 
 	// AthenzDomains represents the Athenz domains to fetch the policy.
 	AthenzDomains []string `yaml:"athenzDomains"`

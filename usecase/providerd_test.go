@@ -29,10 +29,10 @@ func TestNew(t *testing.T) {
 						URL: "athenz.com",
 					},
 					Authorization: config.Authorization{
-						AthenzConfRefreshDuration: "10s",
-						AthenzConfSysAuthDomain:   "dummy.sys.auth",
-						AthenzConfEtagExpTime:     "10s",
-						AthenzConfEtagFlushDur:    "10s",
+						PubKeyRefreshDuration: "10s",
+						PubKeySysAuthDomain:   "dummy.sys.auth",
+						PubKeyEtagExpTime:     "10s",
+						PubKeyEtagFlushDur:    "10s",
 						AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
 						PolicyExpireMargin:        "10s",
 						PolicyRefreshDuration:     "10s",
@@ -59,7 +59,7 @@ func TestNew(t *testing.T) {
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
-						AthenzConfRefreshDuration: "dummy",
+						PubKeyRefreshDuration: "dummy",
 					},
 				},
 			},
@@ -262,10 +262,10 @@ func Test_newAuthorizationd(t *testing.T) {
 						URL: "athenz.com",
 					},
 					Authorization: config.Authorization{
-						AthenzConfRefreshDuration: "10s",
-						AthenzConfSysAuthDomain:   "dummy.sys.auth",
-						AthenzConfEtagExpTime:     "10s",
-						AthenzConfEtagFlushDur:    "10s",
+						PubKeyRefreshDuration: "10s",
+						PubKeySysAuthDomain:   "dummy.sys.auth",
+						PubKeyEtagExpTime:     "10s",
+						PubKeyEtagFlushDur:    "10s",
 						AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
 						PolicyExpireMargin:        "10s",
 						PolicyRefreshDuration:     "10s",

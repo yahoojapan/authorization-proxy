@@ -98,12 +98,10 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
 		providerd.AthenzURL(cfg.Athenz.URL),
-
-		providerd.AthenzConfRefreshDuration(cfg.Authorization.AthenzConfRefreshDuration),
-		providerd.AthenzConfSysAuthDomain(cfg.Authorization.AthenzConfSysAuthDomain),
-		providerd.AthenzConfEtagExpTime(cfg.Authorization.AthenzConfEtagExpTime),
-		providerd.AthenzConfEtagFlushDur(cfg.Authorization.AthenzConfEtagFlushDur),
-
+		providerd.PubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
+		providerd.PubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
+		providerd.PubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
+		providerd.PubkeyEtagFlushDur(cfg.Authorization.PubKeyEtagFlushDur),
 		providerd.AthenzDomains(cfg.Authorization.AthenzDomains...),
 		providerd.PolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		providerd.PolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),

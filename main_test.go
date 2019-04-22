@@ -102,13 +102,13 @@ func Test_run(t *testing.T) {
 				args: args{
 					cfg: config.Config{
 						Authorization: config.Authorization{
-							AthenzConfRefreshDuration: "dummy",
+							PubKeyRefreshDuration: "dummy",
 						},
 					},
 				},
 				checkFunc: func(cfg config.Config) error {
 					got := run(cfg)
-					want := "usecase returned error: cannot newAuthorizationd(cfg): error create athenzConfd: invalid refresh druation: time: invalid duration dummy"
+					want := "usecase returned error: cannot newAuthorizationd(cfg): error create pubkeyd: invalid refresh druation: time: invalid duration dummy"
 					if len(got) != 1 {
 						return errors.New("len(got) != 1")
 					}
@@ -129,15 +129,15 @@ func Test_run(t *testing.T) {
 							URL: "athenz.com",
 						},
 						Authorization: config.Authorization{
-							AthenzConfRefreshDuration: "10s",
-							AthenzConfSysAuthDomain:   "dummy.sys.auth",
-							AthenzConfEtagExpTime:     "10s",
-							AthenzConfEtagFlushDur:    "10s",
-							AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
-							PolicyExpireMargin:        "10s",
-							PolicyRefreshDuration:     "10s",
-							PolicyEtagExpTime:         "10s",
-							PolicyEtagFlushDur:        "10s",
+							PubKeyRefreshDuration: "10s",
+							PubKeySysAuthDomain:   "dummy.sys.auth",
+							PubKeyEtagExpTime:     "10s",
+							PubKeyEtagFlushDur:    "10s",
+							AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
+							PolicyExpireMargin:    "10s",
+							PolicyRefreshDuration: "10s",
+							PolicyEtagExpTime:     "10s",
+							PolicyEtagFlushDur:    "10s",
 						},
 						Server: config.Server{
 							HealthzPath: "/dummy",

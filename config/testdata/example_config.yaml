@@ -23,10 +23,10 @@ proxy:
   role_header_key: Athenz-Role-Auth
   buffer_size: 4096
 provider:
-  athenzConfRefreshDuration: 24h
-  athenzConfSysAuthDomain: sys.auth
-  athenzConfEtagExpTime: 168h
-  athenzConfEtagFlushDur: 84h
+  pubKeyRefreshDuration: 24h
+  pubKeySysAuthDomain: sys.auth
+  pubKeyEtagExpTime: 168h
+  pubKeyEtagFlushDur: 84h
   athenzDomains:
   - domain1
   policyExpireMargin: 48h
