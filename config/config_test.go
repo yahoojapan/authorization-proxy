@@ -104,10 +104,10 @@ func TestNew(t *testing.T) {
 					BufferSize: 4096,
 				},
 				Authorization: Authorization{
-					AthenzConfRefreshDuration: "24h",
-					AthenzConfSysAuthDomain:   "sys.auth",
-					AthenzConfEtagExpTime:     "168h",
-					AthenzConfEtagFlushDur:    "84h",
+					PubKeyRefreshDuration: "24h",
+					PubKeySysAuthDomain:   "sys.auth",
+					PubKeyEtagExpTime:     "168h",
+					PubKeyEtagFlushDur:    "84h",
 					AthenzDomains: []string{
 						"domain1",
 					},

@@ -153,10 +153,10 @@ data:
       role_header_key: Athenz-Role-Auth
       buffer_size: 4096
     provider:
-      athenzConfRefreshDuration: 30s
-      athenzConfSysAuthDomain: sys.auth
-      athenzConfEtagExpTime: 24h
-      athenzConfEtagFlushDur: 24h
+      pubKeyRefreshDuration: 30s
+      pubKeySysAuthDomain: sys.auth
+      pubKeyEtagExpTime: 24h
+      pubKeyEtagFlushDur: 24h
       athenzDomains:
       - yby.takumats
       - yby.takumats.sidecartest
