@@ -70,6 +70,10 @@ func run(cfg config.Config) []error {
 		g.SetLevelMode(glg.DEBG, glg.STD)
 	}
 
+	if cfg.DisableColorLogging {
+		g.DisableColor()
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
