@@ -60,7 +60,6 @@ func parseParams() (*params, error) {
 
 // run starts the daemon and listens for OS signal.
 func run(cfg config.Config) []error {
-
 	g := glg.Get().
 		SetLevelMode(glg.LOG, glg.NONE).
 		SetLevelMode(glg.PRINT, glg.NONE).
@@ -70,13 +69,17 @@ func run(cfg config.Config) []error {
 		g.SetLevelMode(glg.DEBG, glg.STD)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	if !cfg.EnableColorLogging {
+		g.DisableColor()
+	}
 
 	daemon, err := usecase.New(cfg)
 	if err != nil {
 		return []error{errors.Wrap(err, "usecase returned error")}
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	ech := daemon.Start(ctx)
 	sigCh := make(chan os.Signal, 1)
