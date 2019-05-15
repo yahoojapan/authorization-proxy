@@ -75,8 +75,9 @@ func TestNew(t *testing.T) {
 				path: "./testdata/example_config.yaml",
 			},
 			want: &Config{
-				Version: "v1.0.0",
-				Debug:   false,
+				Version:            "v1.0.0",
+				Debug:              false,
+				EnableColorLogging: false,
 				Server: Server{
 					Port:             8082,
 					HealthzPort:      6082,

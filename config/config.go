@@ -37,8 +37,8 @@ type Config struct {
 	// Debug represents to print debug message or not.
 	Debug bool `yaml:"debug"`
 
-	// DisableColorLogging represents if user want to disable colored logging.
-	DisableColorLogging bool `yaml:"disable_log_color"`
+	// EnableColorLogging represents if user want to enable colorized logging.
+	EnableColorLogging bool `yaml:"enable_log_color"`
 
 	// Server represents the authorization proxy and health check server configuration.
 	Server Server `yaml:"server"`
