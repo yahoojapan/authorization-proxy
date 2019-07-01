@@ -2,10 +2,7 @@ package main
 
 import (
 	"os"
-	"sync"
-	"syscall"
 	"testing"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/yahoojapan/authorization-proxy/config"
@@ -114,56 +111,6 @@ func Test_run(t *testing.T) {
 					}
 					if got[0].Error() != want {
 						return errors.Errorf("got: %v, want: %v", got[0], want)
-					}
-					return nil
-				},
-			}
-		}(),
-		func() test {
-			return test{
-				name: "run success",
-				args: args{
-					cfg: config.Config{
-						Debug:              true,
-						EnableColorLogging: true,
-						Athenz: config.Athenz{
-							URL: "athenz.com",
-						},
-						Authorization: config.Authorization{
-							PubKeyRefreshDuration: "10s",
-							PubKeySysAuthDomain:   "dummy.sys.auth",
-							PubKeyEtagExpTime:     "10s",
-							PubKeyEtagFlushDur:    "10s",
-							AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
-							PolicyExpireMargin:    "10s",
-							PolicyRefreshDuration: "10s",
-							PolicyEtagExpTime:     "10s",
-							PolicyEtagFlushDur:    "10s",
-						},
-						Server: config.Server{
-							HealthzPath: "/dummy",
-						},
-						Proxy: config.Proxy{
-							BufferSize: 512,
-						},
-					},
-				},
-				checkFunc: func(cfg config.Config) error {
-					var got []error
-					mux := &sync.Mutex{}
-					go func() {
-						mux.Lock()
-						got = run(cfg)
-						mux.Unlock()
-					}()
-					time.Sleep(time.Second)
-					syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
-
-					time.Sleep(time.Second)
-					mux.Lock()
-					defer mux.Unlock()
-					if len(got) != 1 {
-						return errors.Errorf("got: %v", got)
 					}
 					return nil
 				},
