@@ -26,7 +26,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/infra"
 	"github.com/yahoojapan/authorization-proxy/service"
 
-	providerd "github.com/yahoojapan/athenz-policy-updater"
+	providerd "github.com/yahoojapan/athenz-authorizer"
 )
 
 // AuthorizationDaemon represents Authorization Proxy daemon behavior.

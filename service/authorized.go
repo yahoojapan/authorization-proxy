@@ -15,9 +15,9 @@ limitations under the License.
 */
 package service
 
-import authorizationd "github.com/yahoojapan/athenz-policy-updater"
+import authorizer "github.com/yahoojapan/athenz-authorizer"
 
 // Authorizationd represents the authorization daemon to do the authorization check.
 type Authorizationd interface {
-	authorizationd.Providerd
+	authorizer.Providerd
 }
