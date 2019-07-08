@@ -33,11 +33,11 @@ func TestNew(t *testing.T) {
 						PubKeySysAuthDomain:   "dummy.sys.auth",
 						PubKeyEtagExpTime:     "10s",
 						PubKeyEtagFlushDur:    "10s",
-						AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
-						PolicyExpireMargin:        "10s",
-						PolicyRefreshDuration:     "10s",
-						PolicyEtagExpTime:         "10s",
-						PolicyEtagFlushDur:        "10s",
+						AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
+						PolicyExpireMargin:    "10s",
+						PolicyRefreshDuration: "10s",
+						PolicyEtagExpTime:     "10s",
+						PolicyEtagFlushDur:    "10s",
 					},
 					Server: config.Server{
 						HealthzPath: "/dummy",
@@ -105,7 +105,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Daemon start success",
 				fields: fields{
 					athenz: &service.AuthorizedMock{
-						StartProviderdFunc: func(context.Context) <-chan error {
+						StartFunc: func(context.Context) <-chan error {
 							return make(chan error)
 						},
 					},
@@ -149,7 +149,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Server return fail",
 				fields: fields{
 					athenz: &service.AuthorizedMock{
-						StartProviderdFunc: func(context.Context) <-chan error {
+						StartFunc: func(context.Context) <-chan error {
 							return make(chan error)
 						},
 					},
@@ -193,7 +193,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Providerd return fail",
 				fields: fields{
 					athenz: &service.AuthorizedMock{
-						StartProviderdFunc: func(context.Context) <-chan error {
+						StartFunc: func(context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								ech <- errors.New("dummy")
@@ -266,11 +266,11 @@ func Test_newAuthorizationd(t *testing.T) {
 						PubKeySysAuthDomain:   "dummy.sys.auth",
 						PubKeyEtagExpTime:     "10s",
 						PubKeyEtagFlushDur:    "10s",
-						AthenzDomains:             []string{"dummyDom1", "dummyDom2"},
-						PolicyExpireMargin:        "10s",
-						PolicyRefreshDuration:     "10s",
-						PolicyEtagExpTime:         "10s",
-						PolicyEtagFlushDur:        "10s",
+						AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
+						PolicyExpireMargin:    "10s",
+						PolicyRefreshDuration: "10s",
+						PolicyEtagExpTime:     "10s",
+						PolicyEtagFlushDur:    "10s",
 					},
 				},
 			},

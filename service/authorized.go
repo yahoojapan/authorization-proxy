@@ -19,5 +19,5 @@ import authorizer "github.com/yahoojapan/athenz-authorizer"
 
 // Authorizationd represents the authorization daemon to do the authorization check.
 type Authorizationd interface {
-	authorizer.Providerd
+	authorizer.Authorizerd
 }

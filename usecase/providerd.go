@@ -59,7 +59,7 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 // Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
 func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
-	pch := g.athenz.StartProviderd(ctx)
+	pch := g.athenz.Start(ctx)
 	sch := g.server.ListenAndServe(ctx)
 	go func() {
 		emap := make(map[error]uint64, 1)
@@ -97,15 +97,15 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 
 func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
-		providerd.AthenzURL(cfg.Athenz.URL),
-		providerd.PubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
-		providerd.PubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
-		providerd.PubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
-		providerd.PubkeyEtagFlushDur(cfg.Authorization.PubKeyEtagFlushDur),
-		providerd.AthenzDomains(cfg.Authorization.AthenzDomains...),
-		providerd.PolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
-		providerd.PolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
-		providerd.PolicyEtagFlushDur(cfg.Authorization.PolicyEtagFlushDur),
-		providerd.PolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
+		providerd.WithAthenzURL(cfg.Athenz.URL),
+		providerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
+		providerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
+		providerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
+		providerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
+		providerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
+		providerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
+		providerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
+		providerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
+		providerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
 	)
 }
