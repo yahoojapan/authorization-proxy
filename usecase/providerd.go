@@ -24,6 +24,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/handler"
 	"github.com/yahoojapan/authorization-proxy/infra"
+	"github.com/yahoojapan/authorization-proxy/router"
 	"github.com/yahoojapan/authorization-proxy/service"
 
 	providerd "github.com/yahoojapan/athenz-authorizer"
@@ -49,10 +50,12 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 		return nil, errors.Wrap(err, "cannot newAuthorizationd(cfg)")
 	}
 
+	debugMux := router.NewDebugRouter(cfg.Server, handler.NewDebugHandler(athenz))
+
 	return &providerDaemon{
 		cfg:    cfg,
 		athenz: athenz,
-		server: service.NewServer(cfg.Server, handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
+		server: service.NewServer(cfg.Server, handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz), debugMux),
 	}, nil
 }
 
@@ -107,5 +110,6 @@ func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 		providerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		providerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
 		providerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
+		providerd.WithDisableJwkd(),
 	)
 }
