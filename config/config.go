@@ -58,6 +58,7 @@ type Server struct {
 	// Port represents the server port.
 	Port int `yaml:"port"`
 
+	// DebugPort represents debug server port.
 	DebugPort int `yaml:"debug_port"`
 
 	// HealthzPort represents health check server port.

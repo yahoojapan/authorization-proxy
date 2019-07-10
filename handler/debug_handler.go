@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -12,8 +11,8 @@ const (
 	// ContentType represents a HTTP header name "Content-Type"
 	ContentType = "Content-Type"
 
-	// TextPlain represents a HTTP content type "text/plain"
-	TextPlain = "text/plain"
+	// ApplicationJson represents a HTTP content type "application/json"
+	ApplicationJson = "application/json"
 
 	// CharsetUTF8 represents a UTF-8 charset for HTTP response "charset=UTF-8"
 	CharsetUTF8 = "charset=UTF-8"
@@ -31,8 +30,12 @@ func NewDebugHandler(authd service.Authorizationd) *DebugHandler {
 
 func (dh *DebugHandler) GetPolicyCache(w http.ResponseWriter, r *http.Request) error {
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set(ContentType, fmt.Sprintf("%s;%s", TextPlain, CharsetUTF8))
-	e := json.NewEncoder(w)
-	e.SetIndent("", "\t")
-	return e.Encode(dh.authd.GetPolicyCache(r.Context()))
+	w.Header().Set(ContentType, fmt.Sprintf("%s;%s", ApplicationJson, CharsetUTF8))
+	/*
+		e := json.NewEncoder(w)
+		e.SetIndent("", "\t")
+		return e.Encode(dh.authd.GetPolicyCache(r.Context()))
+	*/
+	_, err := fmt.Fprintf(w, "%+s", dh.authd.GetPolicyCache(r.Context()))
+	return err
 }

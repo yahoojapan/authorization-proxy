@@ -18,6 +18,7 @@ func TestNewServer(t *testing.T) {
 	type args struct {
 		cfg config.Server
 		h   http.Handler
+		dh  http.Handler
 	}
 	tests := []struct {
 		name      string
@@ -29,6 +30,7 @@ func TestNewServer(t *testing.T) {
 			name: "Check health address",
 			args: args{
 				cfg: config.Server{
+					DebugPort:   8081,
 					HealthzPath: "/healthz",
 					HealthzPort: 8080,
 				},
@@ -49,9 +51,34 @@ func TestNewServer(t *testing.T) {
 			},
 		},
 		{
+			name: "Check debug server address",
+			args: args{
+				cfg: config.Server{
+					DebugPort:   8081,
+					HealthzPath: "/healthz",
+					HealthzPort: 8080,
+				},
+				dh: func() http.Handler {
+					return nil
+				}(),
+			},
+			want: &server{
+				dsrv: &http.Server{
+					Addr: fmt.Sprintf(":%d", 8081),
+				},
+			},
+			checkFunc: func(got, want Server) error {
+				if got.(*server).dsrv.Addr != want.(*server).dsrv.Addr {
+					return fmt.Errorf("Debug Addr not equals\tgot: %s\twant: %s", got.(*server).hcsrv.Addr, want.(*server).hcsrv.Addr)
+				}
+				return nil
+			},
+		},
+		{
 			name: "Check server address",
 			args: args{
 				cfg: config.Server{
+					DebugPort:   8082,
 					Port:        8081,
 					HealthzPath: "/healthz",
 					HealthzPort: 8080,
@@ -75,7 +102,7 @@ func TestNewServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewServer(tt.args.cfg, tt.args.h)
+			got := NewServer(tt.args.cfg, tt.args.h, tt.args.dh)
 			if err := tt.checkFunc(got, tt.want); err != nil {
 				t.Errorf("NewServer() = %v, want %v", got, tt.want)
 			}
@@ -87,6 +114,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 	type fields struct {
 		srv   *http.Server
 		hcsrv *http.Server
+		dsrv  *http.Server
 		cfg   config.Server
 		mu    sync.RWMutex
 	}
@@ -103,6 +131,18 @@ func Test_server_ListenAndServe(t *testing.T) {
 		afterFunc  func() error
 		want       error
 	}
+
+	checkSrvRunning := func(addr string) error {
+		res, err := http.DefaultClient.Get(addr)
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != 200 {
+			return fmt.Errorf("Response status code invalid, %v", res.StatusCode)
+		}
+		return nil
+	}
+
 	tests := []test{
 		func() test {
 			ctx, cancelFunc := context.WithCancel(context.Background())
@@ -119,8 +159,10 @@ func Test_server_ListenAndServe(t *testing.T) {
 
 			apiSrvPort := 9998
 			hcSrvPort := 9999
+			dSrvPort := 10000
 			apiSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", apiSrvPort)
 			hcSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", hcSrvPort)
+			dSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", dSrvPort)
 
 			return test{
 				name: "Test servers can start and stop",
@@ -141,6 +183,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						s.SetKeepAlivesEnabled(true)
 						return s
 					}(),
+					dsrv: func() *http.Server {
+						s := &http.Server{
+							Addr:    fmt.Sprintf(":%d", dSrvPort),
+							Handler: handler,
+						}
+						s.SetKeepAlivesEnabled(true)
+						return s
+					}(),
+
 					cfg: config.Server{
 						Port: apiSrvPort,
 						TLS: config.TLS{
@@ -167,23 +218,14 @@ func Test_server_ListenAndServe(t *testing.T) {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-					checkSrvRunning := func(addr string) error {
-						res, err := http.DefaultClient.Get(addr)
-						if err != nil {
-							return err
-						}
-						if res.StatusCode != 200 {
-							return fmt.Errorf("Response status code invalid, %v", res.StatusCode)
-						}
-						return nil
-					}
-
 					if err := checkSrvRunning(apiSrvAddr); err != nil {
 						return fmt.Errorf("Server not running, err: %v", err)
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err != nil {
 						return fmt.Errorf("Health Check server not running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err != nil {
+						return fmt.Errorf("Debug server not running")
 					}
 
 					cancelFunc()
@@ -192,9 +234,11 @@ func Test_server_ListenAndServe(t *testing.T) {
 					if err := checkSrvRunning(apiSrvAddr); err == nil {
 						return fmt.Errorf("Server running")
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err == nil {
 						return fmt.Errorf("Health Check server running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err == nil {
+						return fmt.Errorf("Debug server running")
 					}
 
 					return nil
@@ -222,8 +266,10 @@ func Test_server_ListenAndServe(t *testing.T) {
 
 			apiSrvPort := 9998
 			hcSrvPort := 9999
+			dSrvPort := 10000
 			apiSrvAddr := fmt.Sprintf("https://127.0.0.1:%v", apiSrvPort)
 			hcSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", hcSrvPort)
+			dSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", dSrvPort)
 
 			return test{
 				name: "Test HC server stop when api server stop",
@@ -246,6 +292,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						srv.SetKeepAlivesEnabled(true)
 						return srv
 					}(),
+					dsrv: func() *http.Server {
+						srv := &http.Server{
+							Addr:    fmt.Sprintf(":%d", dSrvPort),
+							Handler: handler,
+						}
+
+						srv.SetKeepAlivesEnabled(true)
+						return srv
+					}(),
 					cfg: config.Server{
 						Port: apiSrvPort,
 						TLS: config.TLS{
@@ -263,23 +318,14 @@ func Test_server_ListenAndServe(t *testing.T) {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-					checkSrvRunning := func(addr string) error {
-						res, err := http.DefaultClient.Get(addr)
-						if err != nil {
-							return err
-						}
-						if res.StatusCode != 200 {
-							return fmt.Errorf("Response status code invalid, %v", res.StatusCode)
-						}
-						return nil
-					}
-
 					if err := checkSrvRunning(apiSrvAddr); err != nil {
 						return fmt.Errorf("Server not running, err: %v", err)
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err != nil {
 						return fmt.Errorf("Health Check server not running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err != nil {
+						return fmt.Errorf("Debug server not running")
 					}
 
 					s.srv.Close()
@@ -288,9 +334,11 @@ func Test_server_ListenAndServe(t *testing.T) {
 					if err := checkSrvRunning(apiSrvAddr); err == nil {
 						return fmt.Errorf("Server running")
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err == nil {
 						return fmt.Errorf("Health Check server running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err == nil {
+						return fmt.Errorf("Debug server running")
 					}
 
 					return nil
@@ -309,8 +357,10 @@ func Test_server_ListenAndServe(t *testing.T) {
 
 			apiSrvPort := 9998
 			hcSrvPort := 9999
+			dSrvPort := 10000
 			apiSrvAddr := fmt.Sprintf("https://127.0.0.1:%v", apiSrvPort)
 			hcSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", hcSrvPort)
+			dSrvAddr := fmt.Sprintf("http://127.0.0.1:%v", dSrvPort)
 
 			return test{
 				name: "Test api server stop when HC server stop",
@@ -333,6 +383,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						srv.SetKeepAlivesEnabled(true)
 						return srv
 					}(),
+					dsrv: func() *http.Server {
+						srv := &http.Server{
+							Addr:    fmt.Sprintf(":%d", dSrvPort),
+							Handler: handler,
+						}
+
+						srv.SetKeepAlivesEnabled(true)
+						return srv
+					}(),
 					cfg: config.Server{
 						Port: apiSrvPort,
 						TLS: config.TLS{
@@ -350,23 +409,14 @@ func Test_server_ListenAndServe(t *testing.T) {
 					time.Sleep(time.Millisecond * 150)
 					http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 
-					checkSrvRunning := func(addr string) error {
-						res, err := http.DefaultClient.Get(addr)
-						if err != nil {
-							return err
-						}
-						if res.StatusCode != 200 {
-							return fmt.Errorf("Response status code invalid, %v", res.StatusCode)
-						}
-						return nil
-					}
-
 					if err := checkSrvRunning(apiSrvAddr); err != nil {
 						return fmt.Errorf("Server not running, err: %v", err)
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err != nil {
 						return fmt.Errorf("Health Check server not running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err != nil {
+						return fmt.Errorf("Debug server not running")
 					}
 
 					s.hcsrv.Close()
@@ -375,9 +425,11 @@ func Test_server_ListenAndServe(t *testing.T) {
 					if err := checkSrvRunning(apiSrvAddr); err == nil {
 						return fmt.Errorf("Server running")
 					}
-
 					if err := checkSrvRunning(hcSrvAddr); err == nil {
 						return fmt.Errorf("Health Check server running")
+					}
+					if err := checkSrvRunning(dSrvAddr); err == nil {
+						return fmt.Errorf("Debug server running")
 					}
 
 					return nil
@@ -398,6 +450,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 			s := &server{
 				srv:   tt.fields.srv,
 				hcsrv: tt.fields.hcsrv,
+				dsrv:  tt.fields.dsrv,
 				cfg:   tt.fields.cfg,
 				mu:    tt.fields.mu,
 			}
@@ -471,7 +524,7 @@ func Test_server_hcShutdown(t *testing.T) {
 				srv:        tt.fields.srv,
 				srvRunning: tt.fields.srvRunning,
 				hcsrv:      tt.fields.hcsrv,
-				hcrunning:  tt.fields.hcrunning,
+				hcRunning:  tt.fields.hcrunning,
 				cfg:        tt.fields.cfg,
 				pwt:        tt.fields.pwt,
 				sddur:      tt.fields.sddur,
@@ -546,7 +599,7 @@ func Test_server_apiShutdown(t *testing.T) {
 				srv:        tt.fields.srv,
 				srvRunning: tt.fields.srvRunning,
 				hcsrv:      tt.fields.hcsrv,
-				hcrunning:  tt.fields.hcrunning,
+				hcRunning:  tt.fields.hcrunning,
 				cfg:        tt.fields.cfg,
 				pwt:        tt.fields.pwt,
 				sddur:      tt.fields.sddur,

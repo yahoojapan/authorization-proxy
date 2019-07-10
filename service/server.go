@@ -200,7 +200,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			}
 			if s.dRunning {
 				glg.Info("authorization proxy debug server will shutdown")
-				errs = appendErr(errs, s.apiShutdown(context.Background()))
+				errs = appendErr(errs, s.dShutdown(context.Background()))
 			}
 		}
 
@@ -258,6 +258,12 @@ func (s *server) hcShutdown(ctx context.Context) error {
 	hctx, hcancel := context.WithTimeout(ctx, s.sddur)
 	defer hcancel()
 	return s.hcsrv.Shutdown(hctx)
+}
+
+func (s *server) dShutdown(ctx context.Context) error {
+	dctx, dcancel := context.WithTimeout(ctx, s.sddur)
+	defer dcancel()
+	return s.dsrv.Shutdown(dctx)
 }
 
 // apiShutdown returns any error when shutdown the authorization proxy server.
