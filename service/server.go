@@ -36,6 +36,7 @@ type Server interface {
 type server struct {
 	// authorization proxy server
 	srv        *http.Server
+	srvHandler http.Handler
 	srvRunning bool
 
 	// Health Check server
@@ -43,8 +44,9 @@ type server struct {
 	hcRunning bool
 
 	// Debug server
-	dsrv     *http.Server
-	dRunning bool
+	dsrv      *http.Server
+	dsHandler http.Handler
+	dRunning  bool
 
 	cfg config.Server
 
@@ -80,43 +82,43 @@ var (
 //
 // The health check server is a http.Server instance, which the port number is read from "config.Server.HealthzPort"
 // , and the handler is as follow - Handle HTTP GET request and always return HTTP Status OK (200) response.
-func NewServer(cfg config.Server, h http.Handler, dh http.Handler) Server {
+func NewServer(opts ...Option) Server {
+	var err error
+
+	s := &server{}
+	for _, o := range opts {
+		o(s)
+	}
+
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.Port),
-		Handler: h,
+		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
+		Handler: s.srvHandler,
 	}
 	srv.SetKeepAlivesEnabled(true)
 
 	hcsrv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.HealthzPort),
-		Handler: createHealthCheckServiceMux(cfg.HealthzPath),
+		Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
+		Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
 	}
 	hcsrv.SetKeepAlivesEnabled(true)
 
 	dsrv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.DebugPort),
-		Handler: dh,
+		Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
+		Handler: s.dsHandler,
 	}
 	dsrv.SetKeepAlivesEnabled(true)
 
-	dur, err := time.ParseDuration(cfg.ShutdownDuration)
+	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {
-		dur = time.Second * 5
+		s.sddur = time.Second * 5
 	}
 
-	pwt, err := time.ParseDuration(cfg.ProbeWaitTime)
+	s.pwt, err = time.ParseDuration(s.cfg.ProbeWaitTime)
 	if err != nil {
-		pwt = time.Second * 3
+		s.pwt = time.Second * 3
 	}
 
-	return &server{
-		srv:   srv,
-		hcsrv: hcsrv,
-		dsrv:  dsrv,
-		cfg:   cfg,
-		pwt:   pwt,
-		sddur: dur,
-	}
+	return s
 }
 
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
@@ -297,7 +299,6 @@ func handleHealthCheckRequest(w http.ResponseWriter, r *http.Request) {
 
 // listenAndServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
 func (s *server) listenAndServeAPI() error {
-
 	if !s.cfg.TLS.Enabled {
 		return s.srv.ListenAndServe()
 	}
