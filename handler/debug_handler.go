@@ -12,7 +12,7 @@ const (
 	ContentType = "Content-Type"
 
 	// ApplicationJson represents a HTTP content type "application/json"
-	ApplicationJson = "application/json"
+	ApplicationJSON = "application/json"
 
 	// CharsetUTF8 represents a UTF-8 charset for HTTP response "charset=UTF-8"
 	CharsetUTF8 = "charset=UTF-8"
