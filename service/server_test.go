@@ -16,9 +16,7 @@ import (
 
 func TestNewServer(t *testing.T) {
 	type args struct {
-		cfg config.Server
-		h   http.Handler
-		dh  http.Handler
+		opts []Option
 	}
 	tests := []struct {
 		name      string
@@ -29,14 +27,16 @@ func TestNewServer(t *testing.T) {
 		{
 			name: "Check health address",
 			args: args{
-				cfg: config.Server{
-					DebugPort:   8081,
-					HealthzPath: "/healthz",
-					HealthzPort: 8080,
+				opts: []Option{
+					WithServerConfig(config.Server{
+						DebugPort:   8081,
+						HealthzPath: "/healthz",
+						HealthzPort: 8080,
+					}),
+					WithServerHandler(func() http.Handler {
+						return nil
+					}()),
 				},
-				h: func() http.Handler {
-					return nil
-				}(),
 			},
 			want: &server{
 				hcsrv: &http.Server{
@@ -53,14 +53,16 @@ func TestNewServer(t *testing.T) {
 		{
 			name: "Check debug server address",
 			args: args{
-				cfg: config.Server{
-					DebugPort:   8081,
-					HealthzPath: "/healthz",
-					HealthzPort: 8080,
+				opts: []Option{
+					WithServerConfig(config.Server{
+						DebugPort:   8081,
+						HealthzPath: "/healthz",
+						HealthzPort: 8080,
+					}),
+					WithDebugHandler(func() http.Handler {
+						return nil
+					}()),
 				},
-				dh: func() http.Handler {
-					return nil
-				}(),
 			},
 			want: &server{
 				dsrv: &http.Server{
@@ -77,15 +79,17 @@ func TestNewServer(t *testing.T) {
 		{
 			name: "Check server address",
 			args: args{
-				cfg: config.Server{
-					DebugPort:   8082,
-					Port:        8081,
-					HealthzPath: "/healthz",
-					HealthzPort: 8080,
+				opts: []Option{
+					WithServerConfig(config.Server{
+						DebugPort:   8082,
+						Port:        8081,
+						HealthzPath: "/healthz",
+						HealthzPort: 8080,
+					}),
+					WithServerHandler(func() http.Handler {
+						return nil
+					}()),
 				},
-				h: func() http.Handler {
-					return nil
-				}(),
 			},
 			want: &server{
 				srv: &http.Server{
@@ -102,7 +106,7 @@ func TestNewServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewServer(tt.args.cfg, tt.args.h, tt.args.dh)
+			got := NewServer(tt.args.opts...)
 			if err := tt.checkFunc(got, tt.want); err != nil {
 				t.Errorf("NewServer() = %v, want %v", got, tt.want)
 			}

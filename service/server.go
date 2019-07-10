@@ -90,23 +90,23 @@ func NewServer(opts ...Option) Server {
 		o(s)
 	}
 
-	srv := &http.Server{
+	s.srv = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
 		Handler: s.srvHandler,
 	}
-	srv.SetKeepAlivesEnabled(true)
+	s.srv.SetKeepAlivesEnabled(true)
 
-	hcsrv := &http.Server{
+	s.hcsrv = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
 		Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
 	}
-	hcsrv.SetKeepAlivesEnabled(true)
+	s.hcsrv.SetKeepAlivesEnabled(true)
 
-	dsrv := &http.Server{
+	s.dsrv = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
 		Handler: s.dsHandler,
 	}
-	dsrv.SetKeepAlivesEnabled(true)
+	s.dsrv.SetKeepAlivesEnabled(true)
 
 	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {

@@ -55,7 +55,6 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 	return &providerDaemon{
 		cfg:    cfg,
 		athenz: athenz,
-		// server: service.NewServer(cfg.Server, handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz), debugMux),
 		server: service.NewServer(
 			service.WithServerConfig(cfg.Server),
 			service.WithServerHandler(handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
