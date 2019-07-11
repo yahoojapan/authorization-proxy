@@ -15,12 +15,13 @@ import (
 	"github.com/kpango/glg"
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/handler"
+	"github.com/yahoojapan/authorization-proxy/service"
 )
 
 func TestNewDebugRouter(t *testing.T) {
 	type args struct {
 		cfg config.Server
-		h   *handler.DebugHandler
+		a   service.Authorizationd
 	}
 	tests := []struct {
 		name      string
@@ -31,7 +32,7 @@ func TestNewDebugRouter(t *testing.T) {
 			name: "new debug router success",
 			args: args{
 				cfg: config.Server{},
-				h:   handler.NewDebugHandler(nil),
+				a:   nil,
 			},
 			checkFunc: func(got *http.ServeMux) error {
 				return nil
@@ -40,7 +41,7 @@ func TestNewDebugRouter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewDebugRouter(tt.args.cfg, tt.args.h)
+			got := NewDebugRouter(tt.args.cfg, tt.args.a)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("NewDebugRouter() err: %v", err)
 			}

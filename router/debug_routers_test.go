@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/handler"
+	"github.com/yahoojapan/authorization-proxy/config"
+	"github.com/yahoojapan/authorization-proxy/service"
 )
 
 func TestNewDebugRoutes(t *testing.T) {
 	type args struct {
-		h *handler.DebugHandler
+		cfg config.Server
+		a   service.Authorizationd
 	}
 	type test struct {
 		name      string
@@ -20,11 +22,11 @@ func TestNewDebugRoutes(t *testing.T) {
 	}
 	tests := []test{
 		func() test {
-			h := handler.NewDebugHandler(nil)
 			return test{
 				name: "return success",
 				args: args{
-					h: h,
+					cfg: config.Server{},
+					a:   nil,
 				},
 				checkFunc: func(got, want []Route) error {
 					if got[0].Name != want[0].Name {
@@ -38,8 +40,8 @@ func TestNewDebugRoutes(t *testing.T) {
 						[]string{
 							http.MethodGet,
 						},
-						"/policyCache",
-						h.GetPolicyCache,
+						"/debug/policy/cache",
+						NewPolicyCacheHandler(nil),
 					},
 				},
 			}
@@ -47,7 +49,7 @@ func TestNewDebugRoutes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewDebugRoutes(tt.args.h)
+			got := NewDebugRoutes(tt.args.cfg, tt.args.a)
 			if err := tt.checkFunc(got, tt.want); err != nil {
 				t.Errorf("NewDebugRoutes() error: %v", err)
 			}

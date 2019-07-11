@@ -50,7 +50,7 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 		return nil, errors.Wrap(err, "cannot newAuthorizationd(cfg)")
 	}
 
-	debugMux := router.NewDebugRouter(cfg.Server, handler.NewDebugHandler(athenz))
+	debugMux := router.NewDebugRouter(cfg.Server, athenz)
 
 	return &providerDaemon{
 		cfg:    cfg,

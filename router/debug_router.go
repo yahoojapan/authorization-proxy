@@ -12,11 +12,11 @@ import (
 	"github.com/kpango/glg"
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/handler"
+	"github.com/yahoojapan/authorization-proxy/service"
 )
 
-func NewDebugRouter(cfg config.Server, h *handler.DebugHandler) *http.ServeMux {
+func NewDebugRouter(cfg config.Server, a service.Authorizationd) *http.ServeMux {
 	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 32
-
 	mux := http.NewServeMux()
 
 	dur, err := time.ParseDuration(cfg.Timeout)
@@ -24,7 +24,7 @@ func NewDebugRouter(cfg config.Server, h *handler.DebugHandler) *http.ServeMux {
 		dur = time.Second * 3
 	}
 
-	for _, route := range NewDebugRoutes(h) {
+	for _, route := range NewDebugRoutes(cfg, a) {
 		//関数名取得
 		mux.Handle(route.Pattern, routing(route.Methods, dur, route.HandlerFunc))
 	}
