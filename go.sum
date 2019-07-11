@@ -55,8 +55,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/vmihailenco/msgpack v4.0.1+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/yahoo/athenz v1.8.24 h1:Bf+2xcG06wgeDY/X/dbJft5uW4ip9ao/5Kvp+uC5osw=
 github.com/yahoo/athenz v1.8.24/go.mod h1:wQ3kpWCncoxMXxj2mr/Gf6YJwtE+Uwk7DOPYpm/C99A=
-github.com/yahoojapan/athenz-authorizer v0.0.0-20190711055037-ec74494281dc h1:rXaDuATxIGcj8GK4GXvZREUAhjedJBhTvxiXrqpmQ7U=
-github.com/yahoojapan/athenz-authorizer v0.0.0-20190711055037-ec74494281dc/go.mod h1:Hq0CmPJOvC0MIumjr0uJLAkOw04WYR1IOAqRtfwO3ps=
+github.com/yahoojapan/athenz-authorizer v0.0.0-20190711070209-66ed8b15c4cb h1:7gF6B3FLQ2vWgX3scJp1b3R/XOtEW5yGGaQmJC6OxKc=
+github.com/yahoojapan/athenz-authorizer v0.0.0-20190711070209-66ed8b15c4cb/go.mod h1:Hq0CmPJOvC0MIumjr0uJLAkOw04WYR1IOAqRtfwO3ps=
 golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/net v0.0.0-20180921000356-2f5d2388922f/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
