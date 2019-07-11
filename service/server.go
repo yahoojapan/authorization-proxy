@@ -102,11 +102,13 @@ func NewServer(opts ...Option) Server {
 	}
 	s.hcsrv.SetKeepAlivesEnabled(true)
 
-	s.dsrv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
-		Handler: s.dsHandler,
+	if s.cfg.EnableDebug {
+		s.dsrv = &http.Server{
+			Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
+			Handler: s.dsHandler,
+		}
+		s.dsrv.SetKeepAlivesEnabled(true)
 	}
-	s.dsrv.SetKeepAlivesEnabled(true)
 
 	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {
@@ -125,12 +127,17 @@ func NewServer(opts ...Option) Server {
 // This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
 // Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
 func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
-	echan := make(chan []error, 1)
+	var (
+		echan = make(chan []error, 1)
 
-	// error channels to keep track server status
-	sech := make(chan error, 1)
-	hech := make(chan error, 1)
-	dech := make(chan error, 1)
+		// error channels to keep track server status
+		sech = make(chan error, 1)
+		hech = make(chan error, 1)
+		dech chan error
+	)
+	if s.cfg.EnableDebug {
+		dech = make(chan error, 1)
+	}
 
 	wg := new(sync.WaitGroup)
 	wg.Add(3)
@@ -165,20 +172,22 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.mu.Unlock()
 	}()
 
-	go func() {
-		s.mu.Lock()
-		s.dRunning = true
-		s.mu.Unlock()
-		wg.Done()
+	if s.cfg.EnableDebug {
+		go func() {
+			s.mu.Lock()
+			s.dRunning = true
+			s.mu.Unlock()
+			wg.Done()
 
-		glg.Info("authorization proxy debug server starting")
-		dech <- s.dsrv.ListenAndServe()
-		close(dech)
+			glg.Info("authorization proxy debug server starting")
+			dech <- s.dsrv.ListenAndServe()
+			close(dech)
 
-		s.mu.Lock()
-		s.dRunning = false
-		s.mu.Unlock()
-	}()
+			s.mu.Lock()
+			s.dRunning = false
+			s.mu.Unlock()
+		}()
+	}
 
 	go func() {
 		// wait for all server running

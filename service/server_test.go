@@ -55,6 +55,7 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
+						EnableDebug: true,
 						DebugPort:   8081,
 						HealthzPath: "/healthz",
 						HealthzPort: 8080,
@@ -197,7 +198,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 					}(),
 
 					cfg: config.Server{
-						Port: apiSrvPort,
+						EnableDebug: true,
+						Port:        apiSrvPort,
 						TLS: config.TLS{
 							Enabled: false,
 							Cert:    certKey,
@@ -306,7 +308,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port: apiSrvPort,
+						EnableDebug: true,
+						Port:        apiSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,
@@ -397,7 +400,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port: apiSrvPort,
+						EnableDebug: true,
+						Port:        apiSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,

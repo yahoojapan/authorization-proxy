@@ -58,6 +58,9 @@ type Server struct {
 	// Port represents the server port.
 	Port int `yaml:"port"`
 
+	// EnableDebug represents if user want to enable debug funcationality.
+	EnableDebug bool `yaml:"enable_debug"`
+
 	// DebugPort represents debug server port.
 	DebugPort int `yaml:"debug_port"`
 
