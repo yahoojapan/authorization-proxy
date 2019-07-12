@@ -51,6 +51,5 @@ server:
   port: 8082
   enable:debug: true
   debug_port: 6083
-  debug_policy_cache_path: /debug/policy-cache
 ... 
 ```
