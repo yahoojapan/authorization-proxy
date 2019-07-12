@@ -36,11 +36,17 @@ type Server interface {
 type server struct {
 	// authorization proxy server
 	srv        *http.Server
+	srvHandler http.Handler
 	srvRunning bool
 
 	// Health Check server
 	hcsrv     *http.Server
-	hcrunning bool
+	hcRunning bool
+
+	// Debug server
+	dsrv      *http.Server
+	dsHandler http.Handler
+	dRunning  bool
 
 	cfg config.Server
 
@@ -76,52 +82,66 @@ var (
 //
 // The health check server is a http.Server instance, which the port number is read from "config.Server.HealthzPort"
 // , and the handler is as follow - Handle HTTP GET request and always return HTTP Status OK (200) response.
-func NewServer(cfg config.Server, h http.Handler) Server {
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.Port),
-		Handler: h,
-	}
-	srv.SetKeepAlivesEnabled(true)
+func NewServer(opts ...Option) Server {
+	var err error
 
-	hcsrv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.HealthzPort),
-		Handler: createHealthCheckServiceMux(cfg.HealthzPath),
+	s := &server{}
+	for _, o := range opts {
+		o(s)
 	}
-	hcsrv.SetKeepAlivesEnabled(true)
 
-	dur, err := time.ParseDuration(cfg.ShutdownDuration)
+	s.srv = &http.Server{
+		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
+		Handler: s.srvHandler,
+	}
+	s.srv.SetKeepAlivesEnabled(true)
+
+	s.hcsrv = &http.Server{
+		Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
+		Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
+	}
+	s.hcsrv.SetKeepAlivesEnabled(true)
+
+	if s.cfg.EnableDebug {
+		s.dsrv = &http.Server{
+			Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
+			Handler: s.dsHandler,
+		}
+		s.dsrv.SetKeepAlivesEnabled(true)
+	}
+
+	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {
-		dur = time.Second * 5
+		s.sddur = time.Second * 5
 	}
 
-	pwt, err := time.ParseDuration(cfg.ProbeWaitTime)
+	s.pwt, err = time.ParseDuration(s.cfg.ProbeWaitTime)
 	if err != nil {
-		pwt = time.Second * 3
+		s.pwt = time.Second * 3
 	}
 
-	return &server{
-		srv:   srv,
-		hcsrv: hcsrv,
-		cfg:   cfg,
-		pwt:   pwt,
-		sddur: dur,
-	}
+	return s
 }
 
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
 // This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
 // Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
 func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
-	echan := make(chan []error, 1)
+	var (
+		echan = make(chan []error, 1)
 
-	// error channels to keep track server status
-	sech := make(chan error, 1)
-	hech := make(chan error, 1)
+		// error channels to keep track server status
+		sech = make(chan error, 1)
+		hech = make(chan error, 1)
+		dech chan error
+	)
+	if s.cfg.EnableDebug {
+		dech = make(chan error, 1)
+	}
 
 	wg := new(sync.WaitGroup)
-	wg.Add(2)
+	wg.Add(3)
 
-	// start both authorization proxy server and health check server
 	go func() {
 		s.mu.Lock()
 		s.srvRunning = true
@@ -139,7 +159,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 	go func() {
 		s.mu.Lock()
-		s.hcrunning = true
+		s.hcRunning = true
 		s.mu.Unlock()
 		wg.Done()
 
@@ -148,9 +168,26 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		close(hech)
 
 		s.mu.Lock()
-		s.hcrunning = false
+		s.hcRunning = false
 		s.mu.Unlock()
 	}()
+
+	if s.cfg.EnableDebug {
+		go func() {
+			s.mu.Lock()
+			s.dRunning = true
+			s.mu.Unlock()
+			wg.Done()
+
+			glg.Info("authorization proxy debug server starting")
+			dech <- s.dsrv.ListenAndServe()
+			close(dech)
+
+			s.mu.Lock()
+			s.dRunning = false
+			s.mu.Unlock()
+		}()
+	}
 
 	go func() {
 		// wait for all server running
@@ -163,50 +200,64 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			return errs
 		}
 
+		shutdownSrvs := func(errs []error) {
+			if s.hcRunning {
+				glg.Info("authorization proxy health check server will shutdown")
+				errs = appendErr(errs, s.hcShutdown(context.Background()))
+			}
+			if s.srvRunning {
+				glg.Info("authorization proxy api server will shutdown")
+				errs = appendErr(errs, s.apiShutdown(context.Background()))
+			}
+			if s.dRunning {
+				glg.Info("authorization proxy debug server will shutdown")
+				errs = appendErr(errs, s.dShutdown(context.Background()))
+			}
+		}
+
 		errs := make([]error, 0, 3)
 		for {
 			select {
 			case <-ctx.Done(): // when context receive done signal, close running servers and return any error
 				s.mu.RLock()
-				if s.hcrunning {
-					glg.Info("authorization proxy health check server will shutdown")
-					errs = appendErr(errs, s.hcShutdown(context.Background()))
-				}
-				if s.srvRunning {
-					glg.Info("authorization proxy api server will shutdown")
-					errs = appendErr(errs, s.apiShutdown(context.Background()))
-				}
+				shutdownSrvs(errs)
 				s.mu.RUnlock()
 				echan <- appendErr(errs, ctx.Err())
 				return
 
-			case err := <-sech: // when authorization proxy server returns, close running health check server and return any error
+			case err := <-sech: // when authorization proxy server returns, close running servers and return any error
 				if err != nil {
-					errs = appendErr(errs, errors.Wrap(err, "close running health check server and return any error"))
+					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
 				}
 
 				s.mu.RLock()
-				if s.hcrunning {
-					glg.Info("authorization proxy health check server will shutdown")
-					errs = appendErr(errs, s.hcShutdown(ctx))
-				}
+				shutdownSrvs(errs)
 				s.mu.RUnlock()
 				echan <- errs
 				return
 
-			case err := <-hech: // when health check server returns, close running authorization proxy server and return any error
+			case err := <-hech: // when health check server returns, close running servers and return any error
 				if err != nil {
-					errs = append(errs, errors.Wrap(err, "close running authorization proxy server and return any error"))
+					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
 				}
 
 				s.mu.RLock()
-				if s.srvRunning {
-					glg.Info("authorization proxy api server will shutdown")
-					errs = appendErr(errs, s.apiShutdown(ctx))
-				}
+				shutdownSrvs(errs)
 				s.mu.RUnlock()
 				echan <- errs
 				return
+
+			case err := <-dech: // when debug server returns, close running servers and return any error
+				if err != nil {
+					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
+				}
+
+				s.mu.RLock()
+				shutdownSrvs(errs)
+				s.mu.RUnlock()
+				echan <- errs
+				return
+
 			}
 		}
 	}()
@@ -218,6 +269,12 @@ func (s *server) hcShutdown(ctx context.Context) error {
 	hctx, hcancel := context.WithTimeout(ctx, s.sddur)
 	defer hcancel()
 	return s.hcsrv.Shutdown(hctx)
+}
+
+func (s *server) dShutdown(ctx context.Context) error {
+	dctx, dcancel := context.WithTimeout(ctx, s.sddur)
+	defer dcancel()
+	return s.dsrv.Shutdown(dctx)
 }
 
 // apiShutdown returns any error when shutdown the authorization proxy server.
@@ -251,7 +308,6 @@ func handleHealthCheckRequest(w http.ResponseWriter, r *http.Request) {
 
 // listenAndServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
 func (s *server) listenAndServeAPI() error {
-
 	if !s.cfg.TLS.Enabled {
 		return s.srv.ListenAndServe()
 	}
