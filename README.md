@@ -60,7 +60,8 @@ All the HTTP/HTTPS methods and URI path will be automatically converted to lower
 
 ## Configuration
 
-- [config.go](./config/config.go)
+The example configuration file is [here](./config/testdata/example_config.yaml).
+For detail explaination please read [config.go](./config/config.go).
 
 ---
 

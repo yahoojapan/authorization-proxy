@@ -1,15 +1,37 @@
 # Debug Interface
 
-1. `GET /debug/policy-cache`
+1. `GET /debug/cache/policy`
 
-- Get policy cache from memory (Please use it carefully!!)
 
 ## Get policy cache
 
 - Only accept HTTP GET request
 - Response body contains below information in JSON format.
+- Please use it carefully!!
 
-Example:
+### Configuration
+
+Example configuration for debug policy cache interface:
+
+```yaml
+version: v1.0.0
+server:
+  enable_debug: true
+  debug_port: 6083
+...
+```
+
+For more information, please refer to [config.go](./config/config.go).
+
+### Example:
+
+User can request to get the policy cache by the following command.
+
+```bash
+curl http://127.0.0.1:8082/debug/cache/policy
+```
+
+The output should something like:
 
 ```json
 {
@@ -41,15 +63,3 @@ Example:
 }
 ```
 
-### Configuration
-
-Example configuration for debug policy cache interface:
-
-```yaml
-version: v1.0.0
-server:
-  port: 8082
-  enable:debug: true
-  debug_port: 6083
-... 
-```
