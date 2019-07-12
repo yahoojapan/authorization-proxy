@@ -3,6 +3,7 @@ package router
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/yahoojapan/authorization-proxy/config"
@@ -29,8 +30,20 @@ func TestNewDebugRoutes(t *testing.T) {
 					a:   nil,
 				},
 				checkFunc: func(got, want []Route) error {
-					if got[0].Name != want[0].Name {
-						return errors.New("not match")
+					for i, gotValue := range got {
+						wantValue := want[i]
+						if gotValue.Name != wantValue.Name {
+							return errors.New("name not match")
+						}
+						if !reflect.DeepEqual(gotValue.Methods, wantValue.Methods) {
+							return errors.New("methods not match")
+						}
+						if gotValue.Pattern != wantValue.Pattern {
+							return errors.New("pattern not match")
+						}
+						if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
+							return errors.New("handler not match")
+						}
 					}
 					return nil
 				},
@@ -40,7 +53,7 @@ func TestNewDebugRoutes(t *testing.T) {
 						[]string{
 							http.MethodGet,
 						},
-						"debug/policy-cache",
+						"/debug/cache/policy",
 						NewPolicyCacheHandler(nil),
 					},
 				},
