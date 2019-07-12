@@ -2,6 +2,8 @@ version: v1.0.0
 debug: false
 server:
   port: 8082
+  enable_debug: false
+  debug_port: 6083
   health_check_port: 6082
   health_check_path: /healthz
   timeout: 10s

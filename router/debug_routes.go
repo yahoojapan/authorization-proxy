@@ -24,7 +24,7 @@ func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 			[]string{
 				http.MethodGet,
 			},
-			"/debug/policy-cache",
+			"/debug/cache/policy",
 			NewPolicyCacheHandler(a),
 		},
 	}

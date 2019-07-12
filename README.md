@@ -54,13 +54,14 @@ The mapping rules were described below.
 
 All the HTTP/HTTPS methods and URI path will be automatically converted to lower case. 
 
-## Debug Interface
+## Features to Debug
 
-- [Debug](./doc/debug.md)
+- [Configuration](./doc/debug.md)
 
 ## Configuration
 
-- [config.go](./config/config.go)
+The example configuration file is [here](./config/testdata/example_config.yaml).
+For detail explaination please read [config.go](./config/config.go).
 
 ---
 
