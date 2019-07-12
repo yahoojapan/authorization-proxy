@@ -80,6 +80,8 @@ func TestNew(t *testing.T) {
 				EnableColorLogging: false,
 				Server: Server{
 					Port:             8082,
+					EnableDebug:      false,
+					DebugPort:        6083,
 					HealthzPort:      6082,
 					HealthzPath:      "/healthz",
 					Timeout:          "10s",

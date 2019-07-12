@@ -1,13 +1,15 @@
-# Debug Interface
+# Features to Debug
 
-1. `GET /debug/cache/policy`
+# Table of Contents
 
+1. [Get policy cache](#get-policy-cache)
 
 ## Get policy cache
 
-- Only accept HTTP GET request
+- Only accepts HTTP `GET` request
+- The endpoint is `/debug/cache/policy`
 - Response body contains below information in JSON format.
-- Please use it carefully!!
+- It will expose the entire policy cache to the client.
 
 ### Configuration
 
@@ -21,17 +23,15 @@ server:
 ...
 ```
 
-For more information, please refer to [config.go](../config/config.go).
+The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
 
 ### Example:
 
-User can request to get the policy cache by the following command.
-
 ```bash
-curl http://127.0.0.1:6083/debug/cache/policy
+curl -X GET http://127.0.0.1:6083/debug/cache/policy
 ```
 
-The output should something like:
+Output:
 
 ```json
 {

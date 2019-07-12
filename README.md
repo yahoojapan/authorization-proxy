@@ -54,9 +54,9 @@ The mapping rules were described below.
 
 All the HTTP/HTTPS methods and URI path will be automatically converted to lower case. 
 
-## Debug Interface
+## Features to Debug
 
-- [Debug](./doc/debug.md)
+- [Configuration](./doc/debug.md)
 
 ## Configuration
 
