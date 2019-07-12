@@ -21,14 +21,14 @@ server:
 ...
 ```
 
-For more information, please refer to [config.go](./config/config.go).
+For more information, please refer to [config.go](../config/config.go).
 
 ### Example:
 
 User can request to get the policy cache by the following command.
 
 ```bash
-curl http://127.0.0.1:8082/debug/cache/policy
+curl http://127.0.0.1:6083/debug/cache/policy
 ```
 
 The output should something like:
