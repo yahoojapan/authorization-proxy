@@ -18,18 +18,13 @@ type Route struct {
 }
 
 func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
-	pcPath := cfg.DebugPolicyCachePath
-	if pcPath == "" {
-		pcPath = "/debug/policy-cache"
-	}
-
 	return []Route{
 		{
 			"GetPolicyCache",
 			[]string{
 				http.MethodGet,
 			},
-			cfg.DebugPolicyCachePath,
+			"/debug/policy-cache",
 			NewPolicyCacheHandler(a),
 		},
 	}

@@ -25,10 +25,8 @@ func TestNewDebugRoutes(t *testing.T) {
 			return test{
 				name: "return success",
 				args: args{
-					cfg: config.Server{
-						DebugPolicyCachePath: "dummy",
-					},
-					a: nil,
+					cfg: config.Server{},
+					a:   nil,
 				},
 				checkFunc: func(got, want []Route) error {
 					if got[0].Name != want[0].Name {
@@ -42,7 +40,7 @@ func TestNewDebugRoutes(t *testing.T) {
 						[]string{
 							http.MethodGet,
 						},
-						"dummy",
+						"debug/policy-cache",
 						NewPolicyCacheHandler(nil),
 					},
 				},

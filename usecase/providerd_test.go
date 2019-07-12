@@ -40,8 +40,7 @@ func TestNew(t *testing.T) {
 						PolicyEtagFlushDur:    "10s",
 					},
 					Server: config.Server{
-						HealthzPath:          "/dummy",
-						DebugPolicyCachePath: "dummy",
+						HealthzPath: "/dummy",
 					},
 					Proxy: config.Proxy{
 						BufferSize: 512,

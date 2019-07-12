@@ -64,9 +64,6 @@ type Server struct {
 	// DebugPort represents debug server port.
 	DebugPort int `yaml:"debug_port"`
 
-	// DebugPolicyCachePath represents the policy cache debug path
-	DebugPolicyCachePath string `yaml:"debug_policy_cache_path"`
-
 	// HealthzPort represents health check server port.
 	HealthzPort int `yaml:"health_check_port"`
 

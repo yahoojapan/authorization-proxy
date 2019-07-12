@@ -31,10 +31,8 @@ func TestNewDebugRouter(t *testing.T) {
 		{
 			name: "new debug router success",
 			args: args{
-				cfg: config.Server{
-					DebugPolicyCachePath: "dummy",
-				},
-				a: nil,
+				cfg: config.Server{},
+				a:   nil,
 			},
 			checkFunc: func(got *http.ServeMux) error {
 				return nil
