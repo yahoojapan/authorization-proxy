@@ -187,6 +187,8 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			s.dRunning = false
 			s.mu.Unlock()
 		}()
+	} else {
+		wg.Done()
 	}
 
 	go func() {
