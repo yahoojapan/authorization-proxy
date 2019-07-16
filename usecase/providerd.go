@@ -79,8 +79,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
 				}
 				errs = append(errs, ctx.Err())
-				ech <- errs
-				return
+				// ctx.Done() will be handled by sch
 			case e := <-pch:
 				glg.Errorf("pch %v", e)
 				glg.Error(e)

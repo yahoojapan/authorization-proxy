@@ -192,6 +192,8 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	}
 
 	go func() {
+		defer close(echan)
+
 		// wait for all server running
 		wg.Wait()
 
@@ -215,6 +217,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				glg.Info("authorization proxy debug server will shutdown")
 				errs = appendErr(errs, s.dShutdown(context.Background()))
 			}
+			glg.Info("authorization proxy has already shut down gracefully")
 		}
 
 		errs := make([]error, 0, 3)
