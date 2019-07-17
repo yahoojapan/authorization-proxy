@@ -156,7 +156,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "1 times appeared"),
+					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
 					context.Canceled,
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -306,8 +306,8 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "3 times appeared"),
-					errors.WithMessage(context.Canceled, "1 times appeared"),
+					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "providerd: 3 times appeared"),
+					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
 					context.Canceled,
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {

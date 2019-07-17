@@ -99,7 +99,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 				// aggregate all errors as array
 				errs := make([]error, 0, len(emap))
 				for err, count := range emap {
-					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
+					errs = append(errs, errors.WithMessagef(err, "providerd: %d times appeared", count))
 				}
 
 				// return all errors
