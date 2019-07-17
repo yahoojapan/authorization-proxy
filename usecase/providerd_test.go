@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -15,45 +16,58 @@ func TestNew(t *testing.T) {
 	type args struct {
 		cfg config.Config
 	}
-	tests := []struct {
+	type test struct {
 		name      string
 		args      args
 		checkFunc func(AuthorizationDaemon) error
 		wantErr   bool
-	}{
-		{
-			name: "new success",
-			args: args{
-				cfg: config.Config{
-					Athenz: config.Athenz{
-						URL: "athenz.com",
-					},
-					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "10s",
-						PubKeySysAuthDomain:   "dummy.sys.auth",
-						PubKeyEtagExpTime:     "10s",
-						PubKeyEtagFlushDur:    "10s",
-						AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
-						PolicyExpireMargin:    "10s",
-						PolicyRefreshDuration: "10s",
-						PolicyEtagExpTime:     "10s",
-						PolicyEtagFlushDur:    "10s",
-					},
-					Server: config.Server{
-						HealthzPath: "/dummy",
-					},
-					Proxy: config.Proxy{
-						BufferSize: 512,
-					},
+	}
+	tests := []test{
+		func() test {
+			cfg := config.Config{
+				Athenz: config.Athenz{
+					URL: "athenz.com",
 				},
-			},
-			checkFunc: func(got AuthorizationDaemon) error {
-				if got == nil {
-					return errors.New("got is nil")
-				}
-				return nil
-			},
-		},
+				Authorization: config.Authorization{
+					PubKeyRefreshDuration: "10s",
+					PubKeySysAuthDomain:   "dummy.sys.auth",
+					PubKeyEtagExpTime:     "10s",
+					PubKeyEtagFlushDur:    "10s",
+					AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
+					PolicyExpireMargin:    "10s",
+					PolicyRefreshDuration: "10s",
+					PolicyEtagExpTime:     "10s",
+					PolicyEtagFlushDur:    "10s",
+				},
+				Server: config.Server{
+					HealthzPath: "/dummy",
+				},
+				Proxy: config.Proxy{
+					BufferSize: 512,
+				},
+			}
+			return test{
+				name: "new success",
+				args: args{
+					cfg: cfg,
+				},
+				checkFunc: func(got AuthorizationDaemon) error {
+					if got == nil {
+						return errors.New("got is nil")
+					}
+					if !reflect.DeepEqual(got.(*providerDaemon).cfg, cfg) {
+						return errors.New("got.cfg does not equal")
+					}
+					if got.(*providerDaemon).athenz == nil {
+						return errors.New("got.athenz is nil")
+					}
+					if got.(*providerDaemon).server == nil {
+						return errors.New("got.server is nil")
+					}
+					return nil
+				},
+			}
+		}(),
 		{
 			name: "new error",
 			args: args{
@@ -96,7 +110,8 @@ func Test_providerDaemon_Start(t *testing.T) {
 		name      string
 		fields    fields
 		args      args
-		checkFunc func(<-chan []error) error
+		wantErrs  []error
+		checkFunc func(<-chan []error, []error) error
 	}
 	tests := []test{
 		func() test {
@@ -104,14 +119,35 @@ func Test_providerDaemon_Start(t *testing.T) {
 			return test{
 				name: "Daemon start success",
 				fields: fields{
-					athenz: &service.AuthorizedMock{
+					athenz: &service.AuthorizerdMock{
 						StartFunc: func(context.Context) <-chan error {
-							return make(chan error)
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
 						},
 					},
 					server: &service.ServerMock{
 						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
 							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// prevent race with Authorizerd.Start() in select
+									// also, simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{ctx.Err()}
+									return
+								}
+							}()
 							return ech
 						},
 					},
@@ -119,25 +155,34 @@ func Test_providerDaemon_Start(t *testing.T) {
 				args: args{
 					ctx: ctx,
 				},
-				checkFunc: func(got <-chan []error) error {
+				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "1 times appeared"),
+					context.Canceled,
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
 					cancel()
 					mux := &sync.Mutex{}
 
-					errs := make([][]error, 0)
+					gotErrs := make([][]error, 0)
+					mux.Lock()
 					go func() {
+						defer mux.Unlock()
 						select {
-						case err := <-got:
-							mux.Lock()
-							errs = append(errs, err)
-							mux.Unlock()
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
 						}
 					}()
 					time.Sleep(time.Second)
 
 					mux.Lock()
 					defer mux.Unlock()
-					if len(errs) != 1 || len(errs[0]) != 1 || errs[0][0] != context.Canceled {
-						return errors.Errorf("Invalid err, got: %v", errs)
+
+					// check only send errors once and the errors are expected
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
 					}
 					return nil
 				},
@@ -145,58 +190,20 @@ func Test_providerDaemon_Start(t *testing.T) {
 		}(),
 		func() test {
 			ctx, cancel := context.WithCancel(context.Background())
+			dummyErr := errors.New("dummy")
 			return test{
-				name: "Server return fail",
+				name: "Server fails",
 				fields: fields{
-					athenz: &service.AuthorizedMock{
-						StartFunc: func(context.Context) <-chan error {
-							return make(chan error)
-						},
-					},
-					server: &service.ServerMock{
-						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
-							ech := make(chan []error)
-							go func() {
-								ech <- []error{errors.New("dummy")}
-							}()
-							return ech
-						},
-					},
-				},
-				args: args{
-					ctx: ctx,
-				},
-				checkFunc: func(got <-chan []error) error {
-					got1 := <-got
-					cancel()
-					time.Sleep(time.Second)
-					//got2 := <-got
-					if got1 == nil || len(got1) != 1 {
-						return errors.Errorf("errors is invalid, got: %v", got1)
-					}
-					if got1[0].Error() != "dummy" {
-						return errors.Errorf("got error: %v, want: %v", got1[0], context.Canceled)
-					}
-					//	if got2 == nil || len(got2) != 1 {
-					//		return errors.Errorf("errors 2 is invalid, got: %v", got2)
-					//	}
-					//	if got2[0] != context.Canceled {
-					//		return errors.Errorf("got 2 error: %v, want: %v", got2[0], "dummy")
-					//	}
-					return nil
-				},
-			}
-		}(),
-		func() test {
-			ctx, cancel := context.WithCancel(context.Background())
-			return test{
-				name: "Providerd return fail",
-				fields: fields{
-					athenz: &service.AuthorizedMock{
+					athenz: &service.AuthorizerdMock{
 						StartFunc: func(context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
-								ech <- errors.New("dummy")
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
 							}()
 							return ech
 						},
@@ -204,6 +211,11 @@ func Test_providerDaemon_Start(t *testing.T) {
 					server: &service.ServerMock{
 						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
 							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								ech <- []error{errors.WithMessage(dummyErr, "server fails")}
+								return
+							}()
 							return ech
 						},
 					},
@@ -211,18 +223,117 @@ func Test_providerDaemon_Start(t *testing.T) {
 				args: args{
 					ctx: ctx,
 				},
-				checkFunc: func(got <-chan []error) error {
-					time.Sleep(time.Millisecond * 200)
+				wantErrs: []error{
+					errors.WithMessage(dummyErr, "server fails"),
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs[0], wantErrs)
+					}
+
 					cancel()
-					errs := <-got
-					if errs == nil || len(errs) != 2 {
-						return errors.Errorf("errors is invalid, got: %v", errs)
-					}
-					if errs[0].Error() != "1 times appeared: dummy" {
-						return errors.Errorf("got error: %v, want: %v", errs[0], "1 times appeared: dummy")
-					}
-					if errs[1] != context.Canceled {
-						return errors.Errorf("got error: %v, want: %v", errs[1], context.Canceled)
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			dummyErr := errors.New("dummy")
+			return test{
+				name: "Provider daemon fails, multiple times",
+				fields: fields{
+					athenz: &service.AuthorizerdMock{
+						StartFunc: func(context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+
+								// simulate fails
+								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
+								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
+								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
+
+								// return only if context cancel
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
+							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// prevent race with Authorizerd.Start() in select
+									// also, simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{ctx.Err()}
+									return
+								}
+							}()
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				wantErrs: []error{
+					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "3 times appeared"),
+					errors.WithMessage(context.Canceled, "1 times appeared"),
+					context.Canceled,
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					cancel()
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
 					}
 					return nil
 				},
@@ -237,7 +348,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				server: tt.fields.server,
 			}
 			got := g.Start(tt.args.ctx)
-			if err := tt.checkFunc(got); err != nil {
+			if err := tt.checkFunc(got, tt.wantErrs); err != nil {
 				t.Errorf("providerDaemon.Start() error: %v", err)
 			}
 		})

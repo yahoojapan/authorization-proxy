@@ -62,7 +62,7 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 	}, nil
 }
 
-// Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
+// Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	pch := g.athenz.Start(ctx)
@@ -73,25 +73,37 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 
 		for {
 			select {
-			case <-ctx.Done():
-				errs := make([]error, 0, len(emap)+1)
-				for err, count := range emap {
-					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
-				}
-				errs = append(errs, ctx.Err())
-				// ctx.Done() will be handled by sch
+			// ctx.Done() will be handled by sch
+			// case <-ctx.Done():
 			case e := <-pch:
+				if e == nil {
+					// prevent handling nil value on channel close
+					continue
+				}
+				// count errors by cause
 				glg.Errorf("pch %v", e)
-				glg.Error(e)
 				cause := errors.Cause(e)
 				_, ok := emap[cause]
 				if !ok {
-					emap[cause] = 0
+					emap[cause] = 1
+				} else {
+					emap[cause]++
 				}
-				emap[cause]++
-			case errs := <-sch:
-				glg.Errorf("sch %v", errs)
-				ech <- errs
+			case serrs := <-sch:
+				if serrs == nil {
+					// prevent handling nil value on channel close
+					continue
+				}
+				glg.Errorf("sch %v", serrs)
+
+				// aggregate all errors as array
+				errs := make([]error, 0, len(emap))
+				for err, count := range emap {
+					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
+				}
+
+				// return all errors
+				ech <- append(errs, serrs...)
 				return
 			}
 		}
