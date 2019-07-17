@@ -80,8 +80,8 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 					// prevent handling nil value on channel close
 					continue
 				}
-				// count errors by cause
 				glg.Errorf("pch %v", e)
+				// count errors by cause
 				cause := errors.Cause(e)
 				_, ok := emap[cause]
 				if !ok {
@@ -95,7 +95,6 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 					continue
 				}
 				glg.Errorf("sch %v", serrs)
-
 				// aggregate all errors as array
 				errs := make([]error, 0, len(emap))
 				for err, count := range emap {
