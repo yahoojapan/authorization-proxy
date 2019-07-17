@@ -135,12 +135,9 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		hech = make(chan error, 1)
 		dech chan error
 	)
-	if s.cfg.EnableDebug {
-		dech = make(chan error, 1)
-	}
 
 	wg := new(sync.WaitGroup)
-	wg.Add(3)
+	wg.Add(2)
 
 	go func() {
 		s.mu.Lock()
@@ -173,6 +170,9 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	}()
 
 	if s.cfg.EnableDebug {
+		wg.Add(1)
+		dech = make(chan error, 1)
+	
 		go func() {
 			s.mu.Lock()
 			s.dRunning = true
@@ -187,8 +187,6 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			s.dRunning = false
 			s.mu.Unlock()
 		}()
-	} else {
-		wg.Done()
 	}
 
 	go func() {
