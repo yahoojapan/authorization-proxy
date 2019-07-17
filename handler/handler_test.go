@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 						}(),
 					},
 					bp: infra.NewBuffer(64),
-					prov: &service.AuthorizedMock{
+					prov: &service.AuthorizerdMock{
 						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 							return nil
 						},
@@ -86,7 +86,7 @@ func TestNew(t *testing.T) {
 						}(),
 					},
 					bp: infra.NewBuffer(64),
-					prov: &service.AuthorizedMock{
+					prov: &service.AuthorizerdMock{
 						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 							return errors.New("deny")
 						},
@@ -122,7 +122,7 @@ func TestNew(t *testing.T) {
 						Scheme: "http",
 					},
 					bp: infra.NewBuffer(64),
-					prov: &service.AuthorizedMock{
+					prov: &service.AuthorizerdMock{
 						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 							return nil
 						},
@@ -151,7 +151,7 @@ func TestNew(t *testing.T) {
 						Port: 9999,
 					},
 					bp: infra.NewBuffer(64),
-					prov: &service.AuthorizedMock{
+					prov: &service.AuthorizerdMock{
 						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 							return nil
 						},
@@ -186,7 +186,7 @@ func TestNew(t *testing.T) {
 						}(),
 					},
 					bp: infra.NewBuffer(64),
-					prov: &service.AuthorizedMock{
+					prov: &service.AuthorizerdMock{
 						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 							return context.Canceled
 						},

@@ -31,7 +31,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			name: "verify role token failed",
 			fields: fields{
 				RoundTripper: nil,
-				prov: &service.AuthorizedMock{
+				prov: &service.AuthorizerdMock{
 					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 						return errors.New("dummy error")
 					},
@@ -58,7 +58,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 						}, nil
 					},
 				},
-				prov: &service.AuthorizedMock{
+				prov: &service.AuthorizerdMock{
 					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
 						return nil
 					},
