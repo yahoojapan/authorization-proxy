@@ -75,7 +75,12 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 			select {
 			// ctx.Done() will be handled by sch
 			// case <-ctx.Done():
-			case e := <-pch:
+			case e, chOk := <-pch:
+				if !chOk {
+					// prevent handling nil value on channel close
+					pch = nil
+					continue
+				}
 				glg.Errorf("pch %v", e)
 				// count errors by cause
 				cause := errors.Cause(e)
@@ -85,7 +90,12 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 				} else {
 					emap[cause]++
 				}
-			case serrs := <-sch:
+			case serrs, chOk := <-sch:
+				if !chOk {
+					// prevent handling nil value on channel close
+					sch = nil
+					continue
+				}
 				glg.Errorf("sch %v", serrs)
 				// aggregate all errors as array
 				errs := make([]error, 0, len(emap))
