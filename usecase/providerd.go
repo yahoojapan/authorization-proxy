@@ -76,10 +76,6 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 			// ctx.Done() will be handled by sch
 			// case <-ctx.Done():
 			case e := <-pch:
-				if e == nil {
-					// prevent handling nil value on channel close
-					continue
-				}
 				glg.Errorf("pch %v", e)
 				// count errors by cause
 				cause := errors.Cause(e)
@@ -90,10 +86,6 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 					emap[cause]++
 				}
 			case serrs := <-sch:
-				if serrs == nil {
-					// prevent handling nil value on channel close
-					continue
-				}
 				glg.Errorf("sch %v", serrs)
 				// aggregate all errors as array
 				errs := make([]error, 0, len(emap))
@@ -114,15 +106,20 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
 		providerd.WithAthenzURL(cfg.Athenz.URL),
+
 		providerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
 		providerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
 		providerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
 		providerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
+		providerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
 		providerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
+
 		providerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		providerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		providerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
 		providerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
+		providerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
+
 		providerd.WithDisableJwkd(),
 	)
 }

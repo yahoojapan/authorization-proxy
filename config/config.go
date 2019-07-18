@@ -142,6 +142,9 @@ type Authorization struct {
 	// PubKeyEtagFlushDur represent the Etag cache expiration check duration.
 	PubKeyEtagFlushDur string `yaml:"pubKeyEtagFlushDur"`
 
+	// PubKeyErrRetryInterval represent the retry interval when fail to get the pubkey from Athenz server.
+	PubKeyErrRetryInterval string `yaml:"pubKeyErrRetryInterval"`
+
 	// AthenzDomains represents the Athenz domains to fetch the policy.
 	AthenzDomains []string `yaml:"athenzDomains"`
 
@@ -156,6 +159,9 @@ type Authorization struct {
 
 	// PolicyEtagFlushDur represent the Etag cache expiration check duration.
 	PolicyEtagFlushDur string `yaml:"policyEtagFlushDur"`
+
+	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
+	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
