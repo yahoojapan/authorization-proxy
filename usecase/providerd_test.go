@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"reflect"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -113,6 +114,11 @@ func Test_providerDaemon_Start(t *testing.T) {
 		wantErrs  []error
 		checkFunc func(<-chan []error, []error) error
 	}
+	getLessErrorFunc := func(errs []error) func(i, j int) bool {
+		return func(i, j int) bool {
+			return errs[i].Error() < errs[j].Error()
+		}
+	}
 	tests := []test{
 		func() test {
 			ctx, cancel := context.WithCancel(context.Background())
@@ -180,7 +186,9 @@ func Test_providerDaemon_Start(t *testing.T) {
 					mux.Lock()
 					defer mux.Unlock()
 
-					// check only send errors once and the errors are expected
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
 					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
 						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
 					}
@@ -246,7 +254,9 @@ func Test_providerDaemon_Start(t *testing.T) {
 					mux.Lock()
 					defer mux.Unlock()
 
-					// check only send errors once and the errors are expected
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
 					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
 						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs[0], wantErrs)
 					}
@@ -331,7 +341,9 @@ func Test_providerDaemon_Start(t *testing.T) {
 					mux.Lock()
 					defer mux.Unlock()
 
-					// check only send errors once and the errors are expected
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
 					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
 						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
 					}
