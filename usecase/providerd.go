@@ -76,8 +76,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 			// ctx.Done() will be handled by sch
 			// case <-ctx.Done():
 			case e, ok := <-pch:
-				if !ok {
-					// prevent handling nil value on channel close
+				if !ok { // handle channel close
 					pch = nil
 					continue
 				}
@@ -91,8 +90,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 					emap[cause]++
 				}
 			case serrs, ok := <-sch:
-				if !ok {
-					// prevent handling nil value on channel close
+				if !ok { // handle channel close
 					sch = nil
 					continue
 				}
