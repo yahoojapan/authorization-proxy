@@ -137,8 +137,8 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	)
 
 	wg := new(sync.WaitGroup)
-	wg.Add(2)
 
+	wg.Add(1)
 	go func() {
 		s.mu.Lock()
 		s.srvRunning = true
@@ -147,6 +147,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		glg.Info("authorization proxy api server starting")
 		sech <- s.listenAndServeAPI()
+		glg.Info("authorization proxy api server closed")
 		close(sech)
 
 		s.mu.Lock()
@@ -154,6 +155,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.mu.Unlock()
 	}()
 
+	wg.Add(1)
 	go func() {
 		s.mu.Lock()
 		s.hcRunning = true
@@ -162,6 +164,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		glg.Info("authorization proxy health check server starting")
 		hech <- s.hcsrv.ListenAndServe()
+		glg.Info("authorization proxy health check server closed")
 		close(hech)
 
 		s.mu.Lock()
@@ -172,7 +175,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	if s.cfg.EnableDebug {
 		wg.Add(1)
 		dech = make(chan error, 1)
-	
+
 		go func() {
 			s.mu.Lock()
 			s.dRunning = true
@@ -181,6 +184,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 			glg.Info("authorization proxy debug server starting")
 			dech <- s.dsrv.ListenAndServe()
+			glg.Info("authorization proxy debug server closed")
 			close(dech)
 
 			s.mu.Lock()
