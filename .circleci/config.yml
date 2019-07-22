@@ -3,7 +3,7 @@ alias:
   default: &default
     working_directory: /go/src/github.com/yahoojapan/authorization-proxy
     docker:
-      - image: yahoojapan/authorization-proxy:1.2.1
+      - image: circleci/golang:1.12
         environment:
           GOPATH: "/go"
           GO111MODULE: "on"
