@@ -1,16 +1,16 @@
 alias:
 
   default: &default
-    working_directory: /go/src/github.com/yahoojapan/authorization-proxy
+    working_directory: /go/src/github.com/No1zy/authorization-proxy
     docker:
       - image: circleci/golang:1.12
         environment:
           GOPATH: "/go"
           GO111MODULE: "on"
-          REPO_NAME: "yahoojapan"
+          REPO_NAME: "no1zy"
           IMAGE_NAME: "authorization-proxy"
           GITHUB_API: "https://api.github.com/"
-          DOCKER_USER: "kpango"
+          DOCKER_USER: "no1zy"
   setup_remote_docker: &setup_remote_docker
     version: 18.06.0-ce
     docker_layer_caching: true
