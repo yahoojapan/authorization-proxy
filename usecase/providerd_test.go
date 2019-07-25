@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"sort"
 	"sync"
@@ -189,9 +190,12 @@ func Test_providerDaemon_Start(t *testing.T) {
 					// check only send errors once and the errors are expected ignoring order
 					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
 					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
-					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
-						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
 					}
+
 					return nil
 				},
 			}
@@ -257,8 +261,10 @@ func Test_providerDaemon_Start(t *testing.T) {
 					// check only send errors once and the errors are expected ignoring order
 					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
 					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
-					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
-						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs[0], wantErrs)
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
 					}
 
 					cancel()
@@ -344,9 +350,12 @@ func Test_providerDaemon_Start(t *testing.T) {
 					// check only send errors once and the errors are expected ignoring order
 					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
 					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
-					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrs[0], wantErrs) {
-						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrs, [][]error{wantErrs})
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
 					}
+
 					return nil
 				},
 			}

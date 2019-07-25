@@ -68,7 +68,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	pch := g.athenz.Start(ctx)
 	sch := g.server.ListenAndServe(ctx)
 	go func() {
-		emap := make(map[error]uint64, 1)
+		emap := make(map[string]uint64, 1)
 		defer close(ech)
 
 		for {
@@ -82,7 +82,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 				}
 				glg.Errorf("pch %v", e)
 				// count errors by cause
-				cause := errors.Cause(e)
+				cause := errors.Cause(e).Error()
 				_, ok = emap[cause]
 				if !ok {
 					emap[cause] = 1
@@ -97,8 +97,8 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 				glg.Errorf("sch %v", serrs)
 				// aggregate all errors as array
 				errs := make([]error, 0, len(emap))
-				for err, count := range emap {
-					errs = append(errs, errors.WithMessagef(err, "providerd: %d times appeared", count))
+				for errMsg, count := range emap {
+					errs = append(errs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
 				}
 
 				// return all errors
