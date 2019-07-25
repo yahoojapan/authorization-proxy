@@ -208,15 +208,15 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		shutdownSrvs := func(errs []error) {
 			if s.hcRunning {
-				glg.Info("authorization proxy health check server will shutdown")
+				glg.Info("authorization proxy health check server will shutdown...")
 				errs = appendErr(errs, s.hcShutdown(context.Background()))
 			}
 			if s.srvRunning {
-				glg.Info("authorization proxy api server will shutdown")
+				glg.Info("authorization proxy api server will shutdown...")
 				errs = appendErr(errs, s.apiShutdown(context.Background()))
 			}
 			if s.dRunning {
-				glg.Info("authorization proxy debug server will shutdown")
+				glg.Info("authorization proxy debug server will shutdown...")
 				errs = appendErr(errs, s.dShutdown(context.Background()))
 			}
 			glg.Info("authorization proxy has already shut down gracefully")
