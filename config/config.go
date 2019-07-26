@@ -58,7 +58,7 @@ type Server struct {
 	// Port represents the server port.
 	Port int `yaml:"port"`
 
-	// EnableDebug represents if user want to enable debug funcationality.
+	// EnableDebug represents if user want to enable debug functionality.
 	EnableDebug bool `yaml:"enable_debug"`
 
 	// DebugPort represents debug server port.
@@ -133,7 +133,7 @@ type Authorization struct {
 	// PubKeyRefreshDuration represents the refresh duration of Athenz PubKey.
 	PubKeyRefreshDuration string `yaml:"pubKeyRefreshDuration"`
 
-	// PubKeySysAuthDomain represents the system authenicate domain of Athenz.
+	// PubKeySysAuthDomain represents the system authentication domain of Athenz.
 	PubKeySysAuthDomain string `yaml:"pubKeySysAuthDomain"`
 
 	// PubKeyEtagExpTime represents the Etag cache expiration time of Athenz PubKey.
