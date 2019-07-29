@@ -86,7 +86,7 @@ func TestNew(t *testing.T) {
 					HealthzPath:      "/healthz",
 					Timeout:          "10s",
 					ShutdownDuration: "10s",
-					ProbeWaitTime:    "7s",
+					ProbeWaitTime:    "9s",
 					TLS: TLS{
 						Enabled: false,
 						Cert:    "/etc/athenz/provider/keys/server.crt",
