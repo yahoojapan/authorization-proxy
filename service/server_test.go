@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"sync"
 	"testing"
 	"time"
 
@@ -121,7 +120,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 		hcsrv *http.Server
 		dsrv  *http.Server
 		cfg   config.Server
-		mu    sync.RWMutex
 	}
 	type args struct {
 		ctx        context.Context
@@ -206,7 +204,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 							Key:     keyKey,
 						},
 					},
-					mu: sync.RWMutex{},
 				},
 				args: args{
 					ctx: ctx,
@@ -316,7 +313,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 							Key:     key,
 						},
 					},
-					mu: sync.RWMutex{},
 				},
 				args: args{
 					ctx: context.Background(),
@@ -408,7 +404,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 							Key:     key,
 						},
 					},
-					mu: sync.RWMutex{},
 				},
 				args: args{
 					ctx: context.Background(),
@@ -460,7 +455,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 				hcsrv: tt.fields.hcsrv,
 				dsrv:  tt.fields.dsrv,
 				cfg:   tt.fields.cfg,
-				mu:    tt.fields.mu,
 			}
 
 			e := s.ListenAndServe(tt.args.ctx)
@@ -480,7 +474,6 @@ func Test_server_hcShutdown(t *testing.T) {
 		cfg        config.Server
 		pwt        time.Duration
 		sddur      time.Duration
-		mu         sync.RWMutex
 	}
 	type args struct {
 		ctx context.Context
@@ -536,7 +529,6 @@ func Test_server_hcShutdown(t *testing.T) {
 				cfg:        tt.fields.cfg,
 				pwt:        tt.fields.pwt,
 				sddur:      tt.fields.sddur,
-				mu:         tt.fields.mu,
 			}
 			e := s.hcShutdown(tt.args.ctx)
 			if err := tt.checkFunc(s, e, tt.want); err != nil {
@@ -555,7 +547,6 @@ func Test_server_apiShutdown(t *testing.T) {
 		cfg        config.Server
 		pwt        time.Duration
 		sddur      time.Duration
-		mu         sync.RWMutex
 	}
 	type args struct {
 		ctx context.Context
@@ -611,7 +602,6 @@ func Test_server_apiShutdown(t *testing.T) {
 				cfg:        tt.fields.cfg,
 				pwt:        tt.fields.pwt,
 				sddur:      tt.fields.sddur,
-				mu:         tt.fields.mu,
 			}
 			e := s.apiShutdown(tt.args.ctx)
 			if err := tt.checkFunc(s, e, tt.want); err != nil {
@@ -631,7 +621,6 @@ func Test_server_createHealthCheckServiceMux(t *testing.T) {
 		beforeFunc func() error
 		checkFunc  func(*http.ServeMux) error
 		afterFunc  func() error
-		want       http.ServeMux
 		wantErr    error
 	}
 	tests := []test{

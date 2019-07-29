@@ -71,6 +71,7 @@ func handleError(rw http.ResponseWriter, r *http.Request, err error) {
 	}
 	status := http.StatusUnauthorized
 	if !strings.Contains(err.Error(), ErrMsgVerifyRoleToken) {
+		glg.Debug("handleError: " + err.Error())
 		status = http.StatusBadGateway
 	}
 	// request context canceled

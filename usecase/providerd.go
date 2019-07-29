@@ -62,37 +62,47 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 	}, nil
 }
 
-// Start returns an error slice channel. This error channel reports the errors inside Authorization Proxy server.
+// Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	pch := g.athenz.Start(ctx)
 	sch := g.server.ListenAndServe(ctx)
 	go func() {
-		emap := make(map[error]uint64, 1)
+		emap := make(map[string]uint64, 1)
 		defer close(ech)
 
 		for {
 			select {
-			case <-ctx.Done():
-				errs := make([]error, 0, len(emap)+1)
-				for err, count := range emap {
-					errs = append(errs, errors.WithMessagef(err, "%d times appeared", count))
+			// ctx.Done() will be handled by sch
+			// case <-ctx.Done():
+			case e, ok := <-pch:
+				if !ok { // handle channel close
+					pch = nil
+					continue
 				}
-				errs = append(errs, ctx.Err())
-				ech <- errs
-				return
-			case e := <-pch:
 				glg.Errorf("pch %v", e)
-				glg.Error(e)
-				cause := errors.Cause(e)
-				_, ok := emap[cause]
+				// count errors by cause
+				cause := errors.Cause(e).Error()
+				_, ok = emap[cause]
 				if !ok {
-					emap[cause] = 0
+					emap[cause] = 1
+				} else {
+					emap[cause]++
 				}
-				emap[cause]++
-			case errs := <-sch:
-				glg.Errorf("sch %v", errs)
-				ech <- errs
+			case serrs, ok := <-sch:
+				if !ok { // handle channel close
+					sch = nil
+					continue
+				}
+				glg.Errorf("sch %v", serrs)
+				// aggregate all errors as array
+				errs := make([]error, 0, len(emap))
+				for errMsg, count := range emap {
+					errs = append(errs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
+				}
+
+				// return all errors
+				ech <- append(errs, serrs...)
 				return
 			}
 		}
@@ -104,15 +114,20 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
 		providerd.WithAthenzURL(cfg.Athenz.URL),
+
 		providerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
 		providerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
 		providerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
 		providerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
+		providerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
 		providerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
+
 		providerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		providerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		providerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
 		providerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
+		providerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
+
 		providerd.WithDisableJwkd(),
 	)
 }

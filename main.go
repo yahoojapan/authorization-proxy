@@ -95,7 +95,7 @@ func run(cfg config.Config) []error {
 		select {
 		case <-sigCh:
 			cancel()
-			glg.Warn("authorization-proxy server shutdown...")
+			glg.Warn("Got authorization-proxy server shutdown signal...")
 		case errs := <-ech:
 			return errs
 		}

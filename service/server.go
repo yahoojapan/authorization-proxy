@@ -112,12 +112,12 @@ func NewServer(opts ...Option) Server {
 
 	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {
-		s.sddur = time.Second * 5
+		s.sddur = time.Second * 10
 	}
 
 	s.pwt, err = time.ParseDuration(s.cfg.ProbeWaitTime)
 	if err != nil {
-		s.pwt = time.Second * 3
+		s.pwt = time.Second * 9
 	}
 
 	return s
@@ -135,13 +135,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		hech = make(chan error, 1)
 		dech chan error
 	)
-	if s.cfg.EnableDebug {
-		dech = make(chan error, 1)
-	}
 
 	wg := new(sync.WaitGroup)
-	wg.Add(3)
 
+	wg.Add(1)
 	go func() {
 		s.mu.Lock()
 		s.srvRunning = true
@@ -150,6 +147,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		glg.Info("authorization proxy api server starting")
 		sech <- s.listenAndServeAPI()
+		glg.Info("authorization proxy api server closed")
 		close(sech)
 
 		s.mu.Lock()
@@ -157,6 +155,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.mu.Unlock()
 	}()
 
+	wg.Add(1)
 	go func() {
 		s.mu.Lock()
 		s.hcRunning = true
@@ -165,6 +164,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		glg.Info("authorization proxy health check server starting")
 		hech <- s.hcsrv.ListenAndServe()
+		glg.Info("authorization proxy health check server closed")
 		close(hech)
 
 		s.mu.Lock()
@@ -173,6 +173,9 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	}()
 
 	if s.cfg.EnableDebug {
+		wg.Add(1)
+		dech = make(chan error, 1)
+
 		go func() {
 			s.mu.Lock()
 			s.dRunning = true
@@ -181,6 +184,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 			glg.Info("authorization proxy debug server starting")
 			dech <- s.dsrv.ListenAndServe()
+			glg.Info("authorization proxy debug server closed")
 			close(dech)
 
 			s.mu.Lock()
@@ -190,6 +194,8 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	}
 
 	go func() {
+		defer close(echan)
+
 		// wait for all server running
 		wg.Wait()
 
@@ -202,17 +208,18 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		shutdownSrvs := func(errs []error) {
 			if s.hcRunning {
-				glg.Info("authorization proxy health check server will shutdown")
+				glg.Info("authorization proxy health check server will shutdown...")
 				errs = appendErr(errs, s.hcShutdown(context.Background()))
 			}
 			if s.srvRunning {
-				glg.Info("authorization proxy api server will shutdown")
+				glg.Info("authorization proxy api server will shutdown...")
 				errs = appendErr(errs, s.apiShutdown(context.Background()))
 			}
 			if s.dRunning {
-				glg.Info("authorization proxy debug server will shutdown")
+				glg.Info("authorization proxy debug server will shutdown...")
 				errs = appendErr(errs, s.dShutdown(context.Background()))
 			}
+			glg.Info("authorization proxy has already shut down gracefully")
 		}
 
 		errs := make([]error, 0, 3)

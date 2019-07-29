@@ -58,7 +58,7 @@ type Server struct {
 	// Port represents the server port.
 	Port int `yaml:"port"`
 
-	// EnableDebug represents if user want to enable debug funcationality.
+	// EnableDebug represents if user want to enable debug functionality.
 	EnableDebug bool `yaml:"enable_debug"`
 
 	// DebugPort represents debug server port.
@@ -133,7 +133,7 @@ type Authorization struct {
 	// PubKeyRefreshDuration represents the refresh duration of Athenz PubKey.
 	PubKeyRefreshDuration string `yaml:"pubKeyRefreshDuration"`
 
-	// PubKeySysAuthDomain represents the system authenicate domain of Athenz.
+	// PubKeySysAuthDomain represents the system authentication domain of Athenz.
 	PubKeySysAuthDomain string `yaml:"pubKeySysAuthDomain"`
 
 	// PubKeyEtagExpTime represents the Etag cache expiration time of Athenz PubKey.
@@ -141,6 +141,9 @@ type Authorization struct {
 
 	// PubKeyEtagFlushDur represent the Etag cache expiration check duration.
 	PubKeyEtagFlushDur string `yaml:"pubKeyEtagFlushDur"`
+
+	// PubKeyErrRetryInterval represent the retry interval when fail to get the pubkey from Athenz server.
+	PubKeyErrRetryInterval string `yaml:"pubKeyErrRetryInterval"`
 
 	// AthenzDomains represents the Athenz domains to fetch the policy.
 	AthenzDomains []string `yaml:"athenzDomains"`
@@ -156,6 +159,9 @@ type Authorization struct {
 
 	// PolicyEtagFlushDur represent the Etag cache expiration check duration.
 	PolicyEtagFlushDur string `yaml:"policyEtagFlushDur"`
+
+	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
+	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
