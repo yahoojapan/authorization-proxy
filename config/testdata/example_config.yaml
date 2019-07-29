@@ -7,8 +7,8 @@ server:
   health_check_port: 6082
   health_check_path: /healthz
   timeout: 10s
-  shutdown_duration: 5s
-  probe_wait_time: 3s
+  shutdown_duration: 10s
+  probe_wait_time: 7s
   tls:
     enabled: false
     cert: /etc/athenz/provider/keys/server.crt
