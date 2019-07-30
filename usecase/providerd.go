@@ -18,8 +18,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/kpango/glg"
 	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/handler"
@@ -65,46 +65,50 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
-	pch := g.athenz.Start(ctx)
-	sch := g.server.ListenAndServe(ctx)
+	var eg *errgroup.Group
+	eg, ctx = errgroup.WithContext(ctx)
+	eg.Go(func() error {
+		pch := g.athenz.Start(ctx)
+
+		var errs error
+		var ebuf []error
+		for {
+
+			// TODO use emap to aggregate errors
+			emap := make(map[string]uint64, 1)
+			e, ok := <-pch
+			if !ok { // handle channel close
+				pch = nil
+				ech <- ebuf
+				return nil
+			}
+			if e != nil {
+				ebuf = append(ebuf, e)
+				errs = errors.Wrap(errs, e.Error())
+			}
+		}
+		return nil
+	})
+
+	eg.Go(func() error {
+		sch := <-g.server.ListenAndServe(ctx)
+		if len(sch) != 0 {
+			ech <- sch
+		}
+		var errs error
+		for _, err := range sch {
+			errs = errors.Wrap(errs, err.Error())
+		}
+		return errs
+	})
+
 	go func() {
-		emap := make(map[string]uint64, 1)
 		defer close(ech)
 
-		for {
-			select {
-			// ctx.Done() will be handled by sch
-			// case <-ctx.Done():
-			case e, ok := <-pch:
-				if !ok { // handle channel close
-					pch = nil
-					continue
-				}
-				glg.Errorf("pch %v", e)
-				// count errors by cause
-				cause := errors.Cause(e).Error()
-				_, ok = emap[cause]
-				if !ok {
-					emap[cause] = 1
-				} else {
-					emap[cause]++
-				}
-			case serrs, ok := <-sch:
-				if !ok { // handle channel close
-					sch = nil
-					continue
-				}
-				glg.Errorf("sch %v", serrs)
-				// aggregate all errors as array
-				errs := make([]error, 0, len(emap))
-				for errMsg, count := range emap {
-					errs = append(errs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
-				}
-
-				// return all errors
-				ech <- append(errs, serrs...)
-				return
-			}
+		<-ctx.Done()
+		err := eg.Wait()
+		if err != nil {
+			ech <- []error{err}
 		}
 	}()
 
