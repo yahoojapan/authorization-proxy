@@ -96,11 +96,13 @@ func NewServer(opts ...Option) Server {
 	}
 	s.srv.SetKeepAlivesEnabled(true)
 
-	s.hcsrv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
-		Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
+	if s.healthzSrvEnable() {
+		s.hcsrv = &http.Server{
+			Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
+			Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
+		}
+		s.hcsrv.SetKeepAlivesEnabled(true)
 	}
-	s.hcsrv.SetKeepAlivesEnabled(true)
 
 	if s.cfg.EnableDebug {
 		s.dsrv = &http.Server{
@@ -132,7 +134,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 		// error channels to keep track server status
 		sech = make(chan error, 1)
-		hech = make(chan error, 1)
+		hech chan error
 		dech chan error
 	)
 
@@ -155,22 +157,26 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.mu.Unlock()
 	}()
 
-	wg.Add(1)
-	go func() {
-		s.mu.Lock()
-		s.hcRunning = true
-		s.mu.Unlock()
-		wg.Done()
+	if s.healthzSrvEnable() {
+		wg.Add(1)
+		hech = make(chan error, 1)
 
-		glg.Info("authorization proxy health check server starting")
-		hech <- s.hcsrv.ListenAndServe()
-		glg.Info("authorization proxy health check server closed")
-		close(hech)
+		go func() {
+			s.mu.Lock()
+			s.hcRunning = true
+			s.mu.Unlock()
+			wg.Done()
 
-		s.mu.Lock()
-		s.hcRunning = false
-		s.mu.Unlock()
-	}()
+			glg.Info("authorization proxy health check server starting")
+			hech <- s.hcsrv.ListenAndServe()
+			glg.Info("authorization proxy health check server closed")
+			close(hech)
+
+			s.mu.Lock()
+			s.hcRunning = false
+			s.mu.Unlock()
+		}()
+	}
 
 	if s.cfg.EnableDebug {
 		wg.Add(1)
@@ -219,7 +225,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				glg.Info("authorization proxy debug server will shutdown...")
 				errs = appendErr(errs, s.dShutdown(context.Background()))
 			}
-			glg.Info("authorization proxy has already shut down gracefully")
+			glg.Info("authorization proxy has already shutdown gracefully")
 		}
 
 		errs := make([]error, 0, 3)
@@ -327,4 +333,8 @@ func (s *server) listenAndServeAPI() error {
 		glg.Error(errors.Wrap(err, "cannot NewTLSConfig(s.cfg.TLS)"))
 	}
 	return s.srv.ListenAndServeTLS("", "")
+}
+
+func (s *server) healthzSrvEnable() bool {
+	return s.cfg.HealthzPort > 0
 }
