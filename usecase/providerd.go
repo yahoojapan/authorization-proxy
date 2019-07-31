@@ -123,11 +123,8 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 			perrs = append(perrs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
 		}
 
-		if err != nil {
-			ech <- append(perrs, err)
-		} else {
-			ech <- perrs
-		}
+		// proxy server go func, should always return not nil error
+		ech <- append(perrs, err)
 	}()
 
 	return ech

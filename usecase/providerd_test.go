@@ -147,8 +147,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 								defer close(ech)
 								select {
 								case <-ctx.Done():
-									// prevent race with Authorizerd.Start() in select
-									// also, simulate graceful shutdown
+									// simulate graceful shutdown
 									time.Sleep(1 * time.Millisecond)
 
 									ech <- []error{ctx.Err()}
@@ -307,8 +306,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 								defer close(ech)
 								select {
 								case <-ctx.Done():
-									// prevent race with Authorizerd.Start() in select
-									// also, simulate graceful shutdown
+									// simulate graceful shutdown
 									time.Sleep(1 * time.Millisecond)
 
 									ech <- []error{ctx.Err()}
@@ -326,6 +324,165 @@ func Test_providerDaemon_Start(t *testing.T) {
 					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "providerd: 3 times appeared"),
 					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
 					context.Canceled,
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					cancel()
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
+					}
+
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			return test{
+				name: "Daemon start end successfully, server shutdown without error",
+				fields: fields{
+					athenz: &service.AuthorizerdMock{
+						StartFunc: func(ctx context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+								// return only if context cancel
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
+							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{}
+									return
+								}
+							}()
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.New(""),
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					cancel()
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
+					}
+
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			dummyErr := errors.New("dummy")
+			return test{
+				name: "Daemon start end successfully, server shutdown >1 errors",
+				fields: fields{
+					athenz: &service.AuthorizerdMock{
+						StartFunc: func(ctx context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+								// return only if context cancel
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
+							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{dummyErr, ctx.Err()}
+									return
+								}
+							}()
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.Wrap(dummyErr, context.Canceled.Error()),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
 					cancel()
