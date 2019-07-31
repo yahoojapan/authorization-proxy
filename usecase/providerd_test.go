@@ -127,7 +127,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Daemon start success",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
@@ -207,7 +207,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Server fails",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
@@ -236,6 +236,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
 					errors.WithMessage(dummyErr, "server fails"),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -279,7 +280,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Provider daemon fails, multiple times",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)

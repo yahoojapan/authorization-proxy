@@ -6,5 +6,6 @@ require (
 	github.com/kpango/glg v1.4.6
 	github.com/pkg/errors v0.8.1
 	github.com/yahoojapan/athenz-authorizer v0.0.0-20190729014408-52d97724eb74
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	gopkg.in/yaml.v2 v2.2.2
 )

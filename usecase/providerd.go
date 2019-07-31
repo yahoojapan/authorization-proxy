@@ -18,6 +18,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
@@ -67,48 +68,65 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
+
+	// handle provider daemon error, return on channel close
+	emap := make(map[string]uint64, 1)
 	eg.Go(func() error {
 		pch := g.athenz.Start(ctx)
 
-		var errs error
-		var ebuf []error
-		for {
-
-			// TODO use emap to aggregate errors
-			emap := make(map[string]uint64, 1)
-			e, ok := <-pch
-			if !ok { // handle channel close
-				pch = nil
-				ech <- ebuf
-				return nil
-			}
-			if e != nil {
-				ebuf = append(ebuf, e)
-				errs = errors.Wrap(errs, e.Error())
+		for err := range pch {
+			if err != nil {
+				glg.Errorf("pch: %v", err)
+				// count errors by cause
+				cause := errors.Cause(err).Error()
+				_, ok := emap[cause]
+				if !ok {
+					emap[cause] = 1
+				} else {
+					emap[cause]++
+				}
 			}
 		}
 		return nil
 	})
 
+	// handle proxy server error, return on server shutdown done
 	eg.Go(func() error {
-		sch := <-g.server.ListenAndServe(ctx)
-		if len(sch) != 0 {
-			ech <- sch
+		errs := <-g.server.ListenAndServe(ctx)
+		glg.Errorf("sch: %v", errs)
+
+		if len(errs) == 0 {
+			// cannot be nil so that the context can cancel
+			return errors.New("")
 		}
-		var errs error
-		for _, err := range sch {
-			errs = errors.Wrap(errs, err.Error())
+		var baseErr error
+		for i, err := range errs {
+			if i == 0 {
+				baseErr = err
+			} else {
+				baseErr = errors.Wrap(baseErr, err.Error())
+			}
 		}
-		return errs
+		return baseErr
 	})
 
+	// wait for shutdown, and summarize errors
 	go func() {
 		defer close(ech)
 
 		<-ctx.Done()
 		err := eg.Wait()
+
+		// aggregate all errors as array
+		perrs := make([]error, 0, len(emap))
+		for errMsg, count := range emap {
+			perrs = append(perrs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
+		}
+
 		if err != nil {
-			ech <- []error{err}
+			ech <- append(perrs, err)
+		} else {
+			ech <- perrs
 		}
 	}()
 
