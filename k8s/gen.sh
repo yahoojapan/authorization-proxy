@@ -61,6 +61,15 @@ spec:
         ports:
         - containerPort: ${SIDECAR_PORT}
           protocol: TCP
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 2
         resources: {}
         volumeMounts:
         - mountPath: ${SIDECAR_CONFIG_PATH}
@@ -134,9 +143,9 @@ data:
       port: ${SIDECAR_PORT}
       health_check_port: 8081
       health_check_path: /healthz
-      timeout: 20s
-      shutdown_duration: 20s
-      probe_wait_time: 20s
+      timeout: 10s
+      shutdown_duration: 10s
+      probe_wait_time: 9s
       tls:
         enabled: false
         cert_key: ""
@@ -144,7 +153,7 @@ data:
         ca_key: ""
     athenz:
       url: ${ATHENZ_URL}
-      timeout: 20s
+      timeout: 30s
       root_ca: ""
     proxy:
       scheme: "http"
@@ -153,17 +162,17 @@ data:
       role_header_key: Athenz-Role-Auth
       buffer_size: 4096
     provider:
-      pubKeyRefreshDuration: 30s
+      pubKeyRefreshDuration: 24h
       pubKeySysAuthDomain: sys.auth
-      pubKeyEtagExpTime: 24h
-      pubKeyEtagFlushDur: 24h
+      pubKeyEtagExpTime: 168h
+      pubKeyEtagFlushDur: 84h
       athenzDomains:
-      - yby.takumats
-      - yby.takumats.sidecartest
-      - yby.tatyano
-      policyRefreshDuration: 30s
+      - provider-domain1
+      - provider-domain2
+      policyExpireMargin: 48h
+      policyRefreshDuration: 1h
+      policyEtagExpTime: 48h
       policyEtagFlushDur: 24h
-      policyEtagExpTime: 24h
 ---
 apiVersion: v1
 kind: Secret

@@ -114,12 +114,12 @@ func NewServer(opts ...Option) Server {
 
 	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
 	if err != nil {
-		s.sddur = time.Second * 10
+		glg.Warn(err)
 	}
 
 	s.pwt, err = time.ParseDuration(s.cfg.ProbeWaitTime)
 	if err != nil {
-		s.pwt = time.Second * 9
+		glg.Warn(err)
 	}
 
 	return s
