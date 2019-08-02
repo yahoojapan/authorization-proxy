@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 	type test struct {
 		name      string
 		args      args
-		checkFunc func(AuthorizationDaemon) error
+		checkFunc func(AuthzProxyDaemon) error
 		wantErr   bool
 	}
 	tests := []test{
@@ -53,17 +53,17 @@ func TestNew(t *testing.T) {
 				args: args{
 					cfg: cfg,
 				},
-				checkFunc: func(got AuthorizationDaemon) error {
+				checkFunc: func(got AuthzProxyDaemon) error {
 					if got == nil {
 						return errors.New("got is nil")
 					}
-					if !reflect.DeepEqual(got.(*providerDaemon).cfg, cfg) {
+					if !reflect.DeepEqual(got.(*authzProxyDaemon).cfg, cfg) {
 						return errors.New("got.cfg does not equal")
 					}
-					if got.(*providerDaemon).athenz == nil {
+					if got.(*authzProxyDaemon).athenz == nil {
 						return errors.New("got.athenz is nil")
 					}
-					if got.(*providerDaemon).server == nil {
+					if got.(*authzProxyDaemon).server == nil {
 						return errors.New("got.server is nil")
 					}
 					return nil
@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func Test_providerDaemon_Start(t *testing.T) {
+func Test_authzProxyDaemon_Start(t *testing.T) {
 	type fields struct {
 		cfg    config.Config
 		athenz service.Authorizationd
@@ -162,7 +162,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					context.Canceled,
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -235,7 +235,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					errors.WithMessage(dummyErr, "server fails"),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -321,8 +321,8 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "providerd: 3 times appeared"),
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "authorizerd: 3 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					context.Canceled,
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -401,7 +401,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					errors.New(""),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -481,7 +481,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					errors.Wrap(dummyErr, context.Canceled.Error()),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -521,20 +521,20 @@ func Test_providerDaemon_Start(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := &providerDaemon{
+			g := &authzProxyDaemon{
 				cfg:    tt.fields.cfg,
 				athenz: tt.fields.athenz,
 				server: tt.fields.server,
 			}
 			got := g.Start(tt.args.ctx)
 			if err := tt.checkFunc(got, tt.wantErrs); err != nil {
-				t.Errorf("providerDaemon.Start() error: %v", err)
+				t.Errorf("authzProxyDaemon.Start() error: %v", err)
 			}
 		})
 	}
 }
 
-func Test_newAuthorizationd(t *testing.T) {
+func Test_newAuthzD(t *testing.T) {
 	type args struct {
 		cfg config.Config
 	}
@@ -575,13 +575,13 @@ func Test_newAuthorizationd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newAuthorizationd(tt.args.cfg)
+			got, err := newAuthzD(tt.args.cfg)
 			if err != nil && !tt.wantErr {
-				t.Errorf("newAuthorizationd() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("newAuthzD() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if err = tt.checkFunc(got); err != nil {
-				t.Errorf("newAuthorizationd() error = %v", err)
+				t.Errorf("newAuthzD() error = %v", err)
 				return
 			}
 		})
