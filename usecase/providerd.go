@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package usecase
 
 import (
@@ -69,8 +70,8 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
 
-	// handle provider daemon error, return on channel close
 	emap := make(map[string]uint64, 1)
+	// handle authorizer daemon error, return on channel close
 	eg.Go(func() error {
 		pch := g.athenz.Start(ctx)
 

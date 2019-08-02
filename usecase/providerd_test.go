@@ -276,7 +276,7 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			dummyErr := errors.New("dummy")
 			return test{
-				name: "Provider daemon fails, multiple times",
+				name: "Authorizer daemon fails, multiple times",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
 						StartFunc: func(ctx context.Context) <-chan error {
@@ -285,9 +285,9 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 								defer close(ech)
 
 								// simulate fails
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
 
 								// return only if context cancel
 								select {
@@ -321,7 +321,7 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "authorizerd: 3 times appeared"),
+					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "authorizer daemon fails")), "authorizerd: 3 times appeared"),
 					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					context.Canceled,
 				},
