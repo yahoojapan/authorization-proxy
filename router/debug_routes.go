@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/handler"
@@ -27,6 +28,78 @@ func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 			"/debug/cache/policy",
 			NewPolicyCacheHandler(a),
 		},
+		{
+			"Debug pprof",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/",
+			toHandler(pprof.Index),
+		},
+		{
+			"Debug cmdline",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/cmdline",
+			toHandler(pprof.Cmdline),
+		},
+		{
+			"Debug profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/profile",
+			toHandler(pprof.Profile),
+		},
+		{
+			"Debug symbol profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/symbol",
+			toHandler(pprof.Symbol),
+		},
+		{
+			"Debug trace profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/trace",
+			toHandler(pprof.Trace),
+		},
+		{
+			"Debug heap profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/heap",
+			toHandler(pprof.Handler("heap").ServeHTTP),
+		},
+		{
+			"Debug goroutine profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/goroutine",
+			toHandler(pprof.Handler("goroutine").ServeHTTP),
+		},
+		{
+			"Debug thread profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/threadcreate",
+			toHandler(pprof.Handler("threadcreate").ServeHTTP),
+		},
+		{
+			"Debug block profile",
+			[]string{
+				http.MethodGet,
+			},
+			"/debug/pprof/block",
+			toHandler(pprof.Handler("block").ServeHTTP),
+		},
 	}
 }
 
@@ -38,5 +111,12 @@ func NewPolicyCacheHandler(authd service.Authorizationd) func(w http.ResponseWri
 		e.SetIndent("", "\t")
 		pc := authd.GetPolicyCache(r.Context())
 		return e.Encode(pc)
+	}
+}
+
+func toHandler(f http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) error {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		f(w, r)
+		return nil
 	}
 }
