@@ -31,12 +31,12 @@ import (
 	authorizerd "github.com/yahoojapan/athenz-authorizer"
 )
 
-// AuthorizationDaemon represents Authorization Proxy daemon behavior.
-type AuthorizationDaemon interface {
+// AuthzProxyDaemon represents Authorization Proxy daemon behavior.
+type AuthzProxyDaemon interface {
 	Start(ctx context.Context) <-chan []error
 }
 
-type providerDaemon struct {
+type authzProxyDaemon struct {
 	cfg    config.Config
 	athenz service.Authorizationd
 	server service.Server
@@ -45,7 +45,7 @@ type providerDaemon struct {
 // New returns a Authorization Proxy daemon, or error occurred.
 // The daemon contains a token service authentication and authorization server.
 // This function will also initialize the mapping rules for the authentication and authorization check.
-func New(cfg config.Config) (AuthorizationDaemon, error) {
+func New(cfg config.Config) (AuthzProxyDaemon, error) {
 	athenz, err := newAuthzD(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot newAuthzD(cfg)")
@@ -53,7 +53,7 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 
 	debugMux := router.NewDebugRouter(cfg.Server, athenz)
 
-	return &providerDaemon{
+	return &authzProxyDaemon{
 		cfg:    cfg,
 		athenz: athenz,
 		server: service.NewServer(
@@ -64,7 +64,7 @@ func New(cfg config.Config) (AuthorizationDaemon, error) {
 }
 
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
-func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
+func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
