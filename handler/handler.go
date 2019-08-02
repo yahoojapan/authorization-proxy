@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package handler
 
 import (
@@ -31,6 +32,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/service"
 )
 
+// Func represents the a handle function type
 type Func func(http.ResponseWriter, *http.Request) error
 
 // New creates a handler for handling different HTTP requests based on the given services. It also contains a reverse proxy for handling proxy request.

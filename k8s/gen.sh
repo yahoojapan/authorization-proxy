@@ -1,3 +1,5 @@
+#!/bin/sh
+
 DEPLOYMENT_NAME="provider-test"
 DEBUG="false"
 ATHENZ_URL="www.athenz.com/zts/v1"
@@ -23,7 +25,7 @@ cat <<-EOF > ${YAML}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
+  annotations: {}
   labels:
     app: ${APP_NAME}
   name: ${DEPLOYMENT_NAME}
@@ -184,7 +186,7 @@ data:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  annotations:
+  annotations: {}
   name: ${DEPLOYMENT_NAME}
   namespace: default
 spec:

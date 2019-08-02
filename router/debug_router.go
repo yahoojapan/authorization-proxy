@@ -15,6 +15,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/service"
 )
 
+// NewDebugRouter returns a http.ServeMux for handling HTTP requests
 func NewDebugRouter(cfg config.Server, a service.Authorizationd) *http.ServeMux {
 	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 32
 	mux := http.NewServeMux()

@@ -10,6 +10,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/service"
 )
 
+// Route represents aa API endpoint and its handler function
 type Route struct {
 	Name        string
 	Methods     []string
@@ -17,6 +18,7 @@ type Route struct {
 	HandlerFunc handler.Func
 }
 
+// NewDebugRoutes returns an array of supporting Route
 func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 	return []Route{
 		{
@@ -30,6 +32,7 @@ func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 	}
 }
 
+// NewPolicyCacheHandler returns a handler function for getting policy cache
 func NewPolicyCacheHandler(authd service.Authorizationd) func(w http.ResponseWriter, r *http.Request) error {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusOK)

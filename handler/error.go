@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package handler
 
 // RFC7807Error represent the error message fulfilling RFC7807 standard.
@@ -23,7 +24,7 @@ type RFC7807Error struct {
 	InvalidParams []InvalidParam `json:"invalid-params,ommitempty"`
 	Detail        string         `json:"detail"`
 	Instance      string         `json:"instance"`
-	RoleToken     string         `json:"role_tolen"`
+	RoleToken     string         `json:"role_token"`
 }
 
 // InvalidParam represents the invalid parameters requested by the user.
