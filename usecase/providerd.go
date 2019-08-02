@@ -47,8 +47,10 @@ type providerDaemon struct {
 // This function will also initialize the mapping rules for the authentication and authorization check.
 func New(cfg config.Config) (AuthorizationDaemon, error) {
 	athenz, err := newAuthorizationd(cfg)
+	athenz, err := newAuthzD(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot newAuthorizationd(cfg)")
+		return nil, errors.Wrap(err, "cannot newAuthzD(cfg)")
 	}
 
 	debugMux := router.NewDebugRouter(cfg.Server, athenz)
@@ -133,6 +135,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
 	return providerd.New(
 		providerd.WithAthenzURL(cfg.Athenz.URL),
+func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 
 		providerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
 		providerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
