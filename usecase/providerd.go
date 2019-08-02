@@ -28,7 +28,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/router"
 	"github.com/yahoojapan/authorization-proxy/service"
 
-	providerd "github.com/yahoojapan/athenz-authorizer"
+	authorizerd "github.com/yahoojapan/athenz-authorizer"
 )
 
 // AuthorizationDaemon represents Authorization Proxy daemon behavior.
@@ -46,10 +46,8 @@ type providerDaemon struct {
 // The daemon contains a token service authentication and authorization server.
 // This function will also initialize the mapping rules for the authentication and authorization check.
 func New(cfg config.Config) (AuthorizationDaemon, error) {
-	athenz, err := newAuthorizationd(cfg)
 	athenz, err := newAuthzD(cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot newAuthorizationd(cfg)")
 		return nil, errors.Wrap(err, "cannot newAuthzD(cfg)")
 	}
 
@@ -122,7 +120,7 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 		// aggregate all errors as array
 		perrs := make([]error, 0, len(emap))
 		for errMsg, count := range emap {
-			perrs = append(perrs, errors.WithMessagef(errors.New(errMsg), "providerd: %d times appeared", count))
+			perrs = append(perrs, errors.WithMessagef(errors.New(errMsg), "authorizerd: %d times appeared", count))
 		}
 
 		// proxy server go func, should always return not nil error
@@ -132,24 +130,23 @@ func (g *providerDaemon) Start(ctx context.Context) <-chan []error {
 	return ech
 }
 
-func newAuthorizationd(cfg config.Config) (service.Authorizationd, error) {
-	return providerd.New(
-		providerd.WithAthenzURL(cfg.Athenz.URL),
 func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
+	return authorizerd.New(
+		authorizerd.WithAthenzURL(cfg.Athenz.URL),
 
-		providerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
-		providerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
-		providerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
-		providerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
-		providerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
-		providerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
+		authorizerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
+		authorizerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
+		authorizerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
+		authorizerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
+		authorizerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
+		authorizerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
 
-		providerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
-		providerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
-		providerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
-		providerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
-		providerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
+		authorizerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
+		authorizerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
+		authorizerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
+		authorizerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
+		authorizerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
 
-		providerd.WithDisableJwkd(),
+		authorizerd.WithDisableJwkd(),
 	)
 }
