@@ -18,6 +18,8 @@ type Route struct {
 	HandlerFunc handler.Func
 }
 
+// NewDebugRoutes returns debug endpoint information. If EnableDump flag is enabled then the cache dump feature endpoint will be included.
+// If EnableProfiling flag is enable then the pprof interface endpoint will be included.
 func NewDebugRoutes(cfg config.DebugServer, a service.Authorizationd) []Route {
 	var routes []Route
 
@@ -112,6 +114,7 @@ func NewDebugRoutes(cfg config.DebugServer, a service.Authorizationd) []Route {
 	return routes
 }
 
+// NewPolicyCacheHandler returns the handler function to handle get policy cache request..
 func NewPolicyCacheHandler(authd service.Authorizationd) func(w http.ResponseWriter, r *http.Request) error {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusOK)
