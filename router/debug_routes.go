@@ -18,89 +18,98 @@ type Route struct {
 	HandlerFunc handler.Func
 }
 
-func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
-	return []Route{
-		{
+func NewDebugRoutes(cfg config.DebugServer, a service.Authorizationd) []Route {
+	var routes []Route
+
+	if cfg.EnableDump {
+		routes = append(routes, Route{
 			"GetPolicyCache",
 			[]string{
 				http.MethodGet,
 			},
 			"/debug/cache/policy",
 			NewPolicyCacheHandler(a),
-		},
-		{
-			"Debug pprof",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/",
-			toHandler(pprof.Index),
-		},
-		{
-			"Debug cmdline",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/cmdline",
-			toHandler(pprof.Cmdline),
-		},
-		{
-			"Debug profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/profile",
-			toHandler(pprof.Profile),
-		},
-		{
-			"Debug symbol profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/symbol",
-			toHandler(pprof.Symbol),
-		},
-		{
-			"Debug trace profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/trace",
-			toHandler(pprof.Trace),
-		},
-		{
-			"Debug heap profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/heap",
-			toHandler(pprof.Handler("heap").ServeHTTP),
-		},
-		{
-			"Debug goroutine profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/goroutine",
-			toHandler(pprof.Handler("goroutine").ServeHTTP),
-		},
-		{
-			"Debug thread profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/threadcreate",
-			toHandler(pprof.Handler("threadcreate").ServeHTTP),
-		},
-		{
-			"Debug block profile",
-			[]string{
-				http.MethodGet,
-			},
-			"/debug/pprof/block",
-			toHandler(pprof.Handler("block").ServeHTTP),
-		},
+		})
 	}
+
+	if cfg.EnableProfiling {
+		routes = append(routes, []Route{
+			{
+				"Debug pprof",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/",
+				toHandler(pprof.Index),
+			},
+			{
+				"Debug cmdline",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/cmdline",
+				toHandler(pprof.Cmdline),
+			},
+			{
+				"Debug profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/profile",
+				toHandler(pprof.Profile),
+			},
+			{
+				"Debug symbol profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/symbol",
+				toHandler(pprof.Symbol),
+			},
+			{
+				"Debug trace profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/trace",
+				toHandler(pprof.Trace),
+			},
+			{
+				"Debug heap profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/heap",
+				toHandler(pprof.Handler("heap").ServeHTTP),
+			},
+			{
+				"Debug goroutine profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/goroutine",
+				toHandler(pprof.Handler("goroutine").ServeHTTP),
+			},
+			{
+				"Debug thread profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/threadcreate",
+				toHandler(pprof.Handler("threadcreate").ServeHTTP),
+			},
+			{
+				"Debug block profile",
+				[]string{
+					http.MethodGet,
+				},
+				"/debug/pprof/block",
+				toHandler(pprof.Handler("block").ServeHTTP),
+			},
+		}...)
+	}
+
+	return routes
 }
 
 func NewPolicyCacheHandler(authd service.Authorizationd) func(w http.ResponseWriter, r *http.Request) error {
