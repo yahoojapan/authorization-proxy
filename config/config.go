@@ -170,7 +170,7 @@ type DebugServer struct {
 	Port int `yaml:"port"`
 
 	// EnableDump represents if user want to enable memory dump functionality.
-	EnableDump bool `yaml;"enable_dump"`
+	EnableDump bool `yaml:"enable_dump"`
 
 	// EnableProfiling represents if user want to enable profiling functionality.
 	EnableProfiling bool `yaml:"enable_profiling"`
