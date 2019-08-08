@@ -3,11 +3,13 @@ package router
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -29,12 +31,43 @@ func TestNewDebugRouter(t *testing.T) {
 		checkFunc func(got *http.ServeMux) error
 	}{
 		{
-			name: "new debug router success",
+			name: "new debug router success without routes",
 			args: args{
 				cfg: config.Server{},
 				a:   nil,
 			},
 			checkFunc: func(got *http.ServeMux) error {
+				req := httptest.NewRequest("GET", "http://athenz.io/debug/pprof/", nil)
+				h, p := got.Handler(req)
+				if reflect.ValueOf(h).Pointer() != reflect.ValueOf(http.NotFoundHandler()).Pointer() {
+					return errors.New("HTTP handler is not NotFoundHandler")
+				}
+				if p != "" {
+					return fmt.Errorf("p is not nil: %v", p)
+				}
+				return nil
+			},
+		},
+		{
+			name: "new debug router success with routes",
+			args: args{
+				cfg: config.Server{
+					DebugServer: config.DebugServer{
+						EnableProfiling: true,
+					},
+				},
+				a: nil,
+			},
+			checkFunc: func(got *http.ServeMux) error {
+				req := httptest.NewRequest("GET", "http://athenz.io/debug/pprof/", nil)
+				h, p := got.Handler(req)
+				if reflect.ValueOf(h).Pointer() == reflect.ValueOf(http.NotFoundHandler()).Pointer() {
+					return errors.New("HTTP handler is NotFoundHandler")
+				}
+				wantPattern := "/debug/pprof/"
+				if p != wantPattern {
+					return fmt.Errorf("p got: %v, want: %v", p, wantPattern)
+				}
 				return nil
 			},
 		},
