@@ -1,3 +1,19 @@
+/*
+Copyright (C)  2018 Yahoo Japan Corporation Athenz team.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package router
 
 import (
@@ -11,6 +27,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/service"
 )
 
+// Route contains information and handler of an API endpoint
 type Route struct {
 	Name        string
 	Methods     []string
@@ -18,6 +35,7 @@ type Route struct {
 	HandlerFunc handler.Func
 }
 
+// NewDebugRoutes returns the routes for debugging
 func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 	return []Route{
 		{
@@ -103,6 +121,7 @@ func NewDebugRoutes(cfg config.Server, a service.Authorizationd) []Route {
 	}
 }
 
+// NewPolicyCacheHandler returns the HTTP request handler for getting policy cache
 func NewPolicyCacheHandler(authd service.Authorizationd) func(w http.ResponseWriter, r *http.Request) error {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(http.StatusOK)
