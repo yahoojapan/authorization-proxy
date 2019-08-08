@@ -28,7 +28,6 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						DebugPort:   8081,
 						HealthzPath: "/healthz",
 						HealthzPort: 8080,
 					}),
@@ -54,10 +53,12 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						EnableDebug: true,
-						DebugPort:   8081,
 						HealthzPath: "/healthz",
 						HealthzPort: 8080,
+						DebugServer: config.DebugServer{
+							Enable: true,
+							Port:   8081,
+						},
 					}),
 					WithDebugHandler(func() http.Handler {
 						return nil
@@ -81,7 +82,6 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						DebugPort:   8082,
 						Port:        8081,
 						HealthzPath: "/healthz",
 						HealthzPort: 8080,
@@ -196,13 +196,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 					}(),
 
 					cfg: config.Server{
-						EnableDebug: true,
 						Port:        apiSrvPort,
 						HealthzPort: hcSrvPort,
 						TLS: config.TLS{
 							Enabled: false,
 							Cert:    certKey,
 							Key:     keyKey,
+						},
+						DebugServer: config.DebugServer{
+							Enable: true,
 						},
 					},
 				},
@@ -306,13 +308,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						EnableDebug: true,
 						Port:        apiSrvPort,
 						HealthzPort: hcSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,
 							Key:     key,
+						},
+						DebugServer: config.DebugServer{
+							Enable: true,
 						},
 					},
 				},
@@ -397,13 +401,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						EnableDebug: true,
 						Port:        apiSrvPort,
 						HealthzPort: hcSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,
 							Key:     key,
+						},
+						DebugServer: config.DebugServer{
+							Enable: true,
 						},
 					},
 				},

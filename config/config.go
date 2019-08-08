@@ -58,12 +58,6 @@ type Server struct {
 	// Port represents the server port.
 	Port int `yaml:"port"`
 
-	// EnableDebug represents if user want to enable debug functionality.
-	EnableDebug bool `yaml:"enable_debug"`
-
-	// DebugPort represents debug server port.
-	DebugPort int `yaml:"debug_port"`
-
 	// HealthzPort represents health check server port.
 	HealthzPort int `yaml:"health_check_port"`
 
@@ -81,6 +75,9 @@ type Server struct {
 
 	// TLS represents the TLS configuration for authorization proxy server.
 	TLS TLS `yaml:"tls"`
+
+	// DebugServer represent the debug server.
+	DebugServer DebugServer `yaml:"debug_server"`
 }
 
 // TLS represents the TLS configuration for authorization proxy server.
@@ -162,6 +159,21 @@ type Authorization struct {
 
 	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
 	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
+}
+
+// DebugServer represents the server for debug use.
+type DebugServer struct {
+	// Enable represents if user want to enable debug server functionality.
+	Enable bool `yaml:"enable"`
+
+	// Port represents debug server port.
+	Port int `yaml:"port"`
+
+	// EnableDump represents if user want to enable memory dump functionality.
+	EnableDump bool `yaml:"enable_dump"`
+
+	// EnableProfiling represents if user want to enable profiling functionality.
+	EnableProfiling bool `yaml:"enable_profiling"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.

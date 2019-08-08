@@ -104,9 +104,9 @@ func NewServer(opts ...Option) Server {
 		s.hcsrv.SetKeepAlivesEnabled(true)
 	}
 
-	if s.cfg.EnableDebug {
+	if s.debugSrvEnable() {
 		s.dsrv = &http.Server{
-			Addr:    fmt.Sprintf(":%d", s.cfg.DebugPort),
+			Addr:    fmt.Sprintf(":%d", s.cfg.DebugServer.Port),
 			Handler: s.dsHandler,
 		}
 		s.dsrv.SetKeepAlivesEnabled(true)
@@ -178,7 +178,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		}()
 	}
 
-	if s.cfg.EnableDebug {
+	if s.debugSrvEnable() {
 		wg.Add(1)
 		dech = make(chan error, 1)
 
@@ -337,4 +337,8 @@ func (s *server) listenAndServeAPI() error {
 
 func (s *server) healthzSrvEnable() bool {
 	return s.cfg.HealthzPort > 0
+}
+
+func (s *server) debugSrvEnable() bool {
+	return s.cfg.DebugServer.Enable
 }
