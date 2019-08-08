@@ -494,13 +494,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						EnableDebug: true,
 						Port:        apiSrvPort,
 						HealthzPort: hcSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,
 							Key:     key,
+						},
+						DebugServer: config.DebugServer{
+							Enable: true,
 						},
 					},
 				},
@@ -586,7 +588,6 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						EnableDebug: false,
 						Port:        apiSrvPort,
 						HealthzPort: hcSrvPort,
 						TLS: config.TLS{
@@ -678,13 +679,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						EnableDebug: true,
-						Port:        apiSrvPort,
+						Port: apiSrvPort,
 						// HealthzPort: hcSrvPort,
 						TLS: config.TLS{
 							Enabled: true,
 							Cert:    cert,
 							Key:     key,
+						},
+						DebugServer: config.DebugServer{
+							Enable: true,
 						},
 					},
 				},
