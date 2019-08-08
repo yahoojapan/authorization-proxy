@@ -80,8 +80,6 @@ func TestNew(t *testing.T) {
 				EnableColorLogging: false,
 				Server: Server{
 					Port:             8082,
-					EnableDebug:      false,
-					DebugPort:        6083,
 					HealthzPort:      6082,
 					HealthzPath:      "/healthz",
 					Timeout:          "10s",
@@ -92,6 +90,12 @@ func TestNew(t *testing.T) {
 						Cert:    "/etc/athenz/provider/keys/server.crt",
 						Key:     "/etc/athenz/provider/keys/private.key",
 						CA:      "/etc/athenz/provider/keys/ca.crt",
+					},
+					DebugServer: DebugServer{
+						Enable:          false,
+						Port:            6083,
+						EnableDump:      true,
+						EnableProfiling: true,
 					},
 				},
 				Athenz: Athenz{

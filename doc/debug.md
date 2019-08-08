@@ -18,8 +18,10 @@ Example configuration for debug policy cache interface:
 ```yaml
 version: v1.0.0
 server:
-  enable_debug: true
-  debug_port: 6083
+  debug_server:
+    enable: true
+    port: 6083
+    enable_dump: true
 ...
 ```
 
@@ -63,3 +65,24 @@ Output:
 }
 ```
 
+## Profiling
+
+- Only accepts HTTP `GET` request
+- The endpoint is `/debug/pprof`
+- User can access this endpoint though web browser.
+
+### Configuration
+
+Example configuration for profiling interface:
+
+```yaml
+version: v1.0.0
+server:
+  debug_server:
+    enable: true
+    port: 6083
+    enable_pprof: true
+...
+```
+
+The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).

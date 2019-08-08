@@ -41,7 +41,7 @@ func NewDebugRouter(cfg config.Server, a service.Authorizationd) *http.ServeMux 
 		dur = time.Second * 3
 	}
 
-	for _, route := range NewDebugRoutes(cfg, a) {
+	for _, route := range NewDebugRoutes(cfg.DebugServer, a) {
 		//関数名取得
 		mux.Handle(route.Pattern, routing(route.Methods, dur, route.HandlerFunc))
 	}
