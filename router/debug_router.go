@@ -1,3 +1,19 @@
+/*
+Copyright (C)  2018 Yahoo Japan Corporation Athenz team.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package router
 
 import (
@@ -15,7 +31,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/service"
 )
 
-// NewDebugRouter returns a http.ServeMux for handling HTTP requests
+// NewDebugRouter return the ServeMux with debug endpoints
 func NewDebugRouter(cfg config.Server, a service.Authorizationd) *http.ServeMux {
 	http.DefaultTransport.(*http.Transport).MaxIdleConnsPerHost = 32
 	mux := http.NewServeMux()
@@ -25,7 +41,7 @@ func NewDebugRouter(cfg config.Server, a service.Authorizationd) *http.ServeMux 
 		dur = time.Second * 3
 	}
 
-	for _, route := range NewDebugRoutes(cfg, a) {
+	for _, route := range NewDebugRoutes(cfg.DebugServer, a) {
 		//関数名取得
 		mux.Handle(route.Pattern, routing(route.Methods, dur, route.HandlerFunc))
 	}

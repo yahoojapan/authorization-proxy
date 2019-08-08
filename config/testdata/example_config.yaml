@@ -2,8 +2,6 @@ version: v1.0.0
 debug: false
 server:
   port: 8082
-  enable_debug: false
-  debug_port: 6083
   health_check_port: 6082
   health_check_path: /healthz
   timeout: 10s
@@ -14,6 +12,11 @@ server:
     cert: /etc/athenz/provider/keys/server.crt
     key: /etc/athenz/provider/keys/private.key
     ca: /etc/athenz/provider/keys/ca.crt
+  debug_server:
+    enable: false
+    port: 6083
+    enable_dump: true
+    enable_profiling: true
 athenz:
   url: https://www.athenz.com:4443/zts/v1
   timeout: 30s
