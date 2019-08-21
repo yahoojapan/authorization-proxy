@@ -18,8 +18,6 @@ package usecase
 
 import (
 	"context"
-	"sync/atomic"
-	"unsafe"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
@@ -69,14 +67,13 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
-	var emap unsafe.Pointer
+	var emap map[string]uint64
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
 
 	// handle authorizer daemon error, return on channel close
 	eg.Go(func() error {
-		em := make(map[string]uint64, 1)
-		atomic.StorePointer(&emap, unsafe.Pointer(&em))
+		emap = make(map[string]uint64, 1)
 		pch := g.athenz.Start(ctx)
 
 		for err := range pch {
@@ -84,11 +81,11 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 				glg.Errorf("pch: %v", err)
 				// count errors by cause
 				cause := errors.Cause(err).Error()
-				_, ok := em[cause]
+				_, ok := emap[cause]
 				if !ok {
-					em[cause] = 1
+					emap[cause] = 1
 				} else {
-					em[cause]++
+					emap[cause]++
 				}
 			}
 		}
@@ -124,9 +121,8 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 		err := eg.Wait()
 
 		// aggregate all errors as array
-		em := *(*map[string]uint64)(atomic.LoadPointer(&emap))
-		perrs := make([]error, 0, len(em))
-		for errMsg, count := range em {
+		perrs := make([]error, 0, len(emap))
+		for errMsg, count := range emap {
 			perrs = append(perrs, errors.WithMessagef(errors.New(errMsg), "authorizerd: %d times appeared", count))
 		}
 
