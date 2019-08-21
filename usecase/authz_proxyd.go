@@ -29,7 +29,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/router"
 	"github.com/yahoojapan/authorization-proxy/service"
 
-	authorizerd "github.com/yahoojapan/athenz-authorizer"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v2"
 )
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
@@ -67,14 +67,13 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
-	emapCh := make(chan map[string]uint64, 1)
+	var emap map[string]uint64
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
 
 	// handle authorizer daemon error, return on channel close
 	eg.Go(func() error {
-		defer close(emapCh)
-		emap := make(map[string]uint64, 1)
+		emap = make(map[string]uint64, 1)
 		pch := g.athenz.Start(ctx)
 
 		for err := range pch {
@@ -91,7 +90,6 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 			}
 		}
 
-		emapCh <- emap
 		return nil
 	})
 
@@ -121,7 +119,6 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 
 		<-ctx.Done()
 		err := eg.Wait()
-		emap := <-emapCh
 
 		// aggregate all errors as array
 		perrs := make([]error, 0, len(emap))
@@ -150,7 +147,6 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		authorizerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		authorizerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
-		authorizerd.WithPolicyEtagExpTime(cfg.Authorization.PolicyEtagExpTime),
 		authorizerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
 
 		authorizerd.WithDisableJwkd(),
