@@ -67,12 +67,13 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
 func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 	ech := make(chan []error)
-	var emap map[string]uint64
+	var emap map[string]uint64 // used for returning value from child goroutine, should not r/w in this goroutine
 	var eg *errgroup.Group
 	eg, ctx = errgroup.WithContext(ctx)
 
 	// handle authorizer daemon error, return on channel close
 	eg.Go(func() error {
+		// closure, only this goroutine should write on the variable and the map
 		emap = make(map[string]uint64, 1)
 		pch := g.athenz.Start(ctx)
 
@@ -120,6 +121,12 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 		<-ctx.Done()
 		err := eg.Wait()
 
+		/*
+			Read on emap is safe here, if and only if:
+			1. emap is not used in the parenet goroutine
+			2. the writer goroutine returns only if all erros are written, i.e. pch is closed
+			3. this goroutine should wait for the writer goroutine to end, i.e. eg.Wait()
+		*/
 		// aggregate all errors as array
 		perrs := make([]error, 0, len(emap))
 		for errMsg, count := range emap {
