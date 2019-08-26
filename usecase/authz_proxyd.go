@@ -34,6 +34,7 @@ import (
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
 type AuthzProxyDaemon interface {
+	Init(ctx context.Context) error
 	Start(ctx context.Context) <-chan []error
 }
 
@@ -62,6 +63,11 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 			service.WithServerHandler(handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
 			service.WithDebugHandler(debugMux)),
 	}, nil
+}
+
+// Init initializes child daemons synchronously.
+func (g *authzProxyDaemon) Init(ctx context.Context) error {
+	return g.athenz.Init(ctx)
 }
 
 // Start returns a channel of error slice . This error channel reports the errors inside the Authorizer daemon and the Authorization Proxy server.
@@ -153,7 +159,6 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 
 		authorizerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		authorizerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
-		authorizerd.WithPolicyEtagFlushDuration(cfg.Authorization.PolicyEtagFlushDur),
 		authorizerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
 
 		authorizerd.WithDisableJwkd(),
