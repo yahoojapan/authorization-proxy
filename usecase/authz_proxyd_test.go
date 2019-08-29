@@ -99,6 +99,58 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func Test_authzProxyDaemon_Init(t *testing.T) {
+	type fields struct {
+		athenz service.Authorizationd
+	}
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name       string
+		fields     fields
+		args       args
+		wantErrStr string
+	}{
+		{
+			name: "init sccuess",
+			fields: fields{
+				athenz: &service.AuthorizerdMock{
+					InitFunc: func(ctx context.Context) error {
+						return nil
+					},
+				},
+			},
+			args:       args{ctx: context.Background()},
+			wantErrStr: "",
+		},
+		{
+			name: "init fail",
+			fields: fields{
+				athenz: &service.AuthorizerdMock{
+					InitFunc: func(ctx context.Context) error {
+						return errors.New("authorizerd error")
+					},
+				},
+			},
+			args:       args{ctx: context.Background()},
+			wantErrStr: "authorizerd error",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := &authzProxyDaemon{
+				athenz: tt.fields.athenz,
+			}
+			err := g.Init(tt.args.ctx)
+			if (err == nil && tt.wantErrStr != "") || (err != nil && err.Error() != tt.wantErrStr) {
+				t.Errorf("authzProxyDaemon.Init() error = %v, wantErr %v", err, tt.wantErrStr)
+				return
+			}
+		})
+	}
+}
+
 func Test_authzProxyDaemon_Start(t *testing.T) {
 	type fields struct {
 		cfg    config.Config

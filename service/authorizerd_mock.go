@@ -7,11 +7,17 @@ import (
 
 // AuthorizerdMock is a mock of Authorizerd
 type AuthorizerdMock struct {
+	InitFunc            func(context.Context) error
 	StartFunc           func(context.Context) <-chan error
 	VerifyRoleTokenFunc func(ctx context.Context, tok, act, res string) error
 	VerifyRoleJWTFunc   func(ctx context.Context, tok, act, res string) error
 	VerifyRoleCertFunc  func(ctx context.Context, peerCerts []*x509.Certificate, act, res string) error
 	GetPolicyCacheFunc  func(ctx context.Context) map[string]interface{}
+}
+
+// Start is a mock implementation of Authorizerd.Start
+func (am *AuthorizerdMock) Init(ctx context.Context) error {
+	return am.InitFunc(ctx)
 }
 
 // Start is a mock implementation of Authorizerd.Start
