@@ -105,7 +105,7 @@ func Test_run(t *testing.T) {
 				},
 				checkFunc: func(cfg config.Config) error {
 					got := run(cfg)
-					want := "usecase returned error: cannot newAuthorizationd(cfg): error create pubkeyd: invalid refresh druation: time: invalid duration dummy"
+					want := "usecase returned error: cannot newAuthzD(cfg): error create pubkeyd: invalid refresh duration: time: invalid duration dummy"
 					if len(got) != 1 {
 						return errors.New("len(got) != 1")
 					}

@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 	type test struct {
 		name      string
 		args      args
-		checkFunc func(AuthorizationDaemon) error
+		checkFunc func(AuthzProxyDaemon) error
 		wantErr   bool
 	}
 	tests := []test{
@@ -53,17 +53,17 @@ func TestNew(t *testing.T) {
 				args: args{
 					cfg: cfg,
 				},
-				checkFunc: func(got AuthorizationDaemon) error {
+				checkFunc: func(got AuthzProxyDaemon) error {
 					if got == nil {
 						return errors.New("got is nil")
 					}
-					if !reflect.DeepEqual(got.(*providerDaemon).cfg, cfg) {
+					if !reflect.DeepEqual(got.(*authzProxyDaemon).cfg, cfg) {
 						return errors.New("got.cfg does not equal")
 					}
-					if got.(*providerDaemon).athenz == nil {
+					if got.(*authzProxyDaemon).athenz == nil {
 						return errors.New("got.athenz is nil")
 					}
-					if got.(*providerDaemon).server == nil {
+					if got.(*authzProxyDaemon).server == nil {
 						return errors.New("got.server is nil")
 					}
 					return nil
@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func Test_providerDaemon_Start(t *testing.T) {
+func Test_authzProxyDaemon_Start(t *testing.T) {
 	type fields struct {
 		cfg    config.Config
 		athenz service.Authorizationd
@@ -127,7 +127,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Daemon start success",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
@@ -147,8 +147,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 								defer close(ech)
 								select {
 								case <-ctx.Done():
-									// prevent race with Authorizerd.Start() in select
-									// also, simulate graceful shutdown
+									// simulate graceful shutdown
 									time.Sleep(1 * time.Millisecond)
 
 									ech <- []error{ctx.Err()}
@@ -163,7 +162,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					context.Canceled,
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -207,7 +206,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 				name: "Server fails",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
@@ -236,6 +235,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					errors.WithMessage(dummyErr, "server fails"),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
@@ -276,18 +276,18 @@ func Test_providerDaemon_Start(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			dummyErr := errors.New("dummy")
 			return test{
-				name: "Provider daemon fails, multiple times",
+				name: "Authorizer daemon fails, multiple times",
 				fields: fields{
 					athenz: &service.AuthorizerdMock{
-						StartFunc: func(context.Context) <-chan error {
+						StartFunc: func(ctx context.Context) <-chan error {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
 
 								// simulate fails
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
-								ech <- errors.WithMessage(dummyErr, "provider daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
+								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
 
 								// return only if context cancel
 								select {
@@ -306,8 +306,7 @@ func Test_providerDaemon_Start(t *testing.T) {
 								defer close(ech)
 								select {
 								case <-ctx.Done():
-									// prevent race with Authorizerd.Start() in select
-									// also, simulate graceful shutdown
+									// simulate graceful shutdown
 									time.Sleep(1 * time.Millisecond)
 
 									ech <- []error{ctx.Err()}
@@ -322,9 +321,168 @@ func Test_providerDaemon_Start(t *testing.T) {
 					ctx: ctx,
 				},
 				wantErrs: []error{
-					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "provider daemon fails")), "providerd: 3 times appeared"),
-					errors.WithMessage(context.Canceled, "providerd: 1 times appeared"),
+					errors.WithMessage(errors.Cause(errors.WithMessage(dummyErr, "authorizer daemon fails")), "authorizerd: 3 times appeared"),
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
 					context.Canceled,
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					cancel()
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
+					}
+
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			return test{
+				name: "Daemon start end successfully, server shutdown without error",
+				fields: fields{
+					athenz: &service.AuthorizerdMock{
+						StartFunc: func(ctx context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+								// return only if context cancel
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
+							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{}
+									return
+								}
+							}()
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
+					errors.New(""),
+				},
+				checkFunc: func(got <-chan []error, wantErrs []error) error {
+					cancel()
+					mux := &sync.Mutex{}
+
+					gotErrs := make([][]error, 0)
+					mux.Lock()
+					go func() {
+						defer mux.Unlock()
+						select {
+						case err, ok := <-got:
+							if !ok {
+								return
+							}
+							gotErrs = append(gotErrs, err)
+						}
+					}()
+					time.Sleep(time.Second)
+
+					mux.Lock()
+					defer mux.Unlock()
+
+					// check only send errors once and the errors are expected ignoring order
+					sort.Slice(gotErrs[0], getLessErrorFunc(gotErrs[0]))
+					sort.Slice(wantErrs, getLessErrorFunc(wantErrs))
+					gotErrsStr := fmt.Sprintf("%v", gotErrs[0])
+					wantErrsStr := fmt.Sprintf("%v", wantErrs)
+					if len(gotErrs) != 1 || !reflect.DeepEqual(gotErrsStr, wantErrsStr) {
+						return errors.Errorf("Invalid err, got: %v, want: %v", gotErrsStr, wantErrsStr)
+					}
+
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			ctx, cancel := context.WithCancel(context.Background())
+			dummyErr := errors.New("dummy")
+			return test{
+				name: "Daemon start end successfully, server shutdown >1 errors",
+				fields: fields{
+					athenz: &service.AuthorizerdMock{
+						StartFunc: func(ctx context.Context) <-chan error {
+							ech := make(chan error)
+							go func() {
+								defer close(ech)
+								// return only if context cancel
+								select {
+								case <-ctx.Done():
+									ech <- ctx.Err()
+									return
+								}
+							}()
+							return ech
+						},
+					},
+					server: &service.ServerMock{
+						ListenAndServeFunc: func(ctx context.Context) <-chan []error {
+							ech := make(chan []error)
+							go func() {
+								defer close(ech)
+								select {
+								case <-ctx.Done():
+									// simulate graceful shutdown
+									time.Sleep(1 * time.Millisecond)
+
+									ech <- []error{dummyErr, ctx.Err()}
+									return
+								}
+							}()
+							return ech
+						},
+					},
+				},
+				args: args{
+					ctx: ctx,
+				},
+				wantErrs: []error{
+					errors.WithMessage(context.Canceled, "authorizerd: 1 times appeared"),
+					errors.Wrap(dummyErr, context.Canceled.Error()),
 				},
 				checkFunc: func(got <-chan []error, wantErrs []error) error {
 					cancel()
@@ -363,20 +521,20 @@ func Test_providerDaemon_Start(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := &providerDaemon{
+			g := &authzProxyDaemon{
 				cfg:    tt.fields.cfg,
 				athenz: tt.fields.athenz,
 				server: tt.fields.server,
 			}
 			got := g.Start(tt.args.ctx)
 			if err := tt.checkFunc(got, tt.wantErrs); err != nil {
-				t.Errorf("providerDaemon.Start() error: %v", err)
+				t.Errorf("authzProxyDaemon.Start() error: %v", err)
 			}
 		})
 	}
 }
 
-func Test_newAuthorizationd(t *testing.T) {
+func Test_newAuthzD(t *testing.T) {
 	type args struct {
 		cfg config.Config
 	}
@@ -417,13 +575,13 @@ func Test_newAuthorizationd(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newAuthorizationd(tt.args.cfg)
+			got, err := newAuthzD(tt.args.cfg)
 			if err != nil && !tt.wantErr {
-				t.Errorf("newAuthorizationd() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("newAuthzD() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if err = tt.checkFunc(got); err != nil {
-				t.Errorf("newAuthorizationd() error = %v", err)
+				t.Errorf("newAuthzD() error = %v", err)
 				return
 			}
 		})
