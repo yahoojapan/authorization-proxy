@@ -160,6 +160,9 @@ type Authorization struct {
 
 	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
 	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
+
+	// PolicyErrRetryMaxCount represent the max. retry count when fail to get the policies from Athenz server for each update job.
+	PolicyErrRetryMaxCount int `yaml:"policyErrRetryMaxCount"`
 }
 
 // DebugServer represents the server for debug use.

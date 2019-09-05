@@ -155,11 +155,12 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
 		authorizerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
 		authorizerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
-		authorizerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
 
+		authorizerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
 		authorizerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
 		authorizerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
 		authorizerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
+		authorizerd.WithPolicyErrRetryMaxCount(cfg.Authorization.PolicyErrRetryMaxCount),
 
 		authorizerd.WithDisableJwkd(),
 	)
