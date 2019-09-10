@@ -116,6 +116,29 @@ func Test_run(t *testing.T) {
 				},
 			}
 		}(),
+		func() test {
+			return test{
+				name: "daemon init error",
+				args: args{
+					cfg: config.Config{
+						Athenz: config.Athenz{
+							URL: "127.0.0.1",
+						},
+					},
+				},
+				checkFunc: func(cfg config.Config) error {
+					got := run(cfg)
+					want := "daemon init error: error when processing pubkey: Error updating ZMS athenz pubkey: error fetch public key entries: error make http request: Get https://127.0.0.1/domain/sys.auth/service/zms: dial tcp 127.0.0.1:443: connect: connection refused"
+					if len(got) != 1 {
+						return errors.New("len(got) != 1")
+					}
+					if got[0].Error() != want {
+						return errors.Errorf("got: %v, want: %v", got[0], want)
+					}
+					return nil
+				},
+			}
+		}(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
