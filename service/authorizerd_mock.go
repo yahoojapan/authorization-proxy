@@ -15,7 +15,7 @@ type AuthorizerdMock struct {
 	GetPolicyCacheFunc  func(ctx context.Context) map[string]interface{}
 }
 
-// Start is a mock implementation of Authorizerd.Start
+// Init is a mock implementation of Authorizerd.Init
 func (am *AuthorizerdMock) Init(ctx context.Context) error {
 	return am.InitFunc(ctx)
 }
