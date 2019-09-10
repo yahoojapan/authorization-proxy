@@ -183,11 +183,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -197,14 +194,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{ctx.Err()}
-									return
-								}
+								ech <- []error{ctx.Err()}
 							}()
 							return ech
 						},
@@ -225,13 +219,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -262,11 +254,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -277,7 +266,6 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								ech <- []error{errors.WithMessage(dummyErr, "server fails")}
-								return
 							}()
 							return ech
 						},
@@ -297,13 +285,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -342,11 +328,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
 
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -356,14 +339,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{ctx.Err()}
-									return
-								}
+								ech <- []error{ctx.Err()}
 							}()
 							return ech
 						},
@@ -385,13 +365,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -422,11 +400,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -436,14 +411,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{}
-									return
-								}
+								ech <- []error{}
 							}()
 							return ech
 						},
@@ -464,13 +436,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -502,11 +472,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -516,14 +483,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{dummyErr, ctx.Err()}
-									return
-								}
+								ech <- []error{dummyErr, ctx.Err()}
 							}()
 							return ech
 						},
@@ -544,13 +508,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 

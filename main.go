@@ -141,7 +141,7 @@ func main() {
 	}
 
 	errs := run(*cfg)
-	if errs != nil && len(errs) > 0 {
+	if len(errs) > 0 {
 		var emsg string
 		for _, err = range errs {
 			emsg += "\n" + err.Error()

@@ -122,8 +122,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 		cfg   config.Server
 	}
 	type args struct {
-		ctx        context.Context
-		cancelFunc context.CancelFunc
+		ctx context.Context
 	}
 	type test struct {
 		name       string
@@ -907,7 +906,6 @@ func Test_server_createHealthCheckServiceMux(t *testing.T) {
 		beforeFunc func() error
 		checkFunc  func(*http.ServeMux) error
 		afterFunc  func() error
-		wantErr    error
 	}
 	tests := []test{
 		func() test {
@@ -963,7 +961,6 @@ func Test_server_handleHealthCheckRequest(t *testing.T) {
 		beforeFunc func() error
 		checkFunc  func() error
 		afterFunc  func() error
-		wantErr    error
 	}
 	tests := []test{
 		func() test {
