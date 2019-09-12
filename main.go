@@ -82,6 +82,10 @@ func run(cfg config.Config) []error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	if err = daemon.Init(ctx); err != nil {
+		return []error{errors.Wrap(err, "daemon init error")}
+	}
+
 	ech := daemon.Start(ctx)
 	sigCh := make(chan os.Signal, 1)
 
