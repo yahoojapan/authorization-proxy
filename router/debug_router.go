@@ -60,6 +60,7 @@ func routing(m []string, t time.Duration, h handler.Func) http.Handler {
 				ech := make(chan error)
 				go func() {
 					ech <- h(w, r.WithContext(ctx))
+					close(ech)
 				}()
 
 				for {
