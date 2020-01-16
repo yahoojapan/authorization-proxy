@@ -33,8 +33,10 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
-		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
+	if t.cfg.BypassUrlPath == "" || t.cfg.BypassUrlPath != r.URL.Path {
+		if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
+			return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
+		}
 	}
 
 	return t.RoundTripper.RoundTrip(r)
