@@ -125,8 +125,9 @@ type Proxy struct {
 	// BufferSize represent the reverse proxy buffer size.
 	BufferSize uint64 `yaml:"buffer_size"`
 
-	// BypassUrlPath represents URL path that requires bypassing authorization.
-	BypassUrlPath string `yaml:"bypass_url_path"`
+	// BypassURLPath represents URL path that requires bypassing authorization.
+	// Setting this configuration may introduce security hole in your system. Do NOT set this configuration with URL path other than application's healthcheck endpoint.
+	BypassURLPath string `yaml:"bypass_url_path"`
 }
 
 // Authorization represents the detail configuration of the authorization proxy.
