@@ -40,7 +40,9 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 	} else {
 		// WARNING!!! Authorization is bypassed.
-		glg.Debug("Authorization checking skipped on: " + r.URL.Path)
+		if err := glg.Debug("Authorization checking skipped on: " + r.URL.Path); err != nil {
+			return nil, err
+		}
 	}
 
 	return t.RoundTripper.RoundTrip(r)
