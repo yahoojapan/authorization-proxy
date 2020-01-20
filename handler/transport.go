@@ -34,10 +34,23 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	if t.cfg.BypassURLPath == "" || t.cfg.BypassURLPath != r.URL.Path {
-		if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
-			return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
-		}
+	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
+		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
+	}
+
+	return t.RoundTripper.RoundTrip(r)
+}
+
+type transportWithBypass struct {
+	bypassRoundTripper http.RoundTripper
+	roundTripper       http.RoundTripper
+	prov               service.Authorizationd
+	cfg                config.Proxy
+}
+
+func (t *transportWithBypass) RoundTrip(r *http.Request) (*http.Response, error) {
+	if t.cfg.BypassURLPath != r.URL.Path {
+		return t.roundTripper.RoundTrip(r)
 	} else {
 		// WARNING!!! Authorization is bypassed.
 		if err := glg.Debug("Authorization checking skipped on: " + r.URL.Path); err != nil {
@@ -45,5 +58,5 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 	}
 
-	return t.RoundTripper.RoundTrip(r)
+	return t.bypassRoundTripper.RoundTrip(r)
 }

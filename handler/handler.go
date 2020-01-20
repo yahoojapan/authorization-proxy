@@ -44,6 +44,22 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 
 	host := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 
+	// wrap roundTripper
+	var roundTripper http.RoundTripper
+	roundTripper = &transport{
+		prov:         prov,
+		RoundTripper: &http.Transport{},
+		cfg:          cfg,
+	}
+	if cfg.BypassURLPath != "" {
+		roundTripper = &transportWithBypass{
+			bypassRoundTripper: &http.Transport{},
+			roundTripper:       roundTripper,
+			prov:               prov,
+			cfg:                cfg,
+		}
+	}
+
 	return &httputil.ReverseProxy{
 		BufferPool: bp,
 		Director: func(r *http.Request) {
@@ -57,11 +73,7 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			req.Header = r.Header
 			*r = *req
 		},
-		Transport: &transport{
-			prov:         prov,
-			RoundTripper: &http.Transport{},
-			cfg:          cfg,
-		},
+		Transport:    roundTripper,
 		ErrorHandler: handleError,
 	}
 }

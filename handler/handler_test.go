@@ -203,6 +203,82 @@ func TestNew(t *testing.T) {
 				},
 			}
 		}(),
+
+		func() test {
+			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("dummyContent"))
+				w.WriteHeader(http.StatusOK)
+			}))
+			srv := httptest.NewServer(handler)
+
+			return test{
+				name: "check request can bypass authz",
+				args: args{
+					cfg: config.Proxy{
+						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
+						Port: func() uint16 {
+							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
+							return uint16(a)
+						}(),
+						BypassURLPath: "/healthz",
+					},
+					bp: infra.NewBuffer(64),
+					prov: &service.AuthorizerdMock{
+						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+							return errors.New("deny")
+						},
+					},
+				},
+				checkFunc: func(h http.Handler) error {
+					rw := httptest.NewRecorder()
+					r := httptest.NewRequest("GET", "http://dummy.com/healthz", nil)
+					h.ServeHTTP(rw, r)
+					if rw.Code != http.StatusOK {
+						return errors.Errorf("unexpected status code, got: %v, want: %v", rw.Code, http.StatusOK)
+					}
+					if fmt.Sprintf("%v", rw.Body) != "dummyContent" {
+						return errors.Errorf("unexpected http response, got: %v, want %v", rw.Body, "dummyContent")
+					}
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("dummyContent"))
+				w.WriteHeader(http.StatusOK)
+			}))
+			srv := httptest.NewServer(handler)
+
+			return test{
+				name: "check request cannot bypass authz if not match",
+				args: args{
+					cfg: config.Proxy{
+						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
+						Port: func() uint16 {
+							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
+							return uint16(a)
+						}(),
+						BypassURLPath: "/healthz",
+					},
+					bp: infra.NewBuffer(64),
+					prov: &service.AuthorizerdMock{
+						VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+							return errors.New("deny")
+						},
+					},
+				},
+				checkFunc: func(h http.Handler) error {
+					rw := httptest.NewRecorder()
+					r := httptest.NewRequest("GET", "http://dummy.com/healthz/", nil)
+					h.ServeHTTP(rw, r)
+					if rw.Code != http.StatusUnauthorized {
+						return errors.Errorf("unexpected status code, got: %v, want: %v", rw.Code, http.StatusUnauthorized)
+					}
+					return nil
+				},
+			}
+		}(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

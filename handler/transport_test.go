@@ -78,57 +78,6 @@ func Test_transport_RoundTrip(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		{
-			name: "bypass role token verification",
-			fields: fields{
-				RoundTripper: &RoundTripperMock{
-					RoundTripFunc: func(req *http.Request) (*http.Response, error) {
-						return &http.Response{
-							StatusCode: 200,
-						}, nil
-					},
-				},
-				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
-						return errors.New("role token error")
-					},
-				},
-				cfg: config.Proxy{
-					BypassURLPath: "/healthz",
-				},
-			},
-			args: args{
-				r: func() *http.Request {
-					r, _ := http.NewRequest("GET", "http://athenz.io/healthz", nil)
-					return r
-				}(),
-			},
-			want: &http.Response{
-				StatusCode: 200,
-			},
-			wantErr: false,
-		},
-		{
-			name: "NOT bypassing role token verification",
-			fields: fields{
-				RoundTripper: nil,
-				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
-						return errors.New("role token error")
-					},
-				},
-				cfg: config.Proxy{
-					BypassURLPath: "/healthz",
-				},
-			},
-			args: args{
-				r: func() *http.Request {
-					r, _ := http.NewRequest("GET", "http://athenz.io/healthz/", nil)
-					return r
-				}(),
-			},
-			wantErr: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -148,3 +97,6 @@ func Test_transport_RoundTrip(t *testing.T) {
 		})
 	}
 }
+
+// func Test_transportWithBypass_RoundTrip(t *testing.T) {
+// }
