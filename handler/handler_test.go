@@ -32,7 +32,9 @@ func TestNew(t *testing.T) {
 	tests := []test{
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -70,7 +72,9 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -105,7 +109,9 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -170,7 +176,9 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -206,7 +214,9 @@ func TestNew(t *testing.T) {
 
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -245,7 +255,9 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				if _, err := w.Write([]byte("dummyContent")); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
