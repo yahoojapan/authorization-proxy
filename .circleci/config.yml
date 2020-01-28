@@ -213,14 +213,14 @@ workflows:
             branches:
               only:
                 - master
-      - versioning
-      - push:
-          requires:
-            - versioning
+      - versioning:
           filters:
             branches:
               only:
                 - master
+      - push:
+          requires:
+            - versioning
       - gh_release:
           requires:
             - push
