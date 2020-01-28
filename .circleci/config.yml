@@ -43,6 +43,8 @@ jobs:
     <<: *default
     steps:
       - setup_remote_docker: *setup_remote_docker
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: check docker version
@@ -51,8 +53,17 @@ jobs:
       - run:
           name: docker image build
           command: |
-            # env DOCKER_BUILDKIT=1 docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
-            docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+            TAG=`cat ./.tag`
+            if [ ! -z "$TAG" ]; then
+              docker build --build-arg APP_VERSION=${TAG} -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+            else
+              # env DOCKER_BUILDKIT=1 docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+              docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+            fi
+      - run:
+          name: check build version
+          command: |
+            docker run --rm --name ${IMAGE_NAME} ${REPO_NAME}/${IMAGE_NAME}:latest --version
       - run:
           name: save image
           command: |
@@ -80,7 +91,7 @@ jobs:
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run:
-          name: push image to registory
+          name: push image to registry
           command: |
             docker push ${REPO_NAME}/${IMAGE_NAME}
   publish:
@@ -102,7 +113,7 @@ jobs:
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       - run:
-          name: push image to registory
+          name: push image to registry
           command: |
             docker push ${REPO_NAME}/${IMAGE_NAME}
   versioning:
@@ -139,6 +150,11 @@ jobs:
                 echo "0.0.1" > ./.tag
               fi
             fi
+      - run:
+          name: echo version
+          command: |
+            TAG_FILE='./.tag' \
+            && if [[ -s ${TAG_FILE} ]]; then echo "TAG: `cat "${TAG_FILE}"`"; else echo "TAG: (${TAG_FILE} is empty)"; fi
       - persist_to_workspace:
           root: .
           paths:
@@ -186,7 +202,9 @@ workflows:
   build:
     jobs:
       - test
-      - build
+      - build:
+          requires:
+            - versioning
       - publish_nightly:
           requires:
             - test
@@ -222,4 +240,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /[0-9]+\.[0-9]+\.[0-9]+/
-
