@@ -127,6 +127,7 @@ type Proxy struct {
 
 	// BypassURLPaths represent URL paths that require authorization bypassing.
 	// WARNING!!! Setting this configuration may introduce security hole in your system. Do NOT set this configuration with URL paths other than application's healthcheck endpoint.
+	// Tips for performance: define your healthcheck endpoint with different lenght from the most frequestly used endpoint, e.g. `/most_used` (len: 10) with `/healthcheck` (len: 12), instead of `/healthccc` (len: 10)
 	BypassURLPaths []string `yaml:"bypass_url_path"`
 }
 

@@ -35,15 +35,16 @@ type transport struct {
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for _, urlPath := range t.cfg.BypassURLPaths {
-		if urlPath != r.URL.Path {
-			if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
-				return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
+		if urlPath == r.URL.Path {
+			if err := glg.Info("Authorization checking skipped on: " + r.URL.Path); err != nil {
+				return nil, err
 			}
+			return t.RoundTripper.RoundTrip(r)
 		}
 	}
 
-	if err := glg.Info("Authorization checking skipped on: " + r.URL.Path); err != nil {
-		return nil, err
+	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
+		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
 	}
 	return t.RoundTripper.RoundTrip(r)
 }
