@@ -94,7 +94,9 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					BypassURLPath: "/healthz",
+					BypassURLPaths: []string{
+						"/healthz",
+					},
 				},
 			},
 			args: args{
@@ -118,7 +120,9 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					BypassURLPath: "/healthz",
+					BypassURLPaths: []string{
+						"/healthz",
+					},
 				},
 			},
 			args: args{
