@@ -98,5 +98,138 @@ func Test_transport_RoundTrip(t *testing.T) {
 	}
 }
 
-// func Test_transportWithBypass_RoundTrip(t *testing.T) {
-// }
+func Test_transportWithBypass_RoundTrip(t *testing.T) {
+	bypassRT := &RoundTripperMock{
+		RoundTripFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: 200,
+			}, nil
+		},
+	}
+	wrappedRT := &RoundTripperMock{
+		RoundTripFunc: func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: 401,
+			}, nil
+		},
+	}
+
+	type fields struct {
+		bypassRoundTripper http.RoundTripper
+		roundTripper       http.RoundTripper
+		cfg                config.Proxy
+	}
+	type args struct {
+		r *http.Request
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *http.Response
+		wantErr bool
+	}{
+		{
+			name: "len(cfg.BypassURLPaths) == 0, bypass NONE",
+			fields: fields{
+				bypassRoundTripper: bypassRT,
+				roundTripper:       wrappedRT,
+				cfg:                config.Proxy{},
+			},
+			args: args{
+				r: func() *http.Request {
+					r, _ := http.NewRequest("GET", "http://athenz.io", nil)
+					return r
+				}(),
+			},
+			want: &http.Response{
+				StatusCode: 401,
+			},
+			wantErr: false,
+		},
+		{
+			name: "BypassURLPaths match, bypass",
+			fields: fields{
+				bypassRoundTripper: bypassRT,
+				roundTripper:       wrappedRT,
+				cfg: config.Proxy{
+					BypassURLPaths: []string{
+						"/healthz",
+					},
+				},
+			},
+			args: args{
+				r: func() *http.Request {
+					r, _ := http.NewRequest("GET", "http://athenz.io/healthz", nil)
+					return r
+				}(),
+			},
+			want: &http.Response{
+				StatusCode: 200,
+			},
+			wantErr: false,
+		},
+		{
+			name: "BypassURLPaths NOT match, used wrapped round tripper",
+			fields: fields{
+				bypassRoundTripper: bypassRT,
+				roundTripper:       wrappedRT,
+				cfg: config.Proxy{
+					BypassURLPaths: []string{
+						"/healthz",
+					},
+				},
+			},
+			args: args{
+				r: func() *http.Request {
+					r, _ := http.NewRequest("GET", "http://athenz.io/healthz/", nil)
+					return r
+				}(),
+			},
+			want: &http.Response{
+				StatusCode: 401,
+			},
+			wantErr: false,
+		},
+		{
+			name: "BypassURLPaths match ANY, bypass",
+			fields: fields{
+				bypassRoundTripper: bypassRT,
+				roundTripper:       wrappedRT,
+				cfg: config.Proxy{
+					BypassURLPaths: []string{
+						"/healthz",
+						"/healthz/",
+					},
+				},
+			},
+			args: args{
+				r: func() *http.Request {
+					r, _ := http.NewRequest("GET", "http://athenz.io/healthz/", nil)
+					return r
+				}(),
+			},
+			want: &http.Response{
+				StatusCode: 200,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			transport := &transportWithBypass{
+				bypassRoundTripper: tt.fields.bypassRoundTripper,
+				roundTripper:       tt.fields.roundTripper,
+				cfg:                tt.fields.cfg,
+			}
+			got, err := transport.RoundTrip(tt.args.r)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("transportWithBypass.RoundTrip() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("transportWithBypass.RoundTrip() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -230,7 +230,9 @@ func TestNew(t *testing.T) {
 							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
 							return uint16(a)
 						}(),
-						BypassURLPath: "/healthz",
+						BypassURLPaths: []string{
+							"/healthz",
+						},
 					},
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
@@ -271,7 +273,9 @@ func TestNew(t *testing.T) {
 							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
 							return uint16(a)
 						}(),
-						BypassURLPath: "/healthz",
+						BypassURLPaths: []string{
+							"/healthz",
+						},
 					},
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{

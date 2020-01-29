@@ -51,11 +51,10 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 		RoundTripper: &http.Transport{},
 		cfg:          cfg,
 	}
-	if cfg.BypassURLPath != "" {
+	if len(cfg.BypassURLPaths) != 0 {
 		roundTripper = &transportWithBypass{
 			bypassRoundTripper: &http.Transport{},
 			roundTripper:       roundTripper,
-			prov:               prov,
 			cfg:                cfg,
 		}
 	}
