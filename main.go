@@ -32,6 +32,9 @@ import (
 	"github.com/yahoojapan/authorization-proxy/usecase"
 )
 
+// Version is set by the build command via LDFLAGS
+var Version string
+
 // params is the data model for Authorization Proxy command line arguments.
 type params struct {
 	configFilePath string
@@ -124,7 +127,14 @@ func main() {
 	}
 
 	if p.showVersion {
-		glg.Infof("authorization-proxy version -> %s", config.GetVersion())
+		err := glg.Infof("authorization-proxy version -> %s", getVersion())
+		if err != nil {
+			glg.Fatal(err)
+		}
+		err = glg.Infof("authorization-proxy config version -> %s", config.GetVersion())
+		if err != nil {
+			glg.Fatal(err)
+		}
 		return
 	}
 
@@ -149,4 +159,11 @@ func main() {
 		glg.Fatal(emsg)
 		return
 	}
+}
+
+func getVersion() string {
+	if Version == "" {
+		return "development version"
+	}
+	return Version
 }
