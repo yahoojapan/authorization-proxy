@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -95,6 +96,28 @@ func Test_run(t *testing.T) {
 	tests := []test{
 		func() test {
 			return test{
+				name: "enable debug",
+				args: args{
+					cfg: config.Config{
+						Debug:              true,
+						EnableColorLogging: true,
+					},
+				},
+				checkFunc: func(cfg config.Config) error {
+					got := run(cfg)
+					wantPrefix := "daemon init error"
+					if len(got) != 1 {
+						return errors.New("len(got) != 1")
+					}
+					if !strings.HasPrefix(got[0].Error(), wantPrefix) {
+						return errors.Errorf("got: [%v], wantPrefix: [%v]", got[0], wantPrefix)
+					}
+					return nil
+				},
+			}
+		}(),
+		func() test {
+			return test{
 				name: "run error",
 				args: args{
 					cfg: config.Config{
@@ -152,16 +175,28 @@ func Test_run(t *testing.T) {
 
 func Test_getVersion(t *testing.T) {
 	tests := []struct {
-		name string
-		want string
+		name       string
+		want       string
+		beforeFunc func()
 	}{
 		{
-			name: "default",
-			want: "development version",
+			name:       "default",
+			want:       "development version",
+			beforeFunc: func() {},
+		},
+		{
+			name: "Version already set",
+			want: "1.2.333",
+			beforeFunc: func() {
+				Version = "1.2.333"
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.beforeFunc != nil {
+				tt.beforeFunc()
+			}
 			if got := getVersion(); got != tt.want {
 				t.Errorf("getVersion() = %v, want %v", got, tt.want)
 			}
