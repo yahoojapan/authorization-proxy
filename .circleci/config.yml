@@ -98,7 +98,7 @@ jobs:
       - run:
           name: push image to registry
           command: |
-            docker push ${REPO_NAME}/${IMAGE_NAME}
+            docker push ${REPO_NAME}/${IMAGE_NAME}:nightly
   publish:
     <<: *default
     steps:
