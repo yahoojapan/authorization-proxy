@@ -127,14 +127,8 @@ func main() {
 	}
 
 	if p.showVersion {
-		err := glg.Infof("authorization-proxy version -> %s", getVersion())
-		if err != nil {
-			glg.Fatal(err)
-		}
-		err = glg.Infof("authorization-proxy config version -> %s", config.GetVersion())
-		if err != nil {
-			glg.Fatal(err)
-		}
+		glg.Infof("authorization-proxy version -> %s", getVersion())
+		glg.Infof("authorization-proxy config version -> %s", config.GetVersion())
 		return
 	}
 

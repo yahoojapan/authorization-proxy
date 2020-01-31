@@ -22,6 +22,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/service"
 
+	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 )
 
@@ -33,9 +34,15 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
+	for _, urlPath := range t.cfg.BypassURLPaths {
+		if urlPath == r.URL.Path {
+			glg.Info("Authorization checking skipped on: " + r.URL.Path)
+			return t.RoundTripper.RoundTrip(r)
+		}
+	}
+
 	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
 		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
 	}
-
 	return t.RoundTripper.RoundTrip(r)
 }

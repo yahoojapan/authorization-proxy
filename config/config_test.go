@@ -104,11 +104,12 @@ func TestNew(t *testing.T) {
 					AthenzRootCA: "",
 				},
 				Proxy: Proxy{
-					Scheme:     "http",
-					Host:       "localhost",
-					Port:       80,
-					RoleHeader: "Athenz-Role-Auth",
-					BufferSize: 4096,
+					Scheme:         "http",
+					Host:           "localhost",
+					Port:           80,
+					RoleHeader:     "Athenz-Role-Auth",
+					BufferSize:     4096,
+					BypassURLPaths: []string{},
 				},
 				Authorization: Authorization{
 					PubKeyRefreshDuration: "24h",

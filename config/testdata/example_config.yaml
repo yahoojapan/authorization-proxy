@@ -27,6 +27,7 @@ proxy:
   port: 80
   role_header_key: Athenz-Role-Auth
   buffer_size: 4096
+  bypass_url_paths: []
 provider:
   pubKeyRefreshDuration: 24h
   pubKeySysAuthDomain: sys.auth

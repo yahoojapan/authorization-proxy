@@ -53,7 +53,12 @@ jobs:
       - run:
           name: docker image build
           command: |
-            TAG=`cat ./.tag`
+            if [ ! -z "$CIRCLE_TAG" ]; then
+              echo '$CIRCLE_TAG exists, use: '"$CIRCLE_TAG"
+              TAG="$CIRCLE_TAG"
+            elif [ -f ./.tag ]; then
+              TAG=`cat ./.tag`
+            fi
             if [ ! -z "$TAG" ]; then
               docker build --build-arg APP_VERSION=${TAG} -t ${REPO_NAME}/${IMAGE_NAME}:latest .
             else
@@ -202,6 +207,7 @@ workflows:
   build:
     jobs:
       - test
+      - versioning
       - build:
           requires:
             - versioning
@@ -213,12 +219,11 @@ workflows:
             branches:
               only:
                 - master
-      - versioning:
+      - push:
           filters:
             branches:
               only:
                 - master
-      - push:
           requires:
             - versioning
       - gh_release:
@@ -226,15 +231,7 @@ workflows:
             - push
   release:
     jobs:
-      - versioning:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /[0-9]+\.[0-9]+\.[0-9]+/
       - build:
-          requires:
-            - versioning
           filters:
             branches:
               ignore: /.*/
