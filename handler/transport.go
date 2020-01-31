@@ -17,6 +17,7 @@ limitations under the License.
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/yahoojapan/authorization-proxy/config"
@@ -36,8 +37,8 @@ type transport struct {
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for _, urlPath := range t.cfg.BypassURLPaths {
 		if urlPath == r.URL.Path {
-			if err := glg.Info("Authorization checking skipped on: " + r.URL.Path); err != nil {
-				return nil, err
+			if err := glg.Info("Authorization checking skipped on: " + r.URL.Path); err == nil {
+				log.Println("Authorization checking skipped on: " + r.URL.Path)
 			}
 			return t.RoundTripper.RoundTrip(r)
 		}
