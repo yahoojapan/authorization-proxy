@@ -79,6 +79,37 @@ func Test_transport_RoundTrip(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "verify role token success (empty bypass URLs)",
+			fields: fields{
+				RoundTripper: &RoundTripperMock{
+					RoundTripFunc: func(req *http.Request) (*http.Response, error) {
+						return &http.Response{
+							StatusCode: 999,
+						}, nil
+					},
+				},
+				prov: &service.AuthorizerdMock{
+					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+						return nil
+					},
+				},
+				cfg: config.Proxy{
+					RoleHeader:     "",
+					BypassURLPaths: []string{},
+				},
+			},
+			args: args{
+				r: func() *http.Request {
+					r, _ := http.NewRequest("GET", "http://athenz.io", nil)
+					return r
+				}(),
+			},
+			want: &http.Response{
+				StatusCode: 999,
+			},
+			wantErr: false,
+		},
+		{
 			name: "BypassURLPaths match, bypass role token verification",
 			fields: fields{
 				RoundTripper: &RoundTripperMock{
