@@ -147,20 +147,55 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 }
 
 func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
-	return authorizerd.New(
+	authzCfg := cfg.Authorization
+	sharedOpts := []authorizerd.Option{
 		authorizerd.WithAthenzURL(cfg.Athenz.URL),
+	}
+	pubkeyOpts := []authorizerd.Option{
+		authorizerd.WithPubkeyRefreshDuration(authzCfg.PubKeyRefreshDuration),
+		authorizerd.WithPubkeySysAuthDomain(authzCfg.PubKeySysAuthDomain),
+		authorizerd.WithPubkeyEtagExpTime(authzCfg.PubKeyEtagExpTime),
+		authorizerd.WithPubkeyEtagFlushDuration(authzCfg.PubKeyEtagFlushDur),
+		authorizerd.WithPubkeyErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+	}
+	policyOpts := []authorizerd.Option{
+		authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
+		authorizerd.WithPolicyExpireMargin(authzCfg.PolicyExpireMargin),
+		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
+		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
+	}
 
-		authorizerd.WithPubkeyRefreshDuration(cfg.Authorization.PubKeyRefreshDuration),
-		authorizerd.WithPubkeySysAuthDomain(cfg.Authorization.PubKeySysAuthDomain),
-		authorizerd.WithPubkeyEtagExpTime(cfg.Authorization.PubKeyEtagExpTime),
-		authorizerd.WithPubkeyEtagFlushDuration(cfg.Authorization.PubKeyEtagFlushDur),
-		authorizerd.WithPubkeyErrRetryInterval(cfg.Authorization.PubKeyErrRetryInterval),
-		authorizerd.WithAthenzDomains(cfg.Authorization.AthenzDomains...),
+	var atOpts []authorizerd.Option
+	if !authzCfg.Access.Enable {
+		atOpts = []authorizerd.Option{
+			authorizerd.WithDisableJwkd(),
+		}
+	} else {
+		atOpts = []authorizerd.Option{
+			authorizerd.WithEnableJwkd(),
+			// use value in config.go in later version
+			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
+			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
 
-		authorizerd.WithPolicyExpireMargin(cfg.Authorization.PolicyExpireMargin),
-		authorizerd.WithPolicyRefreshDuration(cfg.Authorization.PolicyRefreshDuration),
-		authorizerd.WithPolicyErrRetryInterval(cfg.Authorization.PolicyErrRetryInterval),
+			authorizerd.WithATEnableMTLSCertificateBoundAccessToken(authzCfg.Access.VerifyCertThumbprint),
+			authorizerd.WithATClientCertificateGoBackSeconds(authzCfg.Access.CertBackdateDur),
+			authorizerd.WithATClientCertificateOffsetSeconds(authzCfg.Access.CertOffsetDur),
+		}
+	}
 
-		authorizerd.WithDisableJwkd(),
-	)
+	authzOptss := [][]authorizerd.Option{
+		sharedOpts,
+		pubkeyOpts,
+		policyOpts,
+		atOpts,
+	}
+	var authzOptsLen int
+	for _, opts := range authzOptss {
+		authzOptsLen += len(opts)
+	}
+	authzOpts := make([]authorizerd.Option, authzOptsLen)
+	for _, opts := range authzOptss {
+		authzOpts = append(authzOpts, opts...)
+	}
+	return authorizerd.New(authzOpts...)
 }

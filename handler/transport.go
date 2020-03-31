@@ -22,6 +22,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/service"
 
+	"github.com/dgrijalva/jwt-go/request"
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 )
@@ -40,6 +41,11 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 			return t.RoundTripper.RoundTrip(r)
 		}
 	}
+
+	// TODO: access token extract logic
+	// if (t.cfg.Authorization.Access.Enable) {
+	// 	tokenString, err := request.AuthorizationHeaderExtractor.ExtractToken(r)
+	// }
 
 	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
 		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)

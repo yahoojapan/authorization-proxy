@@ -165,6 +165,24 @@ type Authorization struct {
 
 	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
 	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
+
+	// Access represents the configuration to control access token verification.
+	Access Access `yaml:"access_token"`
+}
+
+// Access represents the Access token configuration
+type Access struct {
+	// Enable decides whether to verify access token
+	Enable bool `yaml:"enable"`
+
+	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
+	VerifyCertThumbprint bool `yaml:"verify_cert_thumbprint"`
+
+	// CertBackdateDur represents the certificate issue time backdating duration. (for usecase: new cert + old token)
+	CertBackdateDur string `yaml:"cert_backdate_dur"`
+
+	// CertOffsetDur represents the certificate issue time offset duration when comparing with the issue time of the access token. (for usecase: new cert + old token)
+	CertOffsetDur string `yaml:"cert_offset_dur"`
 }
 
 // DebugServer represents the server for debug use.
