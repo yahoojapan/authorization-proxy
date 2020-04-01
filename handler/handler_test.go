@@ -259,7 +259,7 @@ func Test_handleError(t *testing.T) {
 				args: args{
 					rw:  rw,
 					r:   httptest.NewRequest("GET", "http://127.0.0.1", bytes.NewBufferString("test")),
-					err: errors.New(ErrMsgVerifyRoleToken),
+					err: errors.New(ErrMsgUnverified),
 				},
 				checkFunc: func() error {
 					if rw.Code != http.StatusUnauthorized {

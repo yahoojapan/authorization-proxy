@@ -40,6 +40,6 @@ const (
 	// HTTPStatusClientClosedRequest represents a non-standard status code meaning that the client closed the connection before the server answered the request
 	HTTPStatusClientClosedRequest = 499
 
-	// ErrMsgVerifyRoleToken "VerifyRoleToken returned error in RoundTrip"
-	ErrMsgVerifyRoleToken = "VerifyRoleToken returned error in RoundTrip"
+	// ErrMsgUnverified "unauthenticated/unauthorized"
+	ErrMsgUnverified = "unauthenticated/unauthorized"
 )

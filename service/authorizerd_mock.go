@@ -3,12 +3,14 @@ package service
 import (
 	"context"
 	"crypto/x509"
+	"net/http"
 )
 
 // AuthorizerdMock is a mock of Authorizerd
 type AuthorizerdMock struct {
 	InitFunc              func(context.Context) error
 	StartFunc             func(context.Context) <-chan error
+	VerifyFunc            func(r *http.Request, act, res string) error
 	VerifyAccessTokenFunc func(ctx context.Context, tok, act, res string, cert *x509.Certificate) error
 	VerifyRoleTokenFunc   func(ctx context.Context, tok, act, res string) error
 	VerifyRoleJWTFunc     func(ctx context.Context, tok, act, res string) error
@@ -24,6 +26,11 @@ func (am *AuthorizerdMock) Init(ctx context.Context) error {
 // Start is a mock implementation of Authorizerd.Start
 func (am *AuthorizerdMock) Start(ctx context.Context) <-chan error {
 	return am.StartFunc(ctx)
+}
+
+// VerifyAccessToken is a mock implementation of Authorizerd.VerifyAccessToken
+func (am *AuthorizerdMock) Verify(r *http.Request, act, res string) error {
+	return am.VerifyFunc(r, act, res)
 }
 
 // VerifyAccessToken is a mock implementation of Authorizerd.VerifyAccessToken

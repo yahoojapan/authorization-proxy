@@ -55,6 +55,7 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 				glg.Fatal(errors.Wrap(err, "NewRequest returned error"))
 			}
 			req.Header = r.Header
+			req.TLS = r.TLS
 			*r = *req
 		},
 		Transport: &transport{
@@ -72,7 +73,7 @@ func handleError(rw http.ResponseWriter, r *http.Request, err error) {
 		r.Body.Close()
 	}
 	status := http.StatusUnauthorized
-	if !strings.Contains(err.Error(), ErrMsgVerifyRoleToken) {
+	if !strings.Contains(err.Error(), ErrMsgUnverified) {
 		glg.Debug("handleError: " + err.Error())
 		status = http.StatusBadGateway
 	}
