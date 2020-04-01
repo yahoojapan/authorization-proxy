@@ -123,6 +123,17 @@ func TestNew(t *testing.T) {
 					PolicyRefreshDuration: "1h",
 					PolicyEtagExpTime:     "48h",
 					PolicyEtagFlushDur:    "24h",
+					Role: Role{
+						Enable: true,
+					},
+					Access: []Access{
+						Access{
+							Enable:               true,
+							VerifyCertThumbprint: true,
+							CertBackdateDur:      "1h",
+							CertOffsetDur:        "1h",
+						},
+					},
 				},
 			},
 		},

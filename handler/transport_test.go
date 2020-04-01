@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"reflect"
@@ -32,7 +31,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return errors.New("dummy error")
 					},
 				},
@@ -59,7 +58,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return nil
 					},
 				},
@@ -89,7 +88,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return nil
 					},
 				},
@@ -120,7 +119,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return errors.New("role token error")
 					},
 				},
@@ -152,7 +151,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return errors.New("role token error")
 					},
 				},
@@ -179,7 +178,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return errors.New("role token error")
 					},
 				},
@@ -202,7 +201,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyRoleTokenFunc: func(ctx context.Context, tok, act, res string) error {
+					VerifyFunc: func(r *http.Request, act, res string) error {
 						return errors.New("role token error")
 					},
 				},

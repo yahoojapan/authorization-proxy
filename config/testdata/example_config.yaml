@@ -41,7 +41,7 @@ provider:
   policyEtagFlushDur: 24h
   role_token:
       enable: true
-  access_token:
+  access_tokens:
     -
       enable: true
       verify_cert_thumbprint: true
