@@ -6,51 +6,56 @@
 
 ## What is Authorization Proxy
 
-Authorization Proxy is an implementation of [Kubernetes sidecar container](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/) to provide a common interface for the user to do authentication and authorization check for specific URL resources. It caches the policies from [Athenz](https://github.com/yahoo/athenz), and provide a reverse proxy interface for the user to authenticate the role token written on the request header, to allow or reject user's specific URL request.
+Authorization Proxy is an implementation of [Kubernetes sidecar container](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/) to provide a common interface for API endpoint authentication and authorization. It caches the policies from [Athenz](https://github.com/yahoo/athenz), and provides a reverse proxy interface to control access on specific URL endpoints.
 
-Requires go 1.9 or later.
+Client request can be authenticated and authorizated by:
+1. OAuth2 access token
+1. Role token in the HTTP/HTTPS request header
+1. Role certificate on mTLS
+
+Requires go 1.13 or later.
 
 ## Use case
 
 ### Authorization and Authorization request
 
-Authorization Proxy acts as a reverse proxy sitting in front of the user application. When the user request for specific URL resource of the user application, the request comes to authorization proxy first.
+Authorization Proxy acts as a reverse proxy sitting in front of the server application. When the client request for specific URL endpoint of the server application, the request comes to authorization proxy first.
 
-#### Policy updater
+#### Athenz authorizer
 
-To authenticate the request, the authorization proxy should know which user can take an action to which resource, therefore the policy updater is introduced.
+To authenticate the request, the authorization proxy should know which client identity (role) can take an action on which URL endpoint, therefore the Athenz authorizer is introduced.
 
-![Policy updater](https://github.com/yahoojapan/athenz-policy-updater/raw/master/doc/policy_updater_overview.png)
+![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/doc/policy_updater_overview.png)
 
-The [policy updater](https://github.com/yahoojapan/athenz-policy-updater) periodically updates the Athenz PublicKey and Policy data from Athenz Server and validate and decode the policy data. The decoded result will store in the memory cache inside the policy updater.
+The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodically updates the access token JWK, role token public key, and Athenz policy data from the Athenz Server. It decodes and validates the policy data. The decoded policy will store in the memory cache inside the Athenz authorizer for later authorization checks. The Athenz authorizer also helps to extract client credentials from the HTTP/HTTPS request header.
 
 #### Authorization success
 
 ![Auth success](./doc/assets/auth_proxy_use_case_auth_success.png)
 
-The authorization proxy will verify and decode the role token written on the request header and check if the user can take an action to a specific resource. If the user is allowed to take an action the resource, the request will proxy to the user application.
+The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be proxied to the server application.
 
 #### Authorization failed
 
 ![Auth fail](./doc/assets/auth_proxy_use_case_auth_failed.png)
 
-The authorization proxy will return unauthorized to the user whenever if the role token is invalid, or the role written on the role token has no privilege to take the action to the resource that user is requesting.
+The authorization proxy will return `401 Unauthorized` to the client whenever the client credentials are missing/invalid, or the client identity (role) presented in the client credentials has no privilege to take the specific action on the specific URL endpoints.
 
 ---
 
 ### Mapping rules
 
-The mapping rules describe the elements using in the authorization proxy. The user can configure which Athenz domain's policies cached in the policy updater, and decide if the user is authorized to take the action to the resource.
+The mapping rules describe the elements used in the authorization proxy. You can configure which Athenz domains are effective in the Authorization Proxy, and design your own sets of Athenz policies to control client access on the server application's endpoints.
 
-The mapping rules were described below.
+The mapping rules are described as below.
 
-|          | Description                                                | Map to (Athenz)  | Example   |
-|----------|------------------------------------------------------------|------------------|-----------|
-| Role     | Role name written on the role token                        | Role             | user      |
-| Action   | HTTP/HTTPS request action                                  | Action           | POST      |
-| Resource | HTTP/HTTPS request resource, it support regular expression | Resource         | /api/*    |
+| Concept         | Description                                                | Map to (Athenz)  | Example            |
+|-----------------|------------------------------------------------------------|------------------|--------------------|
+| Client Identity | Client Identity presented in the client credentials        | Role             | access token scope |
+| Action          | HTTP/HTTPS request method                                  | Action           | POST               |
+| Resource        | HTTP/HTTPS request URL path, supports wildcard             | Resource         | /api/*             |
 
-All the HTTP/HTTPS methods and URI path will be automatically converted to lower case. 
+⚠️ All the HTTP/HTTPS methods and URI paths are normalized to lower case.
 
 ## Features to Debug
 
@@ -59,7 +64,7 @@ All the HTTP/HTTPS methods and URI path will be automatically converted to lower
 ## Configuration
 
 The example configuration file is [here](./config/testdata/example_config.yaml).
-For detail explaination please read [config.go](./config/config.go).
+For detail explaination, please read [config.go](./config/config.go).
 
 ---
 
@@ -93,3 +98,4 @@ Note that only for contributions to the garm repository on the [GitHub](https://
 - [kevindiu](https://github.com/kevindiu)
 - [TakuyaMatsu](https://github.com/TakuyaMatsu)
 - [tatyano](https://github.com/tatyano)
+- [WindzCUHK](https://github.com/WindzCUHK)
