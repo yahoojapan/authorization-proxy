@@ -29,13 +29,8 @@ import (
 type transport struct {
 	http.RoundTripper
 
-	prov      service.Authorizationd
-	cfg       config.Proxy
-	verifiers []verifier
-}
-
-type verifier interface {
-	verify(*http.Request) (*http.Response, error)
+	prov service.Authorizationd
+	cfg  config.Proxy
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {

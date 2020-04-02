@@ -2,7 +2,7 @@
 
 DEPLOYMENT_NAME="provider-test"
 DEBUG="false"
-ATHENZ_URL="www.athenz.com/zts/v1"
+ATHENZ_URL="athenz.io/zts/v1"
 MAX_REPLICA=50
 MIN_REPLICA=10
 CPU_UTILIZATION=50

@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 					},
 				},
 				Athenz: Athenz{
-					URL:          "https://www.athenz.com:4443/zts/v1",
+					URL:          "https://athenz.io:4443/zts/v1",
 					Timeout:      "30s",
 					AthenzRootCA: "",
 				},

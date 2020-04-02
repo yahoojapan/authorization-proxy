@@ -18,7 +18,7 @@ server:
     enable_dump: true
     enable_profiling: true
 athenz:
-  url: https://www.athenz.com:4443/zts/v1
+  url: https://athenz.io:4443/zts/v1
   timeout: 30s
   root_ca: ""
 proxy:
