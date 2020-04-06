@@ -1,6 +1,6 @@
 module github.com/yahoojapan/authorization-proxy
 
-go 1.13
+go 1.14
 
 require (
 	github.com/kpango/glg v1.4.6
