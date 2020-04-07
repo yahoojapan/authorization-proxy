@@ -175,7 +175,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 	atOpts := make([]authorizerd.Option, 0, len(authzCfg.Access))
 	for _, atCfg := range authzCfg.Access {
 		if atCfg.Enable {
-			atOpts = append(atOpts, authorizerd.WithNewATProcessorParam(atCfg.VerifyCertThumbprint, atCfg.CertBackdateDur, atCfg.CertOffsetDur))
+			atOpts = append(atOpts, authorizerd.WithATProcessorParams(authorizerd.NewATProcessorParam(atCfg.VerifyCertThumbprint, atCfg.CertBackdateDur, atCfg.CertOffsetDur)))
 		}
 	}
 	var jwkOpts []authorizerd.Option
