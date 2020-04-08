@@ -33,7 +33,11 @@ func TestNew(t *testing.T) {
 	tests := []test{
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				_, err := w.Write([]byte("dummyContent"))
+				if err != nil {
+					w.WriteHeader(http.StatusNotImplemented)
+					return
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -71,7 +75,11 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				_, err := w.Write([]byte("dummyContent"))
+				if err != nil {
+					w.WriteHeader(http.StatusNotImplemented)
+					return
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -106,7 +114,11 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				_, err := w.Write([]byte("dummyContent"))
+				if err != nil {
+					w.WriteHeader(http.StatusNotImplemented)
+					return
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -171,7 +183,11 @@ func TestNew(t *testing.T) {
 		}(),
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				_, err := w.Write([]byte("dummyContent"))
+				if err != nil {
+					w.WriteHeader(http.StatusNotImplemented)
+					return
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
@@ -229,7 +245,11 @@ func TestReverseProxyFatal(t *testing.T) {
 	tests := []test{
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("dummyContent"))
+				_, err := w.Write([]byte("dummyContent"))
+				if err != nil {
+					w.WriteHeader(http.StatusNotImplemented)
+					return
+				}
 				w.WriteHeader(http.StatusOK)
 			}))
 			srv := httptest.NewServer(handler)
