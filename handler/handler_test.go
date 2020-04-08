@@ -26,10 +26,9 @@ func TestNew(t *testing.T) {
 		prov service.Authorizationd
 	}
 	type test struct {
-		name       string
-		args       args
-		checkFunc  func(http.Handler) error
-		checkPanic func(interface{}) error
+		name      string
+		args      args
+		checkFunc func(http.Handler) error
 	}
 	tests := []test{
 		func() test {
@@ -208,15 +207,6 @@ func TestNew(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// defer func() {
-			// 	if tt.checkPanic != nil {
-			// 		if r := recover(); r != nil {
-			// 			if err := tt.checkPanic(r); err != nil {
-			// 				t.Errorf("New() error: %v", err)
-			// 			}
-			// 		}
-			// 	}
-			// }()
 			got := New(tt.args.cfg, tt.args.bp, tt.args.prov)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("New() error: %v", err)
