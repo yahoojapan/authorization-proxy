@@ -28,7 +28,7 @@ func (am *AuthorizerdMock) Start(ctx context.Context) <-chan error {
 	return am.StartFunc(ctx)
 }
 
-// VerifyAccessToken is a mock implementation of Authorizerd.VerifyAccessToken
+// Verify is a mock implementation of Authorizerd.Verify
 func (am *AuthorizerdMock) Verify(r *http.Request, act, res string) error {
 	return am.VerifyFunc(r, act, res)
 }
