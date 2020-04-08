@@ -1,0 +1,6 @@
+linters-settings:
+  errcheck:
+    ignore: fmt:.*,glg:.*
+issues:
+  exclude:
+    - Error return value of .(glg.(Info|Log|Debug|Warn|Error|Success|Fail|Print|Println|CustomLog)f?). is not checked

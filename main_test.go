@@ -151,8 +151,8 @@ func Test_run(t *testing.T) {
 				},
 				checkFunc: func(cfg config.Config) error {
 					got := run(cfg)
-					want1 := "daemon init error: error when processing pubkey: Error updating ZMS athenz pubkey: error fetch public key entries: error make http request: Get https://127.0.0.1/domain/sys.auth/service/zms: dial tcp 127.0.0.1:443: connect: connection refused"
-					want2 := "daemon init error: error when processing pubkey: Error updating ZTS athenz pubkey: error fetch public key entries: error make http request: Get https://127.0.0.1/domain/sys.auth/service/zts: dial tcp 127.0.0.1:443: connect: connection refused"
+					want1 := "daemon init error: error when processing pubkey: Error updating ZMS athenz pubkey: error fetch public key entries: error make http request: Get \"https://127.0.0.1/domain/sys.auth/service/zms\": dial tcp 127.0.0.1:443: connect: connection refused"
+					want2 := "daemon init error: error when processing pubkey: Error updating ZTS athenz pubkey: error fetch public key entries: error make http request: Get \"https://127.0.0.1/domain/sys.auth/service/zts\": dial tcp 127.0.0.1:443: connect: connection refused"
 					if len(got) != 1 {
 						return errors.New("len(got) != 1")
 					}

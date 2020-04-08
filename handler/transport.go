@@ -37,12 +37,15 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for _, urlPath := range t.cfg.BypassURLPaths {
 		if urlPath == r.URL.Path {
 			glg.Info("Authorization checking skipped on: " + r.URL.Path)
+			r.TLS = nil
 			return t.RoundTripper.RoundTrip(r)
 		}
 	}
 
-	if err := t.prov.VerifyRoleToken(r.Context(), r.Header.Get(t.cfg.RoleHeader), r.Method, r.URL.Path); err != nil {
-		return nil, errors.Wrap(err, ErrMsgVerifyRoleToken)
+	if err := t.prov.Verify(r, r.Method, r.URL.Path); err != nil {
+		return nil, errors.Wrap(err, ErrMsgUnverified)
 	}
+
+	r.TLS = nil
 	return t.RoundTripper.RoundTrip(r)
 }

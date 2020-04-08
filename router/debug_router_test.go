@@ -107,7 +107,10 @@ func Test_routing(t *testing.T) {
 					},
 					t: time.Second * 10,
 					h: func(rw http.ResponseWriter, r *http.Request) error {
-						rw.Write([]byte(testStr))
+						_, err := rw.Write([]byte(testStr))
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
@@ -145,7 +148,10 @@ func Test_routing(t *testing.T) {
 					},
 					t: time.Second * 10,
 					h: func(rw http.ResponseWriter, r *http.Request) error {
-						rw.Write([]byte(testStr))
+						_, err := rw.Write([]byte(testStr))
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
@@ -298,7 +304,10 @@ func Test_routing(t *testing.T) {
 					t: timeoutSec,
 					h: func(rw http.ResponseWriter, r *http.Request) error {
 						time.Sleep(waitSec)
-						rw.Write([]byte(testStr))
+						_, err := rw.Write([]byte(testStr))
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},
@@ -340,7 +349,10 @@ func Test_routing(t *testing.T) {
 					t: waitSec,
 					h: func(rw http.ResponseWriter, r *http.Request) error {
 						time.Sleep(waitSec)
-						rw.Write([]byte(testStr))
+						_, err := rw.Write([]byte(testStr))
+						if err != nil {
+							return err
+						}
 						return nil
 					},
 				},

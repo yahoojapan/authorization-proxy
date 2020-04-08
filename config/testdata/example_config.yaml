@@ -18,7 +18,7 @@ server:
     enable_dump: true
     enable_profiling: true
 athenz:
-  url: https://www.athenz.com:4443/zts/v1
+  url: https://athenz.io:4443/zts/v1
   timeout: 30s
   root_ca: ""
 proxy:
@@ -39,3 +39,11 @@ provider:
   policyRefreshDuration: 1h
   policyEtagExpTime: 48h
   policyEtagFlushDur: 24h
+  roletoken:
+      enable: true
+  access_tokens:
+    -
+      enable: true
+      verify_cert_thumbprint: true
+      cert_backdate_dur: 1h
+      cert_offset_dur: 1h

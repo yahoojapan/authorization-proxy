@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/yahoojapan/authorization-proxy/config"
 	"github.com/yahoojapan/authorization-proxy/service"
+
+	"github.com/pkg/errors"
 )
 
 func TestNew(t *testing.T) {
@@ -28,7 +29,7 @@ func TestNew(t *testing.T) {
 		func() test {
 			cfg := config.Config{
 				Athenz: config.Athenz{
-					URL: "athenz.com",
+					URL: "athenz.io",
 				},
 				Authorization: config.Authorization{
 					PubKeyRefreshDuration: "10s",
@@ -586,22 +587,38 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 	}
 }
 
+// this requires integration test
 func Test_newAuthzD(t *testing.T) {
 	type args struct {
 		cfg config.Config
 	}
 	tests := []struct {
-		name      string
-		args      args
-		checkFunc func(service.Authorizationd) error
-		wantErr   bool
+		name       string
+		args       args
+		want       bool
+		wantErrStr string
 	}{
+		{
+			name: "test new Authorization fail",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PubKeyRefreshDuration: "invalid_duration",
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "error create pubkeyd: invalid refresh duration: time: invalid duration invalid_duration",
+		},
 		{
 			name: "test success new Authorization",
 			args: args{
 				cfg: config.Config{
 					Athenz: config.Athenz{
-						URL: "athenz.com",
+						URL: "athenz.io",
+					},
+					Proxy: config.Proxy{
+						RoleHeader: "Athenz-Role-Auth",
 					},
 					Authorization: config.Authorization{
 						PubKeyRefreshDuration: "10s",
@@ -613,27 +630,53 @@ func Test_newAuthzD(t *testing.T) {
 						PolicyRefreshDuration: "10s",
 						PolicyEtagExpTime:     "10s",
 						PolicyEtagFlushDur:    "10s",
+						Role: config.Role{
+							Enable: true,
+						},
 					},
 				},
 			},
-			checkFunc: func(got service.Authorizationd) error {
-				if got == nil {
-					return errors.New("got: nil")
-				}
-				return nil
+			want: true,
+		},
+		{
+			name: "test success access token enable/disable",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PubKeyRefreshDuration: "10s",
+						PubKeyEtagExpTime:     "10s",
+						PubKeyEtagFlushDur:    "10s",
+						PolicyExpireMargin:    "10s",
+						PolicyRefreshDuration: "10s",
+						PolicyEtagExpTime:     "10s",
+						PolicyEtagFlushDur:    "10s",
+						Access: []config.Access{
+							config.Access{
+								Enable: false,
+							},
+							config.Access{
+								Enable:               true,
+								VerifyCertThumbprint: false,
+								CertBackdateDur:      "10s",
+								CertOffsetDur:        "10s",
+							},
+						},
+					},
+				},
 			},
-			wantErr: false,
+			want: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := newAuthzD(tt.args.cfg)
-			if err != nil && !tt.wantErr {
-				t.Errorf("newAuthzD() error = %v, wantErr %v", err, tt.wantErr)
+
+			if (err == nil && tt.wantErrStr != "") || (err != nil && err.Error() != tt.wantErrStr) {
+				t.Errorf("newAuthzD() error = %v, wantErr %v", err, tt.wantErrStr)
 				return
 			}
-			if err = tt.checkFunc(got); err != nil {
-				t.Errorf("newAuthzD() error = %v", err)
+			if (got != nil) != tt.want {
+				t.Errorf("newAuthzD()= %v, want= %v", got, tt.want)
 				return
 			}
 		})

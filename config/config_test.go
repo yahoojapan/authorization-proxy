@@ -99,7 +99,7 @@ func TestNew(t *testing.T) {
 					},
 				},
 				Athenz: Athenz{
-					URL:          "https://www.athenz.com:4443/zts/v1",
+					URL:          "https://athenz.io:4443/zts/v1",
 					Timeout:      "30s",
 					AthenzRootCA: "",
 				},
@@ -123,6 +123,17 @@ func TestNew(t *testing.T) {
 					PolicyRefreshDuration: "1h",
 					PolicyEtagExpTime:     "48h",
 					PolicyEtagFlushDur:    "24h",
+					Role: Role{
+						Enable: true,
+					},
+					Access: []Access{
+						Access{
+							Enable:               true,
+							VerifyCertThumbprint: true,
+							CertBackdateDur:      "1h",
+							CertOffsetDur:        "1h",
+						},
+					},
 				},
 			},
 		},
