@@ -39,7 +39,7 @@ provider:
   policyRefreshDuration: 1h
   policyEtagExpTime: 48h
   policyEtagFlushDur: 24h
-  role_token:
+  roletoken:
       enable: true
   access_tokens:
     -

@@ -170,7 +170,7 @@ type Authorization struct {
 	Access []Access `yaml:"access_tokens"`
 
 	// Role represents the configuration to control role token verification.
-	Role Role `yaml:"role_token"`
+	Role Role `yaml:"roletoken"`
 }
 
 // Access represents the access token configuration
