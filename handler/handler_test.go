@@ -265,6 +265,7 @@ func TestReverseProxyFatal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// test http.NewRequest() fatal in httputil.ReverseProxy.Director with another process (cannot include in test coverage)
 			if os.Getenv("RUN_TEST_REVERSE_PROXY_FATAL") == "1" {
 				got := New(tt.args.cfg, tt.args.bp, tt.args.prov)
 				if err := tt.checkFunc(got); err != nil {
