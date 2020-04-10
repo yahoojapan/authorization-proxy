@@ -101,11 +101,6 @@ func Test_run(t *testing.T) {
 					cfg: config.Config{
 						Debug:              true,
 						EnableColorLogging: true,
-						Authorization: config.Authorization{
-							Access: config.Access{
-								Enable: true,
-							},
-						},
 					},
 				},
 				checkFunc: func(cfg config.Config) error {
@@ -152,17 +147,9 @@ func Test_run(t *testing.T) {
 						Athenz: config.Athenz{
 							URL: "127.0.0.1",
 						},
-						Authorization: config.Authorization{
-							Access: config.Access{
-								Enable: true,
-							},
-						},
 					},
 				},
 				checkFunc: func(cfg config.Config) error {
-					// daemon init error: failed to fetch remote JWK: Get "https://127.0.0.1/oauth2/keys": dial tcp 127.0.0.1:443: connect: connection refused,
-					// daemon init error: error when processing pubkey: Error updating ZMS athenz pubkey: error fetch public key entries: error make http request: Get "https://127.0.0.1/domain/sys.auth/service/zms": dial tcp 127.0.0.1:443: connect: connection refused
-
 					got := run(cfg)
 					want1 := "daemon init error: error when processing pubkey: Error updating ZMS athenz pubkey: error fetch public key entries: error make http request: Get \"https://127.0.0.1/domain/sys.auth/service/zms\": dial tcp 127.0.0.1:443: connect: connection refused"
 					want2 := "daemon init error: error when processing pubkey: Error updating ZTS athenz pubkey: error fetch public key entries: error make http request: Get \"https://127.0.0.1/domain/sys.auth/service/zts\": dial tcp 127.0.0.1:443: connect: connection refused"
