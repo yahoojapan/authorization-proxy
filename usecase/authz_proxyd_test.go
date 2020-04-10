@@ -41,6 +41,9 @@ func TestNew(t *testing.T) {
 					PolicyRefreshDuration: "10s",
 					PolicyEtagExpTime:     "10s",
 					PolicyEtagFlushDur:    "10s",
+					Access: config.Access{
+						Enable: true,
+					},
 				},
 				Server: config.Server{
 					HealthzPath: "/dummy",
