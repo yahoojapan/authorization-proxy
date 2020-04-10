@@ -172,11 +172,8 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithRCVerifyRoleCert(false),
 	}
 
-	atOpts := make([]authorizerd.Option, 0, len(authzCfg.Access))
-	for _, atCfg := range authzCfg.Access {
-		if atCfg.Enable {
-			atOpts = append(atOpts, authorizerd.WithATProcessorParams(authorizerd.NewATProcessorParam(atCfg.VerifyCertThumbprint, atCfg.CertBackdateDur, atCfg.CertOffsetDur)))
-		}
+	atOpts := []authorizerd.Option{
+		authorizerd.WithATProcessorParams(authorizerd.NewATProcessorParam(authzCfg.Access.VerifyCertThumbprint, authzCfg.Access.CertBackdateDur, authzCfg.Access.CertOffsetDur)),
 	}
 	var jwkOpts []authorizerd.Option
 	if len(atOpts) == 0 {

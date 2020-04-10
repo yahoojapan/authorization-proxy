@@ -650,16 +650,11 @@ func Test_newAuthzD(t *testing.T) {
 						PolicyRefreshDuration: "10s",
 						PolicyEtagExpTime:     "10s",
 						PolicyEtagFlushDur:    "10s",
-						Access: []config.Access{
-							config.Access{
-								Enable: false,
-							},
-							config.Access{
-								Enable:               true,
-								VerifyCertThumbprint: false,
-								CertBackdateDur:      "10s",
-								CertOffsetDur:        "10s",
-							},
+						Access: config.Access{
+							Enable:               true,
+							VerifyCertThumbprint: false,
+							CertBackdateDur:      "10s",
+							CertOffsetDur:        "10s",
 						},
 					},
 				},
