@@ -126,13 +126,16 @@ func TestNew(t *testing.T) {
 					Role: Role{
 						Enable: true,
 					},
-					Access: []Access{
-						Access{
-							Enable:               true,
-							VerifyCertThumbprint: true,
-							CertBackdateDur:      "1h",
-							CertOffsetDur:        "1h",
+					Access: Access{
+						Enable:               true,
+						VerifyCertThumbprint: true,
+						VerifyTokenClientID:  true,
+						AuthorizedPrincipals: map[string][]string{
+							"common_name1": []string{"client_id1", "client_id2"},
+							"common_name2": []string{"client_id1", "client_id2"},
 						},
+						CertBackdateDur: "1h",
+						CertOffsetDur:   "1h",
 					},
 				},
 			},
