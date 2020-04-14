@@ -642,7 +642,7 @@ func Test_newAuthzD(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "test success access token enable/disable",
+			name: "test success access token enable, verify thumbprint disable",
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
@@ -658,6 +658,33 @@ func Test_newAuthzD(t *testing.T) {
 							VerifyCertThumbprint: false,
 							CertBackdateDur:      "10s",
 							CertOffsetDur:        "10s",
+						},
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "test success access token enable, verify client_id disable",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PubKeyRefreshDuration: "10s",
+						PubKeyEtagExpTime:     "10s",
+						PubKeyEtagFlushDur:    "10s",
+						PolicyExpireMargin:    "10s",
+						PolicyRefreshDuration: "10s",
+						PolicyEtagExpTime:     "10s",
+						PolicyEtagFlushDur:    "10s",
+						Access: config.Access{
+							Enable:              true,
+							VerifyTokenClientID: false,
+							AuthorizedPrincipals: map[string][]string{
+								"dummyCN1": {
+									"dummyClientID1",
+									"dummyClientID2",
+								},
+							},
 						},
 					},
 				},
