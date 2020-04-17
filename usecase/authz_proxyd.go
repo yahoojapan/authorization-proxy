@@ -175,7 +175,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 	var atOpts []authorizerd.Option
 	if cfg.Authorization.Access.Enable {
 		atOpts = []authorizerd.Option{
-			authorizerd.WithATProcessorParams(
+			authorizerd.WithATProcessorParam(
 				authorizerd.NewATProcessorParam(
 					authzCfg.Access.Enable,
 					authzCfg.Access.VerifyCertThumbprint,
