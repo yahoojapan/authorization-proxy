@@ -130,7 +130,7 @@ func TestNew(t *testing.T) {
 						Enable:               true,
 						VerifyCertThumbprint: true,
 						VerifyTokenClientID:  true,
-						AuthorizedPrincipals: map[string][]string{
+						AuthorizedClientIDs: map[string][]string{
 							"common_name1": []string{"client_id1", "client_id2"},
 							"common_name2": []string{"client_id1", "client_id2"},
 						},

@@ -679,7 +679,7 @@ func Test_newAuthzD(t *testing.T) {
 						Access: config.Access{
 							Enable:              true,
 							VerifyTokenClientID: false,
-							AuthorizedPrincipals: map[string][]string{
+							AuthorizedClientIDs: map[string][]string{
 								"dummyCN1": {
 									"dummyClientID1",
 									"dummyClientID2",
