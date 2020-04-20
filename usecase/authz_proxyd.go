@@ -179,10 +179,10 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 				authorizerd.NewATProcessorParam(
 					authzCfg.Access.Enable,
 					authzCfg.Access.VerifyCertThumbprint,
-					authzCfg.Access.VerifyTokenClientID,
-					authzCfg.Access.AuthorizedPrincipals,
 					authzCfg.Access.CertBackdateDur,
 					authzCfg.Access.CertOffsetDur,
+					authzCfg.Access.VerifyTokenClientID,
+					authzCfg.Access.AuthorizedPrincipals,
 				),
 			),
 		}
