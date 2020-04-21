@@ -185,7 +185,7 @@ type Access struct {
 	VerifyTokenClientID bool `yaml:"verify_token_client_id"`
 
 	// AuthorizedClientIDs represents list of allowed client_id and common name.
-	AuthorizedClientIDs map[string][]string `yaml:"authorized_principals"`
+	AuthorizedClientIDs map[string][]string `yaml:"authorized_client_ids"`
 
 	// CertBackdateDur represents the certificate issue time backdating duration. (for usecase: new cert + old token)
 	CertBackdateDur string `yaml:"cert_backdate_dur"`

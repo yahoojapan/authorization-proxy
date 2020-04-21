@@ -45,7 +45,7 @@ provider:
     enable: true
     verify_cert_thumbprint: true
     verify_token_client_id: true
-    authorized_principals:
+    authorized_client_ids:
       common_name1:
         - client_id1
         - client_id2
