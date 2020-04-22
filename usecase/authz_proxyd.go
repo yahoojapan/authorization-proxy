@@ -164,19 +164,22 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
 		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
 	}
-	rtOpts := []authorizerd.Option{
-		authorizerd.WithRTVerifyRoleToken(authzCfg.Role.Enable),
-		authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+	var rtOpts []authorizerd.Option
+	if authzCfg.Role.Enable {
+		rtOpts = []authorizerd.Option{
+			authorizerd.WithEnableRoleToken(),
+			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+		}
 	}
 	rcOpts := []authorizerd.Option{
-		authorizerd.WithRCVerifyRoleCert(false),
+		authorizerd.WithDisableRoleCert(),
 	}
 
 	var atOpts []authorizerd.Option
 	if cfg.Authorization.Access.Enable {
 		atOpts = []authorizerd.Option{
-			authorizerd.WithATProcessorParam(
-				authorizerd.NewATProcessorParam(
+			authorizerd.WithAccessTokenParam(
+				authorizerd.NewAccessTokenParam(
 					authzCfg.Access.Enable,
 					authzCfg.Access.VerifyCertThumbprint,
 					authzCfg.Access.CertBackdateDur,
