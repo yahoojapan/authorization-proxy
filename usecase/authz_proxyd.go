@@ -29,7 +29,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/router"
 	"github.com/yahoojapan/authorization-proxy/service"
 
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v2"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v3"
 )
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
