@@ -184,7 +184,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 					authzCfg.Access.VerifyCertThumbprint,
 					authzCfg.Access.CertBackdateDur,
 					authzCfg.Access.CertOffsetDur,
-					authzCfg.Access.VerifyTokenClientID,
+					authzCfg.Access.VerifyClientID,
 					authzCfg.Access.AuthorizedClientIDs,
 				),
 			),

@@ -181,8 +181,8 @@ type Access struct {
 	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
 	VerifyCertThumbprint bool `yaml:"verify_cert_thumbprint"`
 
-	// VerifyTokenClientID represents whether to enforce certificate common name and client_id verification.
-	VerifyTokenClientID bool `yaml:"verify_token_client_id"`
+	// VerifyClientID represents whether to enforce certificate common name and client_id verification.
+	VerifyClientID bool `yaml:"verify_client_id"`
 
 	// AuthorizedClientIDs represents list of allowed client_id and common name.
 	AuthorizedClientIDs map[string][]string `yaml:"authorized_client_ids"`

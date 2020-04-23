@@ -677,8 +677,8 @@ func Test_newAuthzD(t *testing.T) {
 						PolicyEtagExpTime:     "10s",
 						PolicyEtagFlushDur:    "10s",
 						Access: config.Access{
-							Enable:              true,
-							VerifyTokenClientID: false,
+							Enable:         true,
+							VerifyClientID: false,
 							AuthorizedClientIDs: map[string][]string{
 								"dummyCN1": {
 									"dummyClientID1",

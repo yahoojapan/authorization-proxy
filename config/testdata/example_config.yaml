@@ -44,7 +44,7 @@ provider:
   access_token:
     enable: true
     verify_cert_thumbprint: true
-    verify_token_client_id: false
+    verify_client_id: false
     authorized_client_ids:
       common_name1:
         - client_id1
