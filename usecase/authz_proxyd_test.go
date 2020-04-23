@@ -41,6 +41,9 @@ func TestNew(t *testing.T) {
 					PolicyRefreshDuration: "10s",
 					PolicyEtagExpTime:     "10s",
 					PolicyEtagFlushDur:    "10s",
+					Access: config.Access{
+						Enable: true,
+					},
 				},
 				Server: config.Server{
 					HealthzPath: "/dummy",
@@ -639,7 +642,7 @@ func Test_newAuthzD(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "test success access token enable/disable",
+			name: "test success access token enable, verify thumbprint disable",
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
@@ -650,15 +653,37 @@ func Test_newAuthzD(t *testing.T) {
 						PolicyRefreshDuration: "10s",
 						PolicyEtagExpTime:     "10s",
 						PolicyEtagFlushDur:    "10s",
-						Access: []config.Access{
-							config.Access{
-								Enable: false,
-							},
-							config.Access{
-								Enable:               true,
-								VerifyCertThumbprint: false,
-								CertBackdateDur:      "10s",
-								CertOffsetDur:        "10s",
+						Access: config.Access{
+							Enable:               true,
+							VerifyCertThumbprint: false,
+							CertBackdateDur:      "10s",
+							CertOffsetDur:        "10s",
+						},
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "test success access token enable, verify client_id disable",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PubKeyRefreshDuration: "10s",
+						PubKeyEtagExpTime:     "10s",
+						PubKeyEtagFlushDur:    "10s",
+						PolicyExpireMargin:    "10s",
+						PolicyRefreshDuration: "10s",
+						PolicyEtagExpTime:     "10s",
+						PolicyEtagFlushDur:    "10s",
+						Access: config.Access{
+							Enable:         true,
+							VerifyClientID: false,
+							AuthorizedClientIDs: map[string][]string{
+								"dummyCN1": {
+									"dummyClientID1",
+									"dummyClientID2",
+								},
 							},
 						},
 					},

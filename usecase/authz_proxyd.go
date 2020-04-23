@@ -29,7 +29,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/router"
 	"github.com/yahoojapan/authorization-proxy/service"
 
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v2"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v3"
 )
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
@@ -164,18 +164,30 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
 		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
 	}
-	rtOpts := []authorizerd.Option{
-		authorizerd.WithRTVerifyRoleToken(authzCfg.Role.Enable),
-		authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+	var rtOpts []authorizerd.Option
+	if authzCfg.Role.Enable {
+		rtOpts = []authorizerd.Option{
+			authorizerd.WithEnableRoleToken(),
+			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+		}
 	}
 	rcOpts := []authorizerd.Option{
-		authorizerd.WithRCVerifyRoleCert(false),
+		authorizerd.WithDisableRoleCert(),
 	}
 
-	atOpts := make([]authorizerd.Option, 0, len(authzCfg.Access))
-	for _, atCfg := range authzCfg.Access {
-		if atCfg.Enable {
-			atOpts = append(atOpts, authorizerd.WithATProcessorParams(authorizerd.NewATProcessorParam(atCfg.VerifyCertThumbprint, atCfg.CertBackdateDur, atCfg.CertOffsetDur)))
+	var atOpts []authorizerd.Option
+	if cfg.Authorization.Access.Enable {
+		atOpts = []authorizerd.Option{
+			authorizerd.WithAccessTokenParam(
+				authorizerd.NewAccessTokenParam(
+					authzCfg.Access.Enable,
+					authzCfg.Access.VerifyCertThumbprint,
+					authzCfg.Access.CertBackdateDur,
+					authzCfg.Access.CertOffsetDur,
+					authzCfg.Access.VerifyClientID,
+					authzCfg.Access.AuthorizedClientIDs,
+				),
+			),
 		}
 	}
 	var jwkOpts []authorizerd.Option

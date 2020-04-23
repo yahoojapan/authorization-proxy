@@ -167,7 +167,7 @@ type Authorization struct {
 	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
 
 	// Access represents the configuration to control access token verification.
-	Access []Access `yaml:"access_tokens"`
+	Access Access `yaml:"access_token"`
 
 	// Role represents the configuration to control role token verification.
 	Role Role `yaml:"roletoken"`
@@ -180,6 +180,12 @@ type Access struct {
 
 	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
 	VerifyCertThumbprint bool `yaml:"verify_cert_thumbprint"`
+
+	// VerifyClientID represents whether to enforce certificate common name and client_id verification.
+	VerifyClientID bool `yaml:"verify_client_id"`
+
+	// AuthorizedClientIDs represents list of allowed client_id and common name.
+	AuthorizedClientIDs map[string][]string `yaml:"authorized_client_ids"`
 
 	// CertBackdateDur represents the certificate issue time backdating duration. (for usecase: new cert + old token)
 	CertBackdateDur string `yaml:"cert_backdate_dur"`
