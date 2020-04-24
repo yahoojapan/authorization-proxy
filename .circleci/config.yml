@@ -132,7 +132,7 @@ jobs:
             LAST_COMMIT=`git log -1 --pretty=%B`
             touch ./.tag
             if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
-              VERSION=${VERSION:-'0.0.0'}
+              VERSION=${VERSION:-'v0.0.0'}
               MAJOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
