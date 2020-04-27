@@ -23,11 +23,11 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/yahoojapan/authorization-proxy/config"
-	"github.com/yahoojapan/authorization-proxy/handler"
-	"github.com/yahoojapan/authorization-proxy/infra"
-	"github.com/yahoojapan/authorization-proxy/router"
-	"github.com/yahoojapan/authorization-proxy/service"
+	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v2/handler"
+	"github.com/yahoojapan/authorization-proxy/v2/infra"
+	"github.com/yahoojapan/authorization-proxy/v2/router"
+	"github.com/yahoojapan/authorization-proxy/v2/service"
 
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v3"
 )

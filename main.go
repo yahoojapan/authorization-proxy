@@ -28,8 +28,8 @@ import (
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/config"
-	"github.com/yahoojapan/authorization-proxy/usecase"
+	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v2/usecase"
 )
 
 // Version is set by the build command via LDFLAGS
