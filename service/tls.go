@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 
 	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/v2/config"
 )
 
 // NewTLSConfig returns a *tls.Config struct or error.

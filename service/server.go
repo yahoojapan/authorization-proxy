@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kpango/glg"
-	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/v2/config"
 )
 
 // Server represents a authorization proxy server behavior
