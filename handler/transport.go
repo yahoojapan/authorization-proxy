@@ -19,8 +19,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/2/service"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"

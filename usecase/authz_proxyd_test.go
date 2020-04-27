@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/2/service"
 
 	"github.com/pkg/errors"
 )

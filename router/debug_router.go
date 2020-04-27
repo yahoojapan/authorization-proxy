@@ -26,9 +26,9 @@ import (
 	"time"
 
 	"github.com/kpango/glg"
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/handler"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/2/handler"
+	"github.com/yahoojapan/authorization-proxy/2/service"
 )
 
 // NewDebugRouter return the ServeMux with debug endpoints

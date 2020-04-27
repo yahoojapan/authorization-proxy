@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/2/config"
+	"github.com/yahoojapan/authorization-proxy/2/service"
 )
 
 func Test_transport_RoundTrip(t *testing.T) {
