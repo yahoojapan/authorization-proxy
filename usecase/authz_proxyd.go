@@ -178,7 +178,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 	}
 
 	var atOpts []authorizerd.Option
-	if cfg.Authorization.Access.Enable {
+	if authzCfg.Access.Enable {
 		atOpts = []authorizerd.Option{
 			authorizerd.WithAccessTokenParam(
 				authorizerd.NewAccessTokenParam(
