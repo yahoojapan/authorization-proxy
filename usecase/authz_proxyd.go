@@ -165,10 +165,10 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
 	}
 	var rtOpts []authorizerd.Option
+	authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
 	if authzCfg.Role.Enable {
 		rtOpts = []authorizerd.Option{
 			authorizerd.WithEnableRoleToken(),
-			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
 		}
 	}
 	rcOpts := []authorizerd.Option{
