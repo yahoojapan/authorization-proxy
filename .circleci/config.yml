@@ -132,7 +132,7 @@ jobs:
             LAST_COMMIT=`git log -1 --pretty=%B`
             touch ./.tag
             if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
-              if [! -z $CIRCLE_PULL_REQUEST]; then
+              if [ ! -z $CIRCLE_PULL_REQUEST ]; then
                 PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
                 LAST_COMMIT=`curl -s ${GITHUB_API}/repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
               fi
