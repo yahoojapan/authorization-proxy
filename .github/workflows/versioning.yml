@@ -13,10 +13,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - run: |
-          git fetch --tags # git fetch --prune --unshallow
 
-      - name: check
+      - name: git-fetch
+        run: |
+          git fetch --prune --unshallow
+
+      - name: set-tag-env
         run: |
           LAST_COMMIT=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           touch ./.tag
@@ -44,12 +46,11 @@ jobs:
               echo "v0.0.1" > ./.tag
             fi
           fi
-          echo "hello"
           cat ./.tag
           echo "::set-output name=TAG::$(cat ./.tag)"
           echo "::set-env name=TAG::$(cat ./.tag)"
       - name: echo
         run: echo $TAG
-          
+
       - name: cat
         run: cat "$GITHUB_EVENT_PATH"
