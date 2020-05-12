@@ -19,6 +19,7 @@ jobs:
           git fetch --prune --unshallow
 
       - name: set-tag-env
+        id: tagging
         run: |
           LAST_COMMIT=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           touch ./.tag
@@ -51,11 +52,6 @@ jobs:
           echo "::set-env name=TAG::$(cat ./.tag)"
       - name: echo
         run: echo $TAG
-      - run: echo $GITHUB_TOKEN $GITHUB_REPOSITORY $LAST_COMMIT_SHA
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          LAST_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Custom Github Status
         uses: geekodour/gh-actions-custom-status@v0.0.4
@@ -65,8 +61,8 @@ jobs:
           LAST_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
         with:
           args: >-
-            --state=pending
-            --context=foo-status-update
+            --state=success
+            --context="Release as ${{ steps.tagging.outputs.TAG }}"
             --target_url=https://github.com/${{ github.repository }}/actions
 
       - name: cat
