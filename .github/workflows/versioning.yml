@@ -15,17 +15,11 @@ jobs:
       - name: git-bash
         uses: fnkr/github-action-git-bash@v1.1
 
-      - name: get-PR-details
-        uses: 8BitJonny/gh-get-current-pr@1.0.0
-        id: PR
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          filterOutClosed: true
-      - run: echo "Your PR is ${prNumber} and its JSON is ${prJSON}"
-        if: success() && steps.PR.outputs.number
-        env:
-          prNumber: ${{ steps.PR.outputs.number }}
-          prJSON: ${{ steps.PR.outputs.pr }}
+      - name: echo
+        run: |
+          echo $GITHUB_EVENT_PATH
+          cat $GITHUB_EVENT_PATH
+        
 
       - name: check
         run: |
