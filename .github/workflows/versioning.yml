@@ -11,23 +11,13 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-
-      - name: git-bash
-        uses: fnkr/github-action-git-bash@v1.1
-
-      - name: echo
-        run: |
-          echo $GITHUB_EVENT_PATH
-          cat $GITHUB_EVENT_PATH
-        
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: check
         run: |
-          LAST_COMMIT=`git log -1 --pretty=%B`
-          if [ ! -z $CIRCLE_PULL_REQUEST ]; then
-            PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
-            LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
-          fi
+          git fetch --prune --unshallow
+          LAST_COMMIT=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           touch ./.tag
           if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
             VERSION=${VERSION:-'0.0.0'}
@@ -53,10 +43,4 @@ jobs:
               echo "v0.0.1" > ./.tag
             fi
           fi
-          echo "::set-output name=action_fruit::strawberry"
-
-      - name: echo version
-        run: |
-          TAG_FILE='./.tag' \
-          && if [[ -s ${TAG_FILE} ]]; then echo "TAG: `cat "${TAG_FILE}"`"; else echo "TAG: (${TAG_FILE} is empty)"; fi
-          echo "::set-output name=action_fruit::strawberry"
+          echo "::set-output name=tag::$(cat ./.tag)"
