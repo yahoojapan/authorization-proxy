@@ -52,5 +52,16 @@ jobs:
       - name: echo
         run: echo $TAG
 
+      - name: Custom Github Status
+        uses: geekodour/gh-actions-custom-status@v0.0.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LAST_COMMIT_SHA: ${{ github.event.client_payload.LAST_COMMIT_SHA }}
+        with:
+          args: >-
+            --state=pending
+            --context=foo-status-update
+            --target_url=https://github.com/${{ github.repository }}/actions
+
       - name: cat
-        run: cat "$GITHUB_EVENT_PATH"
+        run: echo cat "$GITHUB_EVENT_PATH"
