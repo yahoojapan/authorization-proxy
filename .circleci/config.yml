@@ -130,12 +130,12 @@ jobs:
           command: |
             mkdir -p $HOME/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
             LAST_COMMIT=`git log -1 --pretty=%B`
+            if [ ! -z $CIRCLE_PULL_REQUEST ]; then
+              PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
+              LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
+            fi
             touch ./.tag
             if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
-              if [ ! -z $CIRCLE_PULL_REQUEST ]; then
-                PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
-                LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
-              fi
               VERSION=${VERSION:-'0.0.0'}
               MAJOR="${VERSION%%.*}"; MAJOR="${MAJOR#v}"; VERSION="${VERSION#*.}"
               MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
