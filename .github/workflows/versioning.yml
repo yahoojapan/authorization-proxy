@@ -51,6 +51,11 @@ jobs:
           echo "::set-env name=TAG::$(cat ./.tag)"
       - name: echo
         run: echo $TAG
+      - run: echo $GITHUB_TOKEN $GITHUB_REPOSITORY $LAST_COMMIT_SHA
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          LAST_COMMIT_SHA: ${{ github.event.client_payload.LAST_COMMIT_SHA }}
 
       - name: Custom Github Status
         uses: geekodour/gh-actions-custom-status@v0.0.4
