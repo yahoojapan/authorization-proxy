@@ -15,7 +15,8 @@ jobs:
       - name: git-bash
         uses: fnkr/github-action-git-bash@v1.1
 
-      - uses: 8BitJonny/gh-get-current-pr@v1
+      - name: get-PR-details
+        uses: 8BitJonny/gh-get-current-pr@1.0.0
         id: PR
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
