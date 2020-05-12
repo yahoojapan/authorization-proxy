@@ -55,14 +55,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          LAST_COMMIT_SHA: ${{ github.event.client_payload.LAST_COMMIT_SHA }}
+          LAST_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Custom Github Status
         uses: geekodour/gh-actions-custom-status@v0.0.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          LAST_COMMIT_SHA: ${{ github.event.client_payload.LAST_COMMIT_SHA }}
+          LAST_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
         with:
           args: >-
             --state=pending
