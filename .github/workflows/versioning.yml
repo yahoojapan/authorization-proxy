@@ -14,7 +14,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - run: |
-          git fetch --prune --unshallow
+          git fetch --tags # git fetch --prune --unshallow
 
       - name: check
         run: |
@@ -44,9 +44,12 @@ jobs:
               echo "v0.0.1" > ./.tag
             fi
           fi
-          echo "::set-output name=tag::$(cat ./.tag)"
-          echo "::error file=app.js,line=10,col=15::Something went wrong"
           echo "hello"
+          cat ./.tag
+          echo "::set-output name=TAG::$(cat ./.tag)"
+          echo "::set-env name=TAG::$(cat ./.tag)"
+      - name: echo
+        run: echo $TAG
           
       - name: cat
         run: cat "$GITHUB_EVENT_PATH"
