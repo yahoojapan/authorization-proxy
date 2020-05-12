@@ -13,10 +13,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+      - run: |
+          git fetch --prune --unshallow
 
       - name: check
         run: |
-          git fetch --prune --unshallow
           LAST_COMMIT=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           touch ./.tag
           if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
@@ -44,3 +45,6 @@ jobs:
             fi
           fi
           echo "::set-output name=tag::$(cat ./.tag)"
+          
+      - name: cat
+        run: cat "$GITHUB_EVENT_PATH"
