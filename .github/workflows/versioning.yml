@@ -45,6 +45,8 @@ jobs:
             fi
           fi
           echo "::set-output name=tag::$(cat ./.tag)"
+          echo "::error file=app.js,line=10,col=15::Something went wrong"
+          cat "hello"
           
       - name: cat
         run: cat "$GITHUB_EVENT_PATH"
