@@ -135,6 +135,7 @@ jobs:
               if [ ! -z $CIRCLE_PULL_REQUEST ]; then
                 PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
                 LAST_COMMIT=`curl -s ${GITHUB_API}/repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
+                echo PR title: $LAST_COMMIT
               fi
               VERSION=${VERSION:-'0.0.0'}
               MAJOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
