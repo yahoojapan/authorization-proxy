@@ -9,40 +9,59 @@ jobs:
     name: Versioning
     runs-on: ubuntu-latest
     steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: checkout
+        uses: actions/checkout@v2
 
-    - name: Get dependencies
-      run: |
-        mkdir -p $HOME/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-        LAST_COMMIT=`git log -1 --pretty=%B`
-        touch ./.tag
-        if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
-          VERSION=${VERSION:-'0.0.0'}
-          MAJOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
-          MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
-          PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
-          if echo $LAST_COMMIT | grep "\[\(major\|MAJOR\)\]" > /dev/null; then
-            MAJOR=$((MAJOR+1))
-            echo "$MAJOR.0.0" > ./.tag
-          elif echo $LAST_COMMIT | grep "\[\(minor\|MINOR\)\]" > /dev/null; then
-            MINOR=$((MINOR+1))
-            echo "$MAJOR.$MINOR.0" > ./.tag
-          elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
-            PATCH=$((PATCH+1))
-            echo "$MAJOR.$MINOR.$PATCH" > ./.tag
-          fi
-        else
-          if echo $LAST_COMMIT | grep "\[\(major\|MAJOR\)\]" > /dev/null; then
-            echo "1.0.0" > ./.tag
-          elif echo $LAST_COMMIT | grep "\[\(minor\|MINOR\)\]" > /dev/null; then
-            echo "0.1.0" > ./.tag
-          elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
-            echo "0.0.1" > ./.tag
-          fi
-        fi
+      - name: git-bash
+        uses: fnkr/github-action-git-bash@v1.1
 
-    - name: echo version
-      run: |
-        TAG_FILE='./.tag' \
-        && if [[ -s ${TAG_FILE} ]]; then echo "TAG: `cat "${TAG_FILE}"`"; else echo "TAG: (${TAG_FILE} is empty)"; fi
+      - uses: 8BitJonny/gh-get-current-pr@v1
+        id: PR
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          filterOutClosed: true
+      - run: echo "Your PR is ${prNumber} and its JSON is ${prJSON}"
+        if: success() && steps.PR.outputs.number
+        env:
+          prNumber: ${{ steps.PR.outputs.number }}
+          prJSON: ${{ steps.PR.outputs.pr }
+
+      - name: check
+        run: |
+          LAST_COMMIT=`git log -1 --pretty=%B`
+          if [ ! -z $CIRCLE_PULL_REQUEST ]; then
+            PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
+            LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
+          fi
+          touch ./.tag
+          if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
+            VERSION=${VERSION:-'0.0.0'}
+            MAJOR="${VERSION%%.*}"; MAJOR="${MAJOR#v}"; VERSION="${VERSION#*.}"
+            MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+            PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+            if echo $LAST_COMMIT | grep "\[\(major\|MAJOR\)\]" > /dev/null; then
+              MAJOR=$((MAJOR+1))
+              echo "v$MAJOR.0.0" > ./.tag
+            elif echo $LAST_COMMIT | grep "\[\(minor\|MINOR\)\]" > /dev/null; then
+              MINOR=$((MINOR+1))
+              echo "v$MAJOR.$MINOR.0" > ./.tag
+            elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
+              PATCH=$((PATCH+1))
+              echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
+            fi
+          else
+            if echo $LAST_COMMIT | grep "\[\(major\|MAJOR\)\]" > /dev/null; then
+              echo "v1.0.0" > ./.tag
+            elif echo $LAST_COMMIT | grep "\[\(minor\|MINOR\)\]" > /dev/null; then
+              echo "v0.1.0" > ./.tag
+            elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
+              echo "v0.0.1" > ./.tag
+            fi
+          fi
+          echo "::set-output name=action_fruit::strawberry"
+
+      - name: echo version
+        run: |
+          TAG_FILE='./.tag' \
+          && if [[ -s ${TAG_FILE} ]]; then echo "TAG: `cat "${TAG_FILE}"`"; else echo "TAG: (${TAG_FILE} is empty)"; fi
+          echo "::set-output name=action_fruit::strawberry"
