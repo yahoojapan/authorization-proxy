@@ -633,9 +633,6 @@ func Test_newAuthzD(t *testing.T) {
 						PolicyRefreshDuration: "10s",
 						PolicyEtagExpTime:     "10s",
 						PolicyEtagFlushDur:    "10s",
-						Role: config.Role{
-							Enable: true,
-						},
 					},
 				},
 			},

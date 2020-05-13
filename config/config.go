@@ -168,9 +168,6 @@ type Authorization struct {
 
 	// Access represents the configuration to control access token verification.
 	Access Access `yaml:"access_token"`
-
-	// Role represents the configuration to control role token verification.
-	Role Role `yaml:"roletoken"`
 }
 
 // Access represents the access token configuration
@@ -192,12 +189,6 @@ type Access struct {
 
 	// CertOffsetDur represents the certificate issue time offset duration when comparing with the issue time of the access token. (for usecase: new cert + old token)
 	CertOffsetDur string `yaml:"cert_offset_dur"`
-}
-
-// Role represents the role token configuration
-type Role struct {
-	// Enable decides whether to verify role token
-	Enable bool `yaml:"enable"`
 }
 
 // DebugServer represents the server for debug use.
