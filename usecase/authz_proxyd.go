@@ -168,11 +168,6 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithEnableRoleToken(),
 		authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
 	}
-	if !authzCfg.Role.Enable {
-		rtOpts = []authorizerd.Option{
-			authorizerd.WithDisableRoleToken(),
-		}
-	}
 	rcOpts := []authorizerd.Option{
 		authorizerd.WithDisableRoleCert(),
 	}
