@@ -164,11 +164,13 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
 		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
 	}
-	rtOpts := []authorizerd.Option{
-		authorizerd.WithEnableRoleToken(),
-		authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
-	}
-	if !authzCfg.Role.Enable {
+	var rtOpts []authorizerd.Option
+	if authzCfg.Role.Enable {
+		rtOpts = []authorizerd.Option{
+			authorizerd.WithEnableRoleToken(),
+			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+		}
+	} else {
 		rtOpts = []authorizerd.Option{
 			authorizerd.WithDisableRoleToken(),
 		}
@@ -188,6 +190,19 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 					authzCfg.Access.CertOffsetDur,
 					authzCfg.Access.VerifyClientID,
 					authzCfg.Access.AuthorizedClientIDs,
+				),
+			),
+		}
+	} else {
+		atOpts = []authorizerd.Option{
+			authorizerd.WithAccessTokenParam(
+				authorizerd.NewAccessTokenParam(
+					false,
+					false,
+					"0h",
+					"0h",
+					false,
+					nil,
 				),
 			),
 		}
