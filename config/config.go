@@ -226,6 +226,11 @@ func New(path string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "decode file failed")
 	}
+	// roletoken must be enabled by default
+	// so, force enable here.
+	// if we default to access token, we will change it here
+	cfg.Authorization.Role.Enable = true
+
 	return cfg, nil
 }
 
