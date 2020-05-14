@@ -140,6 +140,78 @@ func TestNew(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Test no roletoken",
+			args: args{
+				path: "./testdata/undefine_roletoken.yaml",
+			},
+			want: &Config{
+				Version:            "v1.0.0",
+				Debug:              false,
+				EnableColorLogging: false,
+				Server: Server{
+					Port:             8082,
+					HealthzPort:      6082,
+					HealthzPath:      "/healthz",
+					Timeout:          "10s",
+					ShutdownDuration: "10s",
+					ProbeWaitTime:    "9s",
+					TLS: TLS{
+						Enabled: false,
+						Cert:    "/etc/athenz/provider/keys/server.crt",
+						Key:     "/etc/athenz/provider/keys/private.key",
+						CA:      "/etc/athenz/provider/keys/ca.crt",
+					},
+					DebugServer: DebugServer{
+						Enable:          false,
+						Port:            6083,
+						EnableDump:      true,
+						EnableProfiling: true,
+					},
+				},
+				Athenz: Athenz{
+					URL:          "https://athenz.io:4443/zts/v1",
+					Timeout:      "30s",
+					AthenzRootCA: "",
+				},
+				Proxy: Proxy{
+					Scheme:         "http",
+					Host:           "localhost",
+					Port:           80,
+					RoleHeader:     "Athenz-Role-Auth",
+					BufferSize:     4096,
+					BypassURLPaths: []string{},
+				},
+				Authorization: Authorization{
+					PubKeyRefreshDuration: "24h",
+					PubKeySysAuthDomain:   "sys.auth",
+					PubKeyEtagExpTime:     "168h",
+					PubKeyEtagFlushDur:    "84h",
+					AthenzDomains: []string{
+						"domain1",
+					},
+					PolicyExpireMargin:    "48h",
+					PolicyRefreshDuration: "1h",
+					PolicyEtagExpTime:     "48h",
+					PolicyEtagFlushDur:    "24h",
+					Role: Role{
+						// undefined roletoken, but true
+						Enable: true,
+					},
+					Access: Access{
+						Enable:               true,
+						VerifyCertThumbprint: true,
+						VerifyClientID:       false,
+						AuthorizedClientIDs: map[string][]string{
+							"common_name1": []string{"client_id1", "client_id2"},
+							"common_name2": []string{"client_id1", "client_id2"},
+						},
+						CertBackdateDur: "1h",
+						CertOffsetDur:   "1h",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
