@@ -180,6 +180,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 	}
 
 	var atOpts []authorizerd.Option
+	var jwkOpts []authorizerd.Option
 	if authzCfg.Access.Enable {
 		atOpts = []authorizerd.Option{
 			authorizerd.WithAccessTokenParam(
@@ -192,6 +193,12 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 					authzCfg.Access.AuthorizedClientIDs,
 				),
 			),
+		}
+		jwkOpts = []authorizerd.Option{
+			authorizerd.WithEnableJwkd(),
+			// use value in config.go in later version
+			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
+			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
 		}
 	} else {
 		atOpts = []authorizerd.Option{
@@ -206,18 +213,8 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 				),
 			),
 		}
-	}
-	var jwkOpts []authorizerd.Option
-	if len(atOpts) == 0 {
 		jwkOpts = []authorizerd.Option{
 			authorizerd.WithDisableJwkd(),
-		}
-	} else {
-		jwkOpts = []authorizerd.Option{
-			authorizerd.WithEnableJwkd(),
-			// use value in config.go in later version
-			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
-			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
 		}
 	}
 
