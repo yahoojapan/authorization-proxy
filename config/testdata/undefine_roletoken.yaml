@@ -39,8 +39,9 @@ provider:
   policyRefreshDuration: 1h
   policyEtagExpTime: 48h
   policyEtagFlushDur: 24h
-  roletoken:
-      enable: true
+  # Undefine roletoken
+  #roletoken:
+  #    enable: true
   access_token:
     enable: true
     verify_cert_thumbprint: true

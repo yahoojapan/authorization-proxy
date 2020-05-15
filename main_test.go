@@ -101,6 +101,11 @@ func Test_run(t *testing.T) {
 					cfg: config.Config{
 						Debug:              true,
 						EnableColorLogging: true,
+						Authorization: config.Authorization{
+							Access: config.Access{
+								Enable: true,
+							},
+						},
 					},
 				},
 				checkFunc: func(cfg config.Config) error {
@@ -123,6 +128,9 @@ func Test_run(t *testing.T) {
 					cfg: config.Config{
 						Authorization: config.Authorization{
 							PubKeyRefreshDuration: "dummy",
+							Access: config.Access{
+								Enable: true,
+							},
 						},
 					},
 				},
@@ -146,6 +154,11 @@ func Test_run(t *testing.T) {
 					cfg: config.Config{
 						Athenz: config.Athenz{
 							URL: "127.0.0.1",
+						},
+						Authorization: config.Authorization{
+							Role: config.Role{
+								Enable: true,
+							},
 						},
 					},
 				},

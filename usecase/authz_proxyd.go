@@ -164,15 +164,23 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
 		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
 	}
-	rtOpts := []authorizerd.Option{
-		authorizerd.WithEnableRoleToken(),
-		authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+	var rtOpts []authorizerd.Option
+	if authzCfg.Role.Enable {
+		rtOpts = []authorizerd.Option{
+			authorizerd.WithEnableRoleToken(),
+			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+		}
+	} else {
+		rtOpts = []authorizerd.Option{
+			authorizerd.WithDisableRoleToken(),
+		}
 	}
 	rcOpts := []authorizerd.Option{
 		authorizerd.WithDisableRoleCert(),
 	}
 
 	var atOpts []authorizerd.Option
+	var jwkOpts []authorizerd.Option
 	if authzCfg.Access.Enable {
 		atOpts = []authorizerd.Option{
 			authorizerd.WithAccessTokenParam(
@@ -186,18 +194,27 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 				),
 			),
 		}
-	}
-	var jwkOpts []authorizerd.Option
-	if len(atOpts) == 0 {
-		jwkOpts = []authorizerd.Option{
-			authorizerd.WithDisableJwkd(),
-		}
-	} else {
 		jwkOpts = []authorizerd.Option{
 			authorizerd.WithEnableJwkd(),
 			// use value in config.go in later version
 			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
 			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+		}
+	} else {
+		atOpts = []authorizerd.Option{
+			authorizerd.WithAccessTokenParam(
+				authorizerd.NewAccessTokenParam(
+					false,
+					false,
+					"0h",
+					"0h",
+					false,
+					nil,
+				),
+			),
+		}
+		jwkOpts = []authorizerd.Option{
+			authorizerd.WithDisableJwkd(),
 		}
 	}
 
