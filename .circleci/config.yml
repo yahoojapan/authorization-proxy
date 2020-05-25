@@ -135,6 +135,7 @@ jobs:
               LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
             fi
             touch ./.tag
+            # Diff to prevent pipeline re-runs.
             if VERSION=`git describe --abbrev=0 --tags` && [ ! -z "`git diff $VERSION`" -o -z "$VERSION" ]; then
               VERSION=${VERSION:-'0.0.0'}
               MAJOR="${VERSION%%.*}"; MAJOR="${MAJOR#v}"; VERSION="${VERSION#*.}"
@@ -149,6 +150,18 @@ jobs:
               elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
                 PATCH=$((PATCH+1))
                 echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
+              # Don't release (nightly images only)
+              elif echo $LAST_COMMIT | grep "\[\(skip\|SKIP\)\]" > /dev/null; then
+                echo "release skip"
+              # Don't want to run CI.
+              elif echo $LAST_COMMIT | grep "\[\(skip ci\|SKIP CI\)\]" > /dev/null; then
+                echo "skip ci"
+              # Don't want to run CI.
+              elif echo $LAST_COMMIT | grep "\[\(ci skip\|CI SKIP\)\]" > /dev/null; then
+                echo "ci skip"
+              else
+                echo "One of the tags [major]/[minor]/[patch]/[skip]/[skip ci] is required."
+                exit 1
               fi
             else
               if echo $LAST_COMMIT | grep "\[\(major\|MAJOR\)\]" > /dev/null; then
@@ -157,6 +170,18 @@ jobs:
                 echo "v0.1.0" > ./.tag
               elif echo $LAST_COMMIT | grep "\[\(patch\|PATCH\)\]" > /dev/null; then
                 echo "v0.0.1" > ./.tag
+              # Don't release (nightly images only)
+              elif echo $LAST_COMMIT | grep "\[\(skip\|SKIP\)\]" > /dev/null; then
+                echo "release skip (no tag)"
+              # Don't want to run CI.
+              elif echo $LAST_COMMIT | grep "\[\(skip ci\|SKIP CI\)\]" > /dev/null; then
+                echo "skip ci"
+              # Don't want to run CI.
+              elif echo $LAST_COMMIT | grep "\[\(ci skip\|CI SKIP\)\]" > /dev/null; then
+                echo "ci skip"
+              else
+                echo "One of the tags [major]/[minor]/[patch]/[skip]/[skip ci] is required."
+                exit 1
               fi
             fi
       - run:
