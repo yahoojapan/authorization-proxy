@@ -146,30 +146,30 @@ jobs:
               PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
 
               case "$LAST_COMMIT" in
-                '[patch]'*)
-                  PATCH=$((PATCH+1))
-                  echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
-                  ;;
-                '[minor]'*)
-                  MINOR=$((MINOR+1))
-                  echo "v$MAJOR.$MINOR.0" > ./.tag
-                  ;;
-                '[major]'*)
-                  MAJOR=$((MAJOR+1))
-                  echo "v$MAJOR.0.0" > ./.tag
-                  ;;
-                # Don't release (nightly images only)
-                '[skip]'*)
-                  echo "Skip release..."
-                  ;;
-                # Don't want to run CI.
-                '[skip ci]'* | '[ci skip]'*)
-                  echo "Will skip CI..."
-                  ;;
-                *)
-                  echo "Required prefixes: [major]/[minor]/[patch]/[skip]/[skip ci]"
-                  exit 1
-                  ;;
+              '[patch]'* | '[PATCH]'*)
+                PATCH=$((PATCH+1))
+                echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
+                ;;
+              '[minor]'* | '[MINOR]'*)
+                MINOR=$((MINOR+1))
+                echo "v$MAJOR.$MINOR.0" > ./.tag
+                ;;
+              '[major]'* | '[MAJOR]'*)
+                MAJOR=$((MAJOR+1))
+                echo "v$MAJOR.0.0" > ./.tag
+                ;;
+              # Don't release (nightly images only)
+              '[skip]'* | '[SKIP]'*)
+                echo "Skip release..."
+                ;;
+              # Don't want to run CI.
+              '[skip ci]'* | '[ci skip]'*)
+                echo "Will skip CI..."
+                ;;
+              *)
+                echo "Required prefixes: [major]/[minor]/[patch]/[skip]/[skip ci]"
+                exit 1
+                ;;
               esac
             else
               if [ -n "$VERSION" ]; then
