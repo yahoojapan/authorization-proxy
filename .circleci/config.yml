@@ -128,46 +128,74 @@ jobs:
       - run:
           name: check
           command: |
-            mkdir -p $HOME/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-            LAST_COMMIT=`git log -1 --pretty=%B`
-            if [ ! -z $CIRCLE_PULL_REQUEST ]; then
+            case "abc" in
+              'abc')
+                echo abc
+                ;;
+              *)
+                echo fail
+                exit 1
+                ;;
+            esac
+            case "abc1234567890" in
+              'abc'*)
+                echo abc
+                ;;
+              *)
+                echo fail
+                exit 1
+                ;;
+            esac
+            case "[abc]1234567890" in
+              '[abc]'*)
+                echo abc
+                ;;
+              *)
+                echo fail
+                exit 1
+                ;;
+            esac
+            mkdir -p "$HOME/.ssh/" && echo -e 'Host github.com\n\tStrictHostKeyChecking no\n' > ~/.ssh/config
+            LAST_COMMIT="$(git log -1 --pretty=%B)"
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
               PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
-              LAST_COMMIT=`curl -s ${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM} | jq .title`
-              echo "PR title: $LAST_COMMIT"
+              LAST_COMMIT="$(curl -s "${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM}" | jq .title)"
             fi
+            prinf 'PR title: %s\n' "${LAST_COMMIT}"
             touch ./.tag
-            VERSION=`git describe --abbrev=0 --tags`
+            VERSION="$(git describe --abbrev=0 --tags)"
             # Diff to prevent pipeline re-runs.
-            if [ -n "`git diff $VERSION`" ]; then
-              VERSION=${VERSION:-'0.0.0'}
+            if [ -n "$(git diff "$VERSION")" ]; then
+              VERSION=${VERSION:-'v0.0.0'}
               MAJOR="${VERSION%%.*}"; MAJOR="${MAJOR#v}"; VERSION="${VERSION#*.}"
               MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+
               case "$LAST_COMMIT" in
-              '[patch]'*)
-                PATCH=$((PATCH+1))
-                echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
-                ;;
-              '[minor]'*)
-                MINOR=$((MINOR+1))
-                echo "v$MAJOR.$MINOR.0" > ./.tag
-                ;;
-              '[major]'*)
-                MAJOR=$((MAJOR+1))
-                echo "v$MAJOR.0.0" > ./.tag
-                ;;
-              # Don't release (nightly images only)
-              '[skip]'*)
-                echo "Skip release..."
-                ;;
-              # Don't want to run CI.
-              '[skip ci]'*)
-                echo "Will skip CI..."
-                ;;
-              *)
-                echo "Required prefixes: [major]/[minor]/[patch]/[skip]/[skip ci]"
-                exit 1
-                ;;
+                '[patch]'*)
+                  PATCH=$((PATCH+1))
+                  echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
+                  ;;
+                '[minor]'*)
+                  MINOR=$((MINOR+1))
+                  echo "v$MAJOR.$MINOR.0" > ./.tag
+                  ;;
+                '[major]'*)
+                  MAJOR=$((MAJOR+1))
+                  echo "v$MAJOR.0.0" > ./.tag
+                  ;;
+                # Don't release (nightly images only)
+                '[skip]'*)
+                  echo "Skip release..."
+                  ;;
+                # Don't want to run CI.
+                '[skip ci]'* | '[ci skip]'*)
+                  echo "Will skip CI..."
+                  ;;
+                *)
+                  echo "Required prefixes: [major]/[minor]/[patch]/[skip]/[skip ci]"
+                  exit 1
+                  ;;
               esac
             else
               if [ -n "$VERSION" ]; then
