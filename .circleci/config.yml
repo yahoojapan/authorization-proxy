@@ -131,6 +131,7 @@ jobs:
             mkdir -p "$HOME/.ssh/" && echo -e 'Host github.com\n\tStrictHostKeyChecking no\n' > ~/.ssh/config
             LAST_COMMIT="$(git log -1 --pretty=%B)"
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              # If PR, use PR title instead of last commit msg
               PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
               LAST_COMMIT="$(curl -s "${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM}" | jq -r .title)"
             fi
