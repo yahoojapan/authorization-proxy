@@ -128,38 +128,11 @@ jobs:
       - run:
           name: check
           command: |
-            case "abc" in
-              'abc')
-                echo abc
-                ;;
-              *)
-                echo fail
-                exit 1
-                ;;
-            esac
-            case "abc1234567890" in
-              'abc'*)
-                echo abc
-                ;;
-              *)
-                echo fail
-                exit 1
-                ;;
-            esac
-            case "[abc]1234567890" in
-              '[abc]'*)
-                echo abc
-                ;;
-              *)
-                echo fail
-                exit 1
-                ;;
-            esac
             mkdir -p "$HOME/.ssh/" && echo -e 'Host github.com\n\tStrictHostKeyChecking no\n' > ~/.ssh/config
             LAST_COMMIT="$(git log -1 --pretty=%B)"
             if [ -n "$CIRCLE_PULL_REQUEST" ]; then
               PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
-              LAST_COMMIT="$(curl -s "${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM}" | jq .title)"
+              LAST_COMMIT="$(curl -s "${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM}" | jq -r .title)"
             fi
             printf 'LAST_COMMIT: %s\n' "${LAST_COMMIT}"
             touch ./.tag
