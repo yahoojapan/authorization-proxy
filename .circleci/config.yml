@@ -144,24 +144,24 @@ jobs:
               MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
               case "$LAST_COMMIT" in
-              '[patch]'* | '[PATCH]'*)
+              '[patch]'*)
                 PATCH=$((PATCH+1))
                 echo "v$MAJOR.$MINOR.$PATCH" > ./.tag
                 ;;
-              '[minor]'* | '[MINOR]'*)
+              '[minor]'*)
                 MINOR=$((MINOR+1))
                 echo "v$MAJOR.$MINOR.0" > ./.tag
                 ;;
-              '[major]'* | '[MAJOR]'*)
+              '[major]'*)
                 MAJOR=$((MAJOR+1))
                 echo "v$MAJOR.0.0" > ./.tag
                 ;;
               # Don't release (nightly images only)
-              '[skip]'* | '[SKIP]'*)
+              '[skip]'*)
                 echo "Skip release..."
                 ;;
               # Don't want to run CI.
-              '[skip ci]'* | '[ci skip]'*)
+              '[skip ci]'*)
                 echo "Will skip CI..."
                 ;;
               *)
