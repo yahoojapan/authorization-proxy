@@ -161,7 +161,7 @@ jobs:
               PR_NUM="${CIRCLE_PULL_REQUEST##*/}"
               LAST_COMMIT="$(curl -s "${GITHUB_API}repos/${REPO_NAME}/${IMAGE_NAME}/pulls/${PR_NUM}" | jq .title)"
             fi
-            prinf 'PR title: %s\n' "${LAST_COMMIT}"
+            printf 'LAST_COMMIT: %s\n' "${LAST_COMMIT}"
             touch ./.tag
             VERSION="$(git describe --abbrev=0 --tags)"
             # Diff to prevent pipeline re-runs.
