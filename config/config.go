@@ -173,9 +173,9 @@ type Authorization struct {
 	Role Role `yaml:"roletoken"`
 }
 
-// Access represents the access token configuration
+// Access represents the access token configuration.
 type Access struct {
-	// Enable decides whether to verify access token
+	// Enable decides whether to verify access token.
 	Enable bool `yaml:"enable"`
 
 	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
@@ -194,9 +194,10 @@ type Access struct {
 	CertOffsetDur string `yaml:"cert_offset_dur"`
 }
 
-// Role represents the role token configuration
+// Role represents the role token configuration.
 type Role struct {
-	// Enable decides whether to verify role token
+	// Enable decides whether to verify role token.
+	// Now, even if false, role token feature is forced to be enabled.
 	Enable bool `yaml:"enable"`
 }
 
@@ -226,9 +227,9 @@ func New(path string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "decode file failed")
 	}
-	// roletoken must be enabled by default
+	// roletoken must be enabled by default.
 	// so, force enable here.
-	// if we default to access token, we will change it here
+	// if we default to access token, we will change it here.
 	cfg.Authorization.Role.Enable = true
 
 	return cfg, nil
