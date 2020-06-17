@@ -101,8 +101,8 @@ Note that only for contributions to the garm repository on the [GitHub](https://
 
 ## About releases
 
-- Merging PR to master will increase the version no. and release automatically.
-    - The new version no. depends on the prefix of the commit message when merge to master branch.
+- Merging PR to master will increase the version no. and create a new release automatically.
+    - The new version no. depends on the commit message prefix when new PRs is merged to master branch.
     - Commit message prefix and release tag reference table:
         | **Commit Msg Prefix** | **New Version No.**  | **Release `latest` Tag** | **Release `nightly` Tag** |
         |:---------------------:|:--------------------:|:------------------------:|:-------------------------:|
