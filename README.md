@@ -1,4 +1,11 @@
-[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0) [![release](https://img.shields.io/github/release/yahoojapan/authorization-proxy.svg?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest) [![CircleCI](https://circleci.com/gh/yahoojapan/authorization-proxy.svg)](https://circleci.com/gh/yahoojapan/authorization-proxy) [![codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/branch/master/graph/badge.svg?token=2CzooNJtUu&style=flat-square)](https://codecov.io/gh/yahoojapan/authorization-proxy) [![Go Report Card](https://goreportcard.com/badge/github.com/yahoojapan/authorization-proxy)](https://goreportcard.com/report/github.com/yahoojapan/authorization-proxy) [![GolangCI](https://golangci.com/badges/github.com/yahoojapan/authorization-proxy.svg?style=flat-square)](https://golangci.com/r/github.com/yahoojapan/authorization-proxy) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26082f3118284ccab65bd957f2cb7df4)](https://www.codacy.com/app/i.can.feel.gravity/authorization-proxy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=yahoojapan/authorization-proxy&amp;utm_campaign=Badge_Grade) [![GoDoc](http://godoc.org/github.com/yahoojapan/authorization-proxy?status.svg)](http://godoc.org/github.com/yahoojapan/authorization-proxy)
+[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
+[![release](https://img.shields.io/github/release/yahoojapan/authorization-proxy.svg?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
+[![CircleCI](https://circleci.com/gh/yahoojapan/authorization-proxy.svg)](https://circleci.com/gh/yahoojapan/authorization-proxy)
+[![codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/branch/master/graph/badge.svg?token=2CzooNJtUu&style=flat-square)](https://codecov.io/gh/yahoojapan/authorization-proxy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yahoojapan/authorization-proxy)](https://goreportcard.com/report/github.com/yahoojapan/authorization-proxy)
+[![GolangCI](https://golangci.com/badges/github.com/yahoojapan/authorization-proxy.svg?style=flat-square)](https://golangci.com/r/github.com/yahoojapan/authorization-proxy)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/26082f3118284ccab65bd957f2cb7df4)](https://www.codacy.com/app/i.can.feel.gravity/authorization-proxy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=yahoojapan/authorization-proxy&amp;utm_campaign=Badge_Grade)
+[![GoDoc](http://godoc.org/github.com/yahoojapan/authorization-proxy?status.svg)](http://godoc.org/github.com/yahoojapan/authorization-proxy)
 
 ![logo](./images/logo.png)
 
@@ -91,6 +98,22 @@ limitations under the License.
 This project requires contributors to agree to a [Contributor License Agreement (CLA)](https://gist.github.com/ydnjp/3095832f100d5c3d2592).
 
 Note that only for contributions to the garm repository on the [GitHub](https://github.com/yahoojapan/garm), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
+
+## About releases
+
+- Merging PR to master will increase the version no. and release automatically.
+    - The new version no. depends on the prefix of the commit message when merge to master branch.
+    - Commit message prefix and release tag reference table:
+        | **Commit Msg Prefix** | **New Version No.**  | **Release `latest` Tag** | **Release `nightly` Tag** |
+        |:---------------------:|:--------------------:|:------------------------:|:-------------------------:|
+        | `[major] *`           | `v1.2.3` => `v2.0.0` | ✅                        | ✅                         |
+        | `[minor] *`           | `v1.2.3` => `v1.3.0` | ✅                        | ✅                         |
+        | `[patch] *`           | `v1.2.3` => `v1.2.4` | ✅                        | ✅                         |
+        | `[skip] *`            | ❌                    | ❌                        | ✅                         |
+        - Other prefixes will cause the pipeline to **FAIL**❌.
+- Releases
+    - [Github releases](https://github.com/yahoojapan/authorization-proxy/releases)
+    - [Docker Hub](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
 
 ## Authors
 
