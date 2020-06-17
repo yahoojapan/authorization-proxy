@@ -1,5 +1,5 @@
 [![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
-[![release](https://img.shields.io/github/release/yahoojapan/authorization-proxy.svg?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
+[![release](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
 [![CircleCI](https://circleci.com/gh/yahoojapan/authorization-proxy.svg)](https://circleci.com/gh/yahoojapan/authorization-proxy)
 [![codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/branch/master/graph/badge.svg?token=2CzooNJtUu&style=flat-square)](https://codecov.io/gh/yahoojapan/authorization-proxy)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yahoojapan/authorization-proxy)](https://goreportcard.com/report/github.com/yahoojapan/authorization-proxy)
@@ -112,8 +112,8 @@ Note that only for contributions to the garm repository on the [GitHub](https://
         | `[skip] *`            | ❌                    | ❌                        | ✅                         |
         - Other prefixes will cause the pipeline to **FAIL**❌.
 - Releases
-    - [Github releases](https://github.com/yahoojapan/authorization-proxy/releases)
-    - [Docker Hub](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
+    - [Github releases ![release](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
+    - [Docker Hub ![Docker Image Version (tag latest)](https://img.shields.io/docker/v/yahoojapan/authorization-proxy/latest?style=flat-square)](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
 
 ## Authors
 
