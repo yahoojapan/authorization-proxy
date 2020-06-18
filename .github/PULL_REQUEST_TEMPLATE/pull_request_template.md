@@ -6,6 +6,7 @@ _description_with_details_and_reasoning_
 
 - [ ] Bug fix
 - [ ] New feature
+- [ ] Refactoring (no functional changes, no api changes)
 - [ ] Non-code changes (update documentation, pipeline, etc.)
 
 ### Flags
