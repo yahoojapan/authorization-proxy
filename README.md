@@ -34,19 +34,19 @@ Authorization Proxy acts as a reverse proxy sitting in front of the server appli
 
 To authenticate the request, the authorization proxy should know which client identity (role) can take an action on which URL endpoint, therefore the Athenz authorizer is introduced.
 
-![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/doc/policy_updater_overview.png)
+![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/docs/policy_updater_overview.png)
 
 The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodically updates the access token JWK, role token public key, and Athenz policy data from the Athenz Server. It decodes and validates the policy data. The decoded policy will store in the memory cache inside the Athenz authorizer for later authorization checks. The Athenz authorizer also helps to extract client credentials from the HTTP/HTTPS request header.
 
 #### Authorization success
 
-![Auth success](./doc/assets/auth_proxy_use_case_auth_success.png)
+![Auth success](./docs/assets/auth_proxy_use_case_auth_success.png)
 
 The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be proxied to the server application.
 
 #### Authorization failed
 
-![Auth fail](./doc/assets/auth_proxy_use_case_auth_failed.png)
+![Auth fail](./docs/assets/auth_proxy_use_case_auth_failed.png)
 
 The authorization proxy will return `401 Unauthorized` to the client whenever the client credentials are missing/invalid, or the client identity (role) presented in the client credentials has no privilege to take the specific action on the specific URL endpoints.
 
@@ -68,7 +68,7 @@ The mapping rules are described as below.
 
 ## Features to Debug
 
-- [Configuration](./doc/debug.md)
+- [Configuration](./docs/debug.md)
 
 ## Configuration
 
