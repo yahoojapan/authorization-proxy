@@ -1,6 +1,6 @@
 # Description
 
-_description_
+_description_with_details_and_reasoning_
 
 ## Type of change
 
@@ -24,12 +24,13 @@ _description_
 
 ## Checklist
 
+- [ ] Followed the guidelines in the CONTRIBUTING document
 - [ ] Added prefix `[major]`/`[minor]`/`[patch]`/`[skip]` in the PR title
-- [ ] Tested the code
-- [ ] Have commented the code
+- [ ] Tested and linted the code
+- [ ] Commented the code
 - [ ] Made corresponding changes to the documentation
-- [ ] No drop in test coverage (by [Codecov](https://codecov.io/gh/yahoojapan/athenz-authorizer/pulls))
-- [ ] Passed pipeline
+- [ ] Confirmed no dropping in test coverage (by [Codecov](https://codecov.io/gh/yahoojapan/athenz-authorizer/pulls))
+- [ ] Passed all pipeline checking
 - [ ] Approved by >1 reviewer
 
 ## Checklist for maintainer
