@@ -23,7 +23,6 @@ make test
 
 - Branch from the master branch and, if needed, rebase to the current master branch before submitting your pull request. If it doesn't merge cleanly with master you may be asked to rebase your changes.
     - Branches should have descriptive names and start with prefixes like `patch/`, `fix/`, `feature/`. Good examples are: `fix/vulnerability-issue` or `feature/issue-templates`.
-- Commits should be as small as possible, while ensuring that each commit is correct independently (i.e., each commit should compile and pass tests).
 - If your patch is not getting reviewed or you need a specific person to review it, you can @-reply a reviewer asking for a review in the pull request or a comment.
 - Add tests relevant to the fixed bug or new feature.
 - Update the README.md with details of changes to the interface, this includes new environment variables, exposed ports, useful file locations and container parameters.
