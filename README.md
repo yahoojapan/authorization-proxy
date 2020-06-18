@@ -7,6 +7,7 @@
 [![GolangCI](https://golangci.com/badges/github.com/yahoojapan/authorization-proxy.svg?style=flat-square)](https://golangci.com/r/github.com/yahoojapan/authorization-proxy)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26082f3118284ccab65bd957f2cb7df4)](https://www.codacy.com/app/i.can.feel.gravity/authorization-proxy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=yahoojapan/authorization-proxy&amp;utm_campaign=Badge_Grade)
 [![GoDoc](http://godoc.org/github.com/yahoojapan/authorization-proxy?status.svg)](http://godoc.org/github.com/yahoojapan/authorization-proxy)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 
 ![logo](./images/logo.png)
 
@@ -102,16 +103,6 @@ Note that only for contributions to the garm repository on the [GitHub](https://
 
 ## About releases
 
-- Merging PR to master will increase the version no. and create a new release automatically.
-    - The new version no. depends on the commit message prefix when new PRs is merged to master branch.
-    - Commit message prefix and release tag reference table:
-        | **Commit Msg Prefix** | **New Version No.**  | **Release `latest` Tag** | **Release `nightly` Tag** |
-        |:---------------------:|:--------------------:|:------------------------:|:-------------------------:|
-        | `[major] *`           | `v1.2.3` => `v2.0.0` | ✅                        | ✅                         |
-        | `[minor] *`           | `v1.2.3` => `v1.3.0` | ✅                        | ✅                         |
-        | `[patch] *`           | `v1.2.3` => `v1.2.4` | ✅                        | ✅                         |
-        | `[skip] *`            | ❌                    | ❌                        | ✅                         |
-        - Other prefixes will cause the pipeline to **FAIL**❌.
 - Releases
     - [![GitHub release (latest by date)](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square&label=Github%20version)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
     - [![Docker Image Version (tag latest)](https://img.shields.io/docker/v/yahoojapan/authorization-proxy/latest?style=flat-square&label=Docker%20version)](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
