@@ -1,14 +1,42 @@
-[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0) [![release](https://img.shields.io/github/release/yahoojapan/authorization-proxy.svg?style=flat-square)](https://github.com/yahoojapan/authorization-proxy/releases/latest) [![CircleCI](https://circleci.com/gh/yahoojapan/authorization-proxy.svg)](https://circleci.com/gh/yahoojapan/authorization-proxy) [![codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/branch/master/graph/badge.svg?token=2CzooNJtUu&style=flat-square)](https://codecov.io/gh/yahoojapan/authorization-proxy) [![Go Report Card](https://goreportcard.com/badge/github.com/yahoojapan/authorization-proxy)](https://goreportcard.com/report/github.com/yahoojapan/authorization-proxy) [![GolangCI](https://golangci.com/badges/github.com/yahoojapan/authorization-proxy.svg?style=flat-square)](https://golangci.com/r/github.com/yahoojapan/authorization-proxy) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26082f3118284ccab65bd957f2cb7df4)](https://www.codacy.com/app/i.can.feel.gravity/authorization-proxy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=yahoojapan/authorization-proxy&amp;utm_campaign=Badge_Grade) [![GoDoc](http://godoc.org/github.com/yahoojapan/authorization-proxy?status.svg)](http://godoc.org/github.com/yahoojapan/authorization-proxy)
+# Authorization Proxy
+
+[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square&label=Github%20version)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
+[![Docker Image Version (tag latest)](https://img.shields.io/docker/v/yahoojapan/authorization-proxy/latest?style=flat-square&label=Docker%20version)](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
+[![CircleCI](https://circleci.com/gh/yahoojapan/authorization-proxy.svg)](https://circleci.com/gh/yahoojapan/authorization-proxy)
+[![codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/branch/master/graph/badge.svg?token=2CzooNJtUu&style=flat-square)](https://codecov.io/gh/yahoojapan/authorization-proxy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yahoojapan/authorization-proxy)](https://goreportcard.com/report/github.com/yahoojapan/authorization-proxy)
+[![GolangCI](https://golangci.com/badges/github.com/yahoojapan/authorization-proxy.svg?style=flat-square)](https://golangci.com/r/github.com/yahoojapan/authorization-proxy)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/26082f3118284ccab65bd957f2cb7df4)](https://www.codacy.com/app/i.can.feel.gravity/authorization-proxy?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=yahoojapan/authorization-proxy&amp;utm_campaign=Badge_Grade)
+[![GoDoc](http://godoc.org/github.com/yahoojapan/authorization-proxy?status.svg)](http://godoc.org/github.com/yahoojapan/authorization-proxy)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 
 ![logo](./images/logo.png)
 
----
+<!-- TOC insertAnchor:false -->
+
+- [Authorization Proxy](#authorization-proxy)
+    - [What is Authorization Proxy](#what-is-authorization-proxy)
+    - [Use case](#use-case)
+        - [Authorization and Authorization request](#authorization-and-authorization-request)
+            - [Athenz authorizer](#athenz-authorizer)
+            - [Authorization success](#authorization-success)
+            - [Authorization failed](#authorization-failed)
+        - [Mapping rules](#mapping-rules)
+    - [Features to Debug](#features-to-debug)
+    - [Configuration](#configuration)
+    - [License](#license)
+    - [Contributor License Agreement](#contributor-license-agreement)
+    - [About releases](#about-releases)
+    - [Authors](#authors)
+
+<!-- /TOC -->
 
 ## What is Authorization Proxy
 
 Authorization Proxy is an implementation of [Kubernetes sidecar container](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/) to provide a common interface for API endpoint authentication and authorization. It caches the policies from [Athenz](https://github.com/yahoo/athenz), and provides a reverse proxy interface to control access on specific URL endpoints.
 
-Client request can be authenticated and authorizated by:
+Client request can be authenticated and authorized by:
 1. OAuth2 access token
 1. Role token in the HTTP/HTTPS request header
 1. Role certificate on mTLS
@@ -25,19 +53,19 @@ Authorization Proxy acts as a reverse proxy sitting in front of the server appli
 
 To authenticate the request, the authorization proxy should know which client identity (role) can take an action on which URL endpoint, therefore the Athenz authorizer is introduced.
 
-![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/doc/policy_updater_overview.png)
+![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/docs/policy_updater_overview.png)
 
 The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodically updates the access token JWK, role token public key, and Athenz policy data from the Athenz Server. It decodes and validates the policy data. The decoded policy will store in the memory cache inside the Athenz authorizer for later authorization checks. The Athenz authorizer also helps to extract client credentials from the HTTP/HTTPS request header.
 
 #### Authorization success
 
-![Auth success](./doc/assets/auth_proxy_use_case_auth_success.png)
+![Auth success](./docs/assets/auth_proxy_use_case_auth_success.png)
 
-The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be proxied to the server application.
+The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be forwarded to the server application.
 
 #### Authorization failed
 
-![Auth fail](./doc/assets/auth_proxy_use_case_auth_failed.png)
+![Auth fail](./docs/assets/auth_proxy_use_case_auth_failed.png)
 
 The authorization proxy will return `401 Unauthorized` to the client whenever the client credentials are missing/invalid, or the client identity (role) presented in the client credentials has no privilege to take the specific action on the specific URL endpoints.
 
@@ -59,12 +87,12 @@ The mapping rules are described as below.
 
 ## Features to Debug
 
-- [Configuration](./doc/debug.md)
+- [Configuration](./docs/debug.md)
 
 ## Configuration
 
 The example configuration file is [here](./config/testdata/example_config.yaml).
-For detail explaination, please read [config.go](./config/config.go).
+For detail explanation, please read [config.go](./config/config.go).
 
 ---
 
@@ -90,7 +118,13 @@ limitations under the License.
 
 This project requires contributors to agree to a [Contributor License Agreement (CLA)](https://gist.github.com/ydnjp/3095832f100d5c3d2592).
 
-Note that only for contributions to the garm repository on the [GitHub](https://github.com/yahoojapan/garm), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
+Note that only for contributions to the `authorization-proxy` repository on the [GitHub](https://github.com/yahoojapan/authorization-proxy), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
+
+## About releases
+
+- Releases
+    - [![GitHub release (latest by date)](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square&label=Github%20version)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
+    - [![Docker Image Version (tag latest)](https://img.shields.io/docker/v/yahoojapan/authorization-proxy/latest?style=flat-square&label=Docker%20version)](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
 
 ## Authors
 
