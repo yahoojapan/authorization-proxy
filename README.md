@@ -1,3 +1,5 @@
+# Authorization Proxy
+
 [![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square&label=Github%20version)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
 [![Docker Image Version (tag latest)](https://img.shields.io/docker/v/yahoojapan/authorization-proxy/latest?style=flat-square&label=Docker%20version)](https://hub.docker.com/r/yahoojapan/authorization-proxy/tags)
@@ -11,13 +13,30 @@
 
 ![logo](./images/logo.png)
 
----
+<!-- TOC insertAnchor:false -->
+
+- [Authorization Proxy](#authorization-proxy)
+    - [What is Authorization Proxy](#what-is-authorization-proxy)
+    - [Use case](#use-case)
+        - [Authorization and Authorization request](#authorization-and-authorization-request)
+            - [Athenz authorizer](#athenz-authorizer)
+            - [Authorization success](#authorization-success)
+            - [Authorization failed](#authorization-failed)
+        - [Mapping rules](#mapping-rules)
+    - [Features to Debug](#features-to-debug)
+    - [Configuration](#configuration)
+    - [License](#license)
+    - [Contributor License Agreement](#contributor-license-agreement)
+    - [About releases](#about-releases)
+    - [Authors](#authors)
+
+<!-- /TOC -->
 
 ## What is Authorization Proxy
 
 Authorization Proxy is an implementation of [Kubernetes sidecar container](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/) to provide a common interface for API endpoint authentication and authorization. It caches the policies from [Athenz](https://github.com/yahoo/athenz), and provides a reverse proxy interface to control access on specific URL endpoints.
 
-Client request can be authenticated and authorizated by:
+Client request can be authenticated and authorized by:
 1. OAuth2 access token
 1. Role token in the HTTP/HTTPS request header
 1. Role certificate on mTLS
@@ -42,7 +61,7 @@ The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodi
 
 ![Auth success](./docs/assets/auth_proxy_use_case_auth_success.png)
 
-The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be proxied to the server application.
+The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be forwarded to the server application.
 
 #### Authorization failed
 
@@ -73,7 +92,7 @@ The mapping rules are described as below.
 ## Configuration
 
 The example configuration file is [here](./config/testdata/example_config.yaml).
-For detail explaination, please read [config.go](./config/config.go).
+For detail explanation, please read [config.go](./config/config.go).
 
 ---
 
@@ -99,7 +118,7 @@ limitations under the License.
 
 This project requires contributors to agree to a [Contributor License Agreement (CLA)](https://gist.github.com/ydnjp/3095832f100d5c3d2592).
 
-Note that only for contributions to the garm repository on the [GitHub](https://github.com/yahoojapan/garm), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
+Note that only for contributions to the `authorization-proxy` repository on the [GitHub](https://github.com/yahoojapan/authorization-proxy), the contributors of them shall be deemed to have agreed to the CLA without individual written agreements.
 
 ## About releases
 
