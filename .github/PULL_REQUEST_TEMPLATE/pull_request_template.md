@@ -30,7 +30,7 @@ _description_with_details_and_reasoning_
 - [ ] Tested and linted the code
 - [ ] Commented the code
 - [ ] Made corresponding changes to the documentation
-- [ ] Confirmed no dropping in test coverage (by [Codecov](https://codecov.io/gh/yahoojapan/athenz-authorizer/pulls))
+- [ ] Confirmed no dropping in test coverage (by [Codecov](https://codecov.io/gh/yahoojapan/authorization-proxy/pulls))
 - [ ] Passed all pipeline checking
 - [ ] Approved by >1 reviewer
 
