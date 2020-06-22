@@ -77,7 +77,7 @@ type Server struct {
 	// TLS represents the TLS configuration for authorization proxy server.
 	TLS TLS `yaml:"tls"`
 
-	// DebugServer represent the debug server.
+	// DebugServer represents the debug server.
 	DebugServer DebugServer `yaml:"debug_server"`
 }
 
@@ -108,24 +108,24 @@ type Athenz struct {
 	AthenzRootCA string `yaml:"root_ca"`
 }
 
-// Proxy represent the proxy destination of the authorization proxy.
+// Proxy represents the proxy destination of the authorization proxy.
 type Proxy struct {
-	// Scheme represent the HTTP URL scheme of the proxy destination, default is http.
+	// Scheme represents the HTTP URL scheme of the proxy destination, default is http.
 	Scheme string `yaml:"scheme"`
 
-	// Host represent the proxy destination host, for example localhost.
+	// Host represents the proxy destination host, for example localhost.
 	Host string `yaml:"host"`
 
-	// Port represent the proxy destination port number.
+	// Port represents the proxy destination port number.
 	Port uint16 `yaml:"port"`
 
-	// RoleHeader represent the HTTP header key name of the role token for Role token proxy request.
+	// RoleHeader represents the HTTP header key name of the role token for Role token proxy request.
 	RoleHeader string `yaml:"role_header_key"`
 
-	// BufferSize represent the reverse proxy buffer size.
+	// BufferSize represents the reverse proxy buffer size.
 	BufferSize uint64 `yaml:"buffer_size"`
 
-	// BypassURLPaths represent URL paths that require authorization bypassing.
+	// BypassURLPaths represents URL paths that require authorization bypassing.
 	// WARNING!!! Setting this configuration may introduce security hole in your system. Do NOT set this configuration with URL paths other than application's healthcheck endpoint.
 	// Tips for performance: define your healthcheck endpoint with different lenght from the most frequestly used endpoint, e.g. `/most_used` (len: 10) with `/healthcheck` (len: 12), instead of `/healthccc` (len: 10)
 	BypassURLPaths []string `yaml:"bypass_url_paths"`
@@ -142,10 +142,10 @@ type Authorization struct {
 	// PubKeyEtagExpTime represents the Etag cache expiration time of Athenz PubKey.
 	PubKeyEtagExpTime string `yaml:"pubKeyEtagExpTime"`
 
-	// PubKeyEtagFlushDur represent the Etag cache expiration check duration.
+	// PubKeyEtagFlushDur represents the Etag cache expiration check duration.
 	PubKeyEtagFlushDur string `yaml:"pubKeyEtagFlushDur"`
 
-	// PubKeyErrRetryInterval represent the retry interval when fail to get the pubkey from Athenz server.
+	// PubKeyErrRetryInterval represents the retry interval when fail to get the pubkey from Athenz server.
 	PubKeyErrRetryInterval string `yaml:"pubKeyErrRetryInterval"`
 
 	// AthenzDomains represents the Athenz domains to fetch the policy.
@@ -160,10 +160,10 @@ type Authorization struct {
 	// PolicyEtagExpTime represents the Etag cache expiration time of policy.
 	PolicyEtagExpTime string `yaml:"policyEtagExpTime"`
 
-	// PolicyEtagFlushDur represent the Etag cache expiration check duration.
+	// PolicyEtagFlushDur represents the Etag cache expiration check duration.
 	PolicyEtagFlushDur string `yaml:"policyEtagFlushDur"`
 
-	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
+	// PolicyErrRetryInterval represents the retry interval when fail to get the policies from Athenz server.
 	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
 
 	// Access represents the configuration to control access token verification.
