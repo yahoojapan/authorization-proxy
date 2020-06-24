@@ -54,7 +54,7 @@ type Config struct {
 // Log represents the logger configuration.
 type Log struct {
 	// Level represents the logger output level. Values: "debug", "info", "warn", "error", "fatal".
-	Level bool `yaml:"level"`
+	Level string `yaml:"level"`
 
 	// Color represents whether to print ANSI escape code.
 	Color bool `yaml:"color"`
@@ -74,11 +74,11 @@ type Server struct {
 	// Timeout represents the maximum authorization proxy server request handling duration.
 	Timeout string `yaml:"timeout"`
 
-	// ShutdownDur represents the maximum shutdown duration.
-	ShutdownDur string `yaml:"shutdownDur"`
+	// ShutdownDuration represents the maximum shutdown duration.
+	ShutdownDuration string `yaml:"shutdownDuration"`
 
-	// ProbeWaitDur represents the waiting duration before shutting down authorization proxy server after health check server shutdown.
-	ProbeWaitDur string `yaml:"probeWaitDur"`
+	// ProbeWaitDuration represents the waiting duration before shutting down authorization proxy server after health check server shutdown.
+	ProbeWaitDuration string `yaml:"probeWaitDuration"`
 
 	// TLS represents the TLS configuration of the authorization proxy.
 	TLS TLS `yaml:"tls"`
@@ -119,7 +119,7 @@ type Proxy struct {
 	// Scheme represents the HTTP URL scheme of the proxy destination, default is http.
 	Scheme string `yaml:"scheme"`
 
-	// Host represents the proxy destination host, e.g. localhost.
+	// Host represents the proxy destination host, for example, localhost.
 	Host string `yaml:"host"`
 
 	// Port represents the proxy destination port number.
@@ -130,7 +130,7 @@ type Proxy struct {
 
 	// BypassURLPaths represents URL paths that require to bypass authorization.
 	// WARNING!!! Setting this configuration may introduce security hole in your system. ONLY set this configuration as the application's health check endpoint.
-	// Tips for performance: define your health check endpoint with a different length from the most frequestly used endpoint, e.g. use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
+	// Tips for performance: define your health check endpoint with a different length from the most frequestly used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
 	BypassURLPaths []string `yaml:"bypassUrlPaths"`
 }
 
@@ -160,17 +160,17 @@ type PublicKey struct {
 	// SysAuthDomain represents the system authentication domain of Athenz.
 	SysAuthDomain string `yaml:"sysAuthDomain"`
 
-	// RefreshDur represents the refresh duration.
-	RefreshDur string `yaml:"refreshDur"`
+	// RefreshDuration represents the refresh duration.
+	RefreshDuration string `yaml:"refreshDuration"`
 
 	// ETagExpiry represents the ETag cache expiry time.
 	ETagExpiry string `yaml:"eTagExpiry"`
 
-	// ETagFlushDur represents the ETag cache expiry check duration.
-	ETagFlushDur string `yaml:"eTagFlushDur"`
+	// ETagFlushDuration represents the ETag cache expiry check duration.
+	ETagFlushDuration string `yaml:"eTagFlushDuration"`
 
-	// ErrRetryDur represents the duration between retries when fail to fetch Athenz public keys.
-	ErrRetryDur string `yaml:"errRetryDur"`
+	// ErrRetryDuration represents the duration between retries when fail to fetch Athenz public keys.
+	ErrRetryDuration string `yaml:"errRetryDuration"`
 }
 
 // Policy represents the configuration to fetch Athenz policies.
@@ -178,23 +178,23 @@ type Policy struct {
 	// ExpiryMargin represents the policy expiry margin to force refresh policies beforehand.
 	ExpiryMargin string `yaml:"expiryMargin"`
 
-	// RefreshDur represents the refresh duration.
-	RefreshDur string `yaml:"refreshDur"`
+	// RefreshDuration represents the refresh duration.
+	RefreshDuration string `yaml:"refreshDuration"`
 
 	// ETagExpiry represents the ETag cache expiry time.
 	ETagExpiry string `yaml:"eTagExpiry"`
 
-	// ETagFlushDur represents the ETag cache expiry check duration.
-	ETagFlushDur string `yaml:"eTagFlushDur"`
+	// ETagFlushDuration represents the ETag cache expiry check duration.
+	ETagFlushDuration string `yaml:"eTagFlushDuration"`
 
-	// ErrRetryDur represents the duration between retries when fail to fetch Athenz policies.
-	ErrRetryDur string `yaml:"errRetryDur"`
+	// ErrRetryDuration represents the duration between retries when fail to fetch Athenz policies.
+	ErrRetryDuration string `yaml:"errRetryDuration"`
 }
 
 // JKWS represents the configuration to fetch Athenz JKWS.
 type JKWS struct {
-	// RefreshDur represents the refresh duration.
-	RefreshDur string `yaml:"refreshDur"`
+	// RefreshDuration represents the refresh duration.
+	RefreshDuration string `yaml:"refreshDuration"`
 }
 
 // AccessToken represents the configuration to control access token verification.
@@ -211,8 +211,8 @@ type AccessToken struct {
 	// AuthorizedClientIDs represents list of allowed client_id and common name.
 	AuthorizedClientIDs map[string][]string `yaml:"authorizedClientIDs"`
 
-	// CertBackdateDur represents the certificate issue time backdating duration. (for usecase: new cert + old token)
-	CertBackdateDur string `yaml:"certBackdateDur"`
+	// CertBackdateDuration represents the certificate issue time backdating duration. (for usecase: new cert + old token)
+	CertBackdateDuration string `yaml:"certBackdateDuration"`
 
 	// CertOffset represents the certificate issue time offset when comparing with the issue time of the access token. (for usecase: new cert + old token)
 	CertOffset string `yaml:"certOffset"`
