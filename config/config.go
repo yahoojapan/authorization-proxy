@@ -238,8 +238,8 @@ type RoleToken struct {
 	// Now, even if false, role token feature is forced to be enable.
 	Enable bool `yaml:"enable"`
 
-	// Header represents the HTTP header name for extracting the role token.
-	Header string `yaml:"header"`
+	// RoleAuthHeader represents the HTTP header for extracting the role token.
+	RoleAuthHeader string `yaml:"roleAuthHeader"`
 }
 
 // Log represents the logger configuration.
