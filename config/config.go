@@ -156,8 +156,8 @@ type Authorization struct {
 	// Policy represents the configuration to fetch Athenz policies.
 	Policy Policy `yaml:"policy"`
 
-	// JKWS represents the configuration to fetch Athenz JKWS.
-	JKWS JKWS `yaml:"jwks"`
+	// JWK represents the configuration to fetch Athenz JWK.
+	JWK JWK `yaml:"jwk"`
 
 	// AccessToken represents the configuration to control access token verification.
 	AccessToken AccessToken `yaml:"accessToken"`
@@ -202,8 +202,8 @@ type Policy struct {
 	RetryAttempts string `yaml:"retryAttempts"`
 }
 
-// JKWS represents the configuration to fetch Athenz JKWS.
-type JKWS struct {
+// JWK represents the configuration to fetch Athenz JWK.
+type JWK struct {
 	// RefreshPeriod represents the duration of the refresh period.
 	RefreshPeriod string `yaml:"refreshPeriod"`
 
