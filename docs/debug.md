@@ -16,16 +16,16 @@
 Example configuration for debug policy cache interface:
 
 ```yaml
-version: v1.0.0
+version: v2.0.0
 server:
-  debug_server:
+  debug:
     enable: true
     port: 6083
-    enable_dump: true
+    dump: true
 ...
 ```
 
-The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../config/test/data/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
 
 ### Example:
 
@@ -85,4 +85,4 @@ server:
 ...
 ```
 
-The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../config/test/data/example_config.yaml). For more information, please refer to [config.go](./config/config.go).

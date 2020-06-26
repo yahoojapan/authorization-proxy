@@ -109,7 +109,7 @@ type Debug struct {
 	// Dump represents whether to enable memory dump functionality.
 	Dump bool `yaml:"dump"`
 
-	// EnableProfiling represents whether to enable profiling functionality.
+	// Profiling represents whether to enable profiling functionality.
 	Profiling bool `yaml:"profiling"`
 }
 
@@ -141,7 +141,7 @@ type Proxy struct {
 
 	// BypassURLPaths represents URL paths that require to bypass authorization.
 	// WARNING!!! Setting this configuration may introduce security hole in your system. ONLY set this configuration as the application's health check endpoint.
-	// Tips for performance: define your health check endpoint with a different length from the most frequestly used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
+	// Tips for performance: define your health check endpoint with a different length from the most frequently used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
 	BypassURLPaths []string `yaml:"bypassUrlPaths"`
 }
 
@@ -199,7 +199,7 @@ type Policy struct {
 	RetryDelay string `yaml:"retryDelay"`
 
 	// RetryAttempts represents number of attempts to retry.
-	RetryAttempts string `yaml:"retryAttempts"`
+	RetryAttempts int `yaml:"retryAttempts"`
 }
 
 // JWK represents the configuration to fetch Athenz JWK.
@@ -235,7 +235,6 @@ type AccessToken struct {
 // RoleToken represents the configuration to control role token verification.
 type RoleToken struct {
 	// Enable decides whether to verify role token.
-	// Now, even if false, role token feature is forced to be enable.
 	Enable bool `yaml:"enable"`
 
 	// RoleAuthHeader represents the HTTP header for extracting the role token.
@@ -262,10 +261,6 @@ func New(path string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "decode file failed")
 	}
-	// roletoken must be enable by default.
-	// so, force enable here.
-	// if we default to access token, we will change it here.
-	cfg.Authorization.Role.Enable = true
 
 	return cfg, nil
 }

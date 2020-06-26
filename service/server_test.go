@@ -28,8 +28,10 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						HealthzPath: "/healthz",
-						HealthzPort: 8080,
+						HealthCheck: config.HealthCheck{
+							Port:     8080,
+							Endpoint: "/healthz",
+						},
 					}),
 					WithServerHandler(func() http.Handler {
 						return nil
@@ -53,9 +55,11 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						HealthzPath: "/healthz",
-						HealthzPort: 8080,
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							Port:     8080,
+							Endpoint: "/healthz",
+						},
+						Debug: config.Debug{
 							Enable: true,
 							Port:   8081,
 						},
@@ -82,9 +86,11 @@ func TestNewServer(t *testing.T) {
 			args: args{
 				opts: []Option{
 					WithServerConfig(config.Server{
-						Port:        8081,
-						HealthzPath: "/healthz",
-						HealthzPort: 8080,
+						Port: 8081,
+						HealthCheck: config.HealthCheck{
+							Port:     8080,
+							Endpoint: "/healthz",
+						},
 					}),
 					WithServerHandler(func() http.Handler {
 						return nil
@@ -151,9 +157,9 @@ func Test_server_ListenAndServe(t *testing.T) {
 			ctx, cancelFunc := context.WithCancel(context.Background())
 
 			keyKey := "dummy_key"
-			key := "./assets/dummyServer.key"
+			key := "../test/data/dummyServer.key"
 			certKey := "dummy_cert"
-			cert := "./assets/dummyServer.crt"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -196,14 +202,16 @@ func Test_server_ListenAndServe(t *testing.T) {
 					}(),
 
 					cfg: config.Server{
-						Port:        apiSrvPort,
-						HealthzPort: hcSrvPort,
+						Port: apiSrvPort,
 						TLS: config.TLS{
-							Enabled: false,
-							Cert:    certKey,
-							Key:     keyKey,
+							Enable:   false,
+							CertPath: certKey,
+							KeyPath:  keyKey,
 						},
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							Port: hcSrvPort,
+						},
+						Debug: config.Debug{
 							Enable: true,
 						},
 					},
@@ -262,8 +270,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 			}
 		}(),
 		func() test {
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -308,14 +316,16 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port:        apiSrvPort,
-						HealthzPort: hcSrvPort,
+						Port: apiSrvPort,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
 						},
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							Port: hcSrvPort,
+						},
+						Debug: config.Debug{
 							Enable: true,
 						},
 					},
@@ -355,8 +365,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 			}
 		}(),
 		func() test {
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -401,14 +411,16 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port:        apiSrvPort,
-						HealthzPort: hcSrvPort,
+						Port: apiSrvPort,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
 						},
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							Port: hcSrvPort,
+						},
+						Debug: config.Debug{
 							Enable: true,
 						},
 					},
@@ -448,8 +460,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 			}
 		}(),
 		func() test {
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -494,14 +506,16 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port:        apiSrvPort,
-						HealthzPort: hcSrvPort,
+						Port: apiSrvPort,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
 						},
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							Port: hcSrvPort,
+						},
+						Debug: config.Debug{
 							Enable: true,
 						},
 					},
@@ -542,8 +556,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 		}(),
 		func() test {
 			ctx, cancelFunc := context.WithCancel(context.Background())
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -588,12 +602,14 @@ func Test_server_ListenAndServe(t *testing.T) {
 						return srv
 					}(),
 					cfg: config.Server{
-						Port:        apiSrvPort,
-						HealthzPort: hcSrvPort,
+						Port: apiSrvPort,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
+						},
+						HealthCheck: config.HealthCheck{
+							Port: hcSrvPort,
 						},
 					},
 				},
@@ -633,8 +649,8 @@ func Test_server_ListenAndServe(t *testing.T) {
 		}(),
 		func() test {
 			ctx, cancelFunc := context.WithCancel(context.Background())
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(200)
@@ -680,13 +696,15 @@ func Test_server_ListenAndServe(t *testing.T) {
 					}(),
 					cfg: config.Server{
 						Port: apiSrvPort,
-						// HealthzPort: hcSrvPort,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
 						},
-						DebugServer: config.DebugServer{
+						HealthCheck: config.HealthCheck{
+							// Port:     hcSrvPort,
+						},
+						Debug: config.Debug{
 							Enable: true,
 						},
 					},
@@ -1031,8 +1049,8 @@ func Test_server_listenAndServeAPI(t *testing.T) {
 	}
 	tests := []test{
 		func() test {
-			key := "./assets/dummyServer.key"
-			cert := "./assets/dummyServer.crt"
+			key := "../test/data/dummyServer.key"
+			cert := "../test/data/dummyServer.crt"
 
 			return test{
 				name: "Test server startup",
@@ -1046,9 +1064,9 @@ func Test_server_listenAndServeAPI(t *testing.T) {
 					cfg: config.Server{
 						Port: 9999,
 						TLS: config.TLS{
-							Enabled: true,
-							Cert:    cert,
-							Key:     key,
+							Enable:   true,
+							CertPath: cert,
+							KeyPath:  key,
 						},
 					},
 				},

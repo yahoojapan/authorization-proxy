@@ -68,9 +68,9 @@ func NewTLSConfig(cfg config.TLS) (*tls.Config, error) {
 		ClientAuth: tls.NoClientCert,
 	}
 
-	cert := config.GetActualValue(cfg.Cert)
-	key := config.GetActualValue(cfg.Key)
-	ca := config.GetActualValue(cfg.CA)
+	cert := config.GetActualValue(cfg.CertPath)
+	key := config.GetActualValue(cfg.KeyPath)
+	ca := config.GetActualValue(cfg.CAPath)
 
 	if cert != "" && key != "" {
 		crt, err := tls.LoadX509KeyPair(cert, key)

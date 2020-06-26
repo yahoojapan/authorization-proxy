@@ -99,10 +99,12 @@ func Test_run(t *testing.T) {
 				name: "enable debug",
 				args: args{
 					cfg: config.Config{
-						Debug:              true,
-						EnableColorLogging: true,
+						Log: config.Log{
+							Level: "debug",
+							Color: true,
+						},
 						Authorization: config.Authorization{
-							Access: config.Access{
+							AccessToken: config.AccessToken{
 								Enable: true,
 							},
 						},
@@ -127,8 +129,10 @@ func Test_run(t *testing.T) {
 				args: args{
 					cfg: config.Config{
 						Authorization: config.Authorization{
-							PubKeyRefreshDuration: "dummy",
-							Access: config.Access{
+							PublicKey: config.PublicKey{
+								RefreshPeriod: "dummy",
+							},
+							AccessToken: config.AccessToken{
 								Enable: true,
 							},
 						},
@@ -156,7 +160,7 @@ func Test_run(t *testing.T) {
 							URL: "127.0.0.1",
 						},
 						Authorization: config.Authorization{
-							Role: config.Role{
+							RoleToken: config.RoleToken{
 								Enable: true,
 							},
 						},

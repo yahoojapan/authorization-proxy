@@ -167,14 +167,14 @@ data:
       pubKeyRefreshDuration: 24h
       pubKeySysAuthDomain: sys.auth
       pubKeyEtagExpTime: 168h
-      pubKeyEtagFlushDur: 84h
+      pubKeyEtagFlushDuration: 84h
       athenzDomains:
       - provider-domain1
       - provider-domain2
       policyExpireMargin: 48h
       policyRefreshDuration: 1h
       policyEtagExpTime: 48h
-      policyEtagFlushDur: 24h
+      policyEtagFlushDuration: 24h
 ---
 apiVersion: v1
 kind: Secret

@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {
 		{
 			name: "Test file content not valid",
 			args: args{
-				path: "./testdata/not_valid_config.yaml",
+				path: "../test/data//not_valid_config.yaml",
 			},
 			wantErr: fmt.Errorf("decode file failed: yaml: line 11: could not find expected ':'"),
 		},
@@ -72,142 +72,79 @@ func TestNew(t *testing.T) {
 		{
 			name: "Test file content valid",
 			args: args{
-				path: "./testdata/example_config.yaml",
+				path: "../test/data//example_config.yaml",
 			},
 			want: &Config{
-				Version:            "v1.0.0",
-				Debug:              false,
-				EnableColorLogging: false,
+				Version: "v2.0.0",
+				Log: Log{
+					Level: "info",
+					Color: false,
+				},
 				Server: Server{
-					Port:             8082,
-					HealthzPort:      6082,
-					HealthzPath:      "/healthz",
-					Timeout:          "10s",
-					ShutdownDuration: "10s",
-					ProbeWaitTime:    "9s",
+					Port:            8082,
+					Timeout:         "10s",
+					ShutdownTimeout: "10s",
+					ShutdownDelay:   "9s",
 					TLS: TLS{
-						Enabled: false,
-						Cert:    "/etc/athenz/provider/keys/server.crt",
-						Key:     "/etc/athenz/provider/keys/private.key",
-						CA:      "/etc/athenz/provider/keys/ca.crt",
+						Enable:   false,
+						CertPath: "/etc/athenz/provider/keys/server.crt",
+						KeyPath:  "/etc/athenz/provider/keys/private.key",
+						CAPath:   "/etc/athenz/provider/keys/ca.crt",
 					},
-					DebugServer: DebugServer{
-						Enable:          false,
-						Port:            6083,
-						EnableDump:      true,
-						EnableProfiling: true,
+					HealthCheck: HealthCheck{
+						Port:     6082,
+						Endpoint: "/healthz",
+					},
+					Debug: Debug{
+						Enable:    false,
+						Port:      6083,
+						Dump:      true,
+						Profiling: true,
 					},
 				},
 				Athenz: Athenz{
-					URL:          "https://athenz.io:4443/zts/v1",
-					Timeout:      "30s",
-					AthenzRootCA: "",
+					URL:     "https://athenz.io:4443/zts/v1",
+					Timeout: "30s",
+					CAPath:  "",
 				},
 				Proxy: Proxy{
 					Scheme:         "http",
 					Host:           "localhost",
 					Port:           80,
-					RoleHeader:     "Athenz-Role-Auth",
 					BufferSize:     4096,
 					BypassURLPaths: []string{},
 				},
 				Authorization: Authorization{
-					PubKeyRefreshDuration: "24h",
-					PubKeySysAuthDomain:   "sys.auth",
-					PubKeyEtagExpTime:     "168h",
-					PubKeyEtagFlushDur:    "84h",
+					PublicKey: PublicKey{
+						SysAuthDomain:   "sys.auth",
+						RefreshPeriod:   "24h",
+						ETagExpiry:      "168h",
+						ETagPurgePeriod: "84h",
+					},
 					AthenzDomains: []string{
 						"domain1",
 					},
-					PolicyExpireMargin:    "48h",
-					PolicyRefreshDuration: "1h",
-					PolicyEtagExpTime:     "48h",
-					PolicyEtagFlushDur:    "24h",
-					Role: Role{
-						Enable: true,
+					Policy: Policy{
+						ExpiryMargin:  "48h",
+						RefreshPeriod: "1h",
+						PurgePeriod:   "24h",
+						RetryDelay:    "1m",
+						RetryAttempts: 2,
 					},
-					Access: Access{
+					RoleToken: RoleToken{
+						Enable:         true,
+						RoleAuthHeader: "Athenz-Role-Auth",
+					},
+					AccessToken: AccessToken{
 						Enable:               true,
 						VerifyCertThumbprint: true,
 						VerifyClientID:       false,
 						AuthorizedClientIDs: map[string][]string{
-							"common_name1": []string{"client_id1", "client_id2"},
-							"common_name2": []string{"client_id1", "client_id2"},
+							"common_name1": {"client_id1", "client_id2"},
+							"common_name2": {"client_id1", "client_id2"},
 						},
-						CertBackdateDur: "1h",
-						CertOffsetDur:   "1h",
-					},
-				},
-			},
-		},
-		{
-			name: "Test no roletoken",
-			args: args{
-				path: "./testdata/undefine_roletoken.yaml",
-			},
-			want: &Config{
-				Version:            "v1.0.0",
-				Debug:              false,
-				EnableColorLogging: false,
-				Server: Server{
-					Port:             8082,
-					HealthzPort:      6082,
-					HealthzPath:      "/healthz",
-					Timeout:          "10s",
-					ShutdownDuration: "10s",
-					ProbeWaitTime:    "9s",
-					TLS: TLS{
-						Enabled: false,
-						Cert:    "/etc/athenz/provider/keys/server.crt",
-						Key:     "/etc/athenz/provider/keys/private.key",
-						CA:      "/etc/athenz/provider/keys/ca.crt",
-					},
-					DebugServer: DebugServer{
-						Enable:          false,
-						Port:            6083,
-						EnableDump:      true,
-						EnableProfiling: true,
-					},
-				},
-				Athenz: Athenz{
-					URL:          "https://athenz.io:4443/zts/v1",
-					Timeout:      "30s",
-					AthenzRootCA: "",
-				},
-				Proxy: Proxy{
-					Scheme:         "http",
-					Host:           "localhost",
-					Port:           80,
-					RoleHeader:     "Athenz-Role-Auth",
-					BufferSize:     4096,
-					BypassURLPaths: []string{},
-				},
-				Authorization: Authorization{
-					PubKeyRefreshDuration: "24h",
-					PubKeySysAuthDomain:   "sys.auth",
-					PubKeyEtagExpTime:     "168h",
-					PubKeyEtagFlushDur:    "84h",
-					AthenzDomains: []string{
-						"domain1",
-					},
-					PolicyExpireMargin:    "48h",
-					PolicyRefreshDuration: "1h",
-					PolicyEtagExpTime:     "48h",
-					PolicyEtagFlushDur:    "24h",
-					Role: Role{
-						// undefined roletoken, but true
-						Enable: true,
-					},
-					Access: Access{
-						Enable:               true,
-						VerifyCertThumbprint: true,
-						VerifyClientID:       false,
-						AuthorizedClientIDs: map[string][]string{
-							"common_name1": []string{"client_id1", "client_id2"},
-							"common_name2": []string{"client_id1", "client_id2"},
-						},
-						CertBackdateDur: "1h",
-						CertOffsetDur:   "1h",
+						CertBackdateDuration: "1h",
+						CertOffsetDuration:   "1h",
 					},
 				},
 			},
@@ -262,7 +199,7 @@ func TestGetVersion(t *testing.T) {
 	}{
 		{
 			name: "Test get version return sidecar version",
-			want: "v1.0.0",
+			want: "v2.0.0",
 		},
 	}
 	for _, tt := range tests {

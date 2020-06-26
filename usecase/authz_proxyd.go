@@ -152,23 +152,23 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithAthenzURL(cfg.Athenz.URL),
 	}
 	pubkeyOpts := []authorizerd.Option{
-		authorizerd.WithPubkeyRefreshDuration(authzCfg.PubKeyRefreshDuration),
-		authorizerd.WithPubkeySysAuthDomain(authzCfg.PubKeySysAuthDomain),
-		authorizerd.WithPubkeyEtagExpTime(authzCfg.PubKeyEtagExpTime),
-		authorizerd.WithPubkeyEtagFlushDuration(authzCfg.PubKeyEtagFlushDur),
-		authorizerd.WithPubkeyErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+		authorizerd.WithPubkeyRefreshDuration(authzCfg.PublicKey.RefreshPeriod),
+		authorizerd.WithPubkeySysAuthDomain(authzCfg.PublicKey.SysAuthDomain),
+		authorizerd.WithPubkeyEtagExpTime(authzCfg.PublicKey.ETagExpiry),
+		authorizerd.WithPubkeyEtagFlushDuration(authzCfg.PublicKey.ETagPurgePeriod),
+		authorizerd.WithPubkeyErrRetryInterval(authzCfg.PublicKey.RetryDelay),
 	}
 	policyOpts := []authorizerd.Option{
 		authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
-		authorizerd.WithPolicyExpireMargin(authzCfg.PolicyExpireMargin),
-		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
-		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
+		authorizerd.WithPolicyExpireMargin(authzCfg.Policy.ExpiryMargin),
+		authorizerd.WithPolicyRefreshDuration(authzCfg.Policy.RefreshPeriod),
+		authorizerd.WithPolicyErrRetryInterval(authzCfg.Policy.RetryDelay),
 	}
 	var rtOpts []authorizerd.Option
-	if authzCfg.Role.Enable {
+	if authzCfg.RoleToken.Enable {
 		rtOpts = []authorizerd.Option{
 			authorizerd.WithEnableRoleToken(),
-			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+			authorizerd.WithRTHeader(cfg.Authorization.RoleToken.RoleAuthHeader),
 		}
 	} else {
 		rtOpts = []authorizerd.Option{
@@ -181,24 +181,24 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 
 	var atOpts []authorizerd.Option
 	var jwkOpts []authorizerd.Option
-	if authzCfg.Access.Enable {
+	if authzCfg.AccessToken.Enable {
 		atOpts = []authorizerd.Option{
 			authorizerd.WithAccessTokenParam(
 				authorizerd.NewAccessTokenParam(
-					authzCfg.Access.Enable,
-					authzCfg.Access.VerifyCertThumbprint,
-					authzCfg.Access.CertBackdateDur,
-					authzCfg.Access.CertOffsetDur,
-					authzCfg.Access.VerifyClientID,
-					authzCfg.Access.AuthorizedClientIDs,
+					authzCfg.AccessToken.Enable,
+					authzCfg.AccessToken.VerifyCertThumbprint,
+					authzCfg.AccessToken.CertBackdateDuration,
+					authzCfg.AccessToken.CertOffsetDuration,
+					authzCfg.AccessToken.VerifyClientID,
+					authzCfg.AccessToken.AuthorizedClientIDs,
 				),
 			),
 		}
 		jwkOpts = []authorizerd.Option{
 			authorizerd.WithEnableJwkd(),
 			// use value in config.go in later version
-			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
-			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+			authorizerd.WithJwkRefreshDuration(authzCfg.JWK.RefreshPeriod),
+			authorizerd.WithJwkErrRetryInterval(authzCfg.JWK.RetryDelay),
 		}
 	} else {
 		atOpts = []authorizerd.Option{

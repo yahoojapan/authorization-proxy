@@ -35,9 +35,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 						return errors.New("dummy error")
 					},
 				},
-				cfg: config.Proxy{
-					RoleHeader: "",
-				},
+				cfg: config.Proxy{},
 			},
 			args: args{
 				r: func() *http.Request {
@@ -62,9 +60,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 						return nil
 					},
 				},
-				cfg: config.Proxy{
-					RoleHeader: "",
-				},
+				cfg: config.Proxy{},
 			},
 			args: args{
 				r: func() *http.Request {
@@ -93,7 +89,6 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					RoleHeader:     "",
 					BypassURLPaths: []string{},
 				},
 			},

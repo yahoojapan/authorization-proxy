@@ -35,12 +35,12 @@ type Route struct {
 	HandlerFunc handler.Func
 }
 
-// NewDebugRoutes returns debug endpoint information. If EnableDump flag is enabled then the cache dump feature endpoint will be included.
-// If EnableProfiling flag is enable then the pprof interface endpoint will be included.
-func NewDebugRoutes(cfg config.DebugServer, a service.Authorizationd) []Route {
+// NewDebugRoutes returns debug endpoint information. If Dump flag is enabled then the cache dump feature endpoint will be included.
+// If Profiling flag is enable then the pprof interface endpoint will be included.
+func NewDebugRoutes(cfg config.Debug, a service.Authorizationd) []Route {
 	var routes []Route
 
-	if cfg.EnableDump {
+	if cfg.Dump {
 		routes = append(routes, Route{
 			"GetPolicyCache",
 			[]string{
@@ -51,7 +51,7 @@ func NewDebugRoutes(cfg config.DebugServer, a service.Authorizationd) []Route {
 		})
 	}
 
-	if cfg.EnableProfiling {
+	if cfg.Profiling {
 		routes = append(routes, []Route{
 			{
 				"Debug pprof",

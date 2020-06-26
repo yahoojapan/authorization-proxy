@@ -91,7 +91,7 @@ The mapping rules are described as below.
 
 ## Configuration
 
-The example configuration file is [here](./config/testdata/example_config.yaml).
+The example configuration file is [here](./test/data/example_config.yaml).
 For detail explanation, please read [config.go](./config/config.go).
 
 ---

@@ -52,8 +52,8 @@ func TestNewDebugRouter(t *testing.T) {
 			name: "new debug router success with routes",
 			args: args{
 				cfg: config.Server{
-					DebugServer: config.DebugServer{
-						EnableProfiling: true,
+					Debug: config.Debug{
+						Profiling: true,
 					},
 				},
 				a: nil,

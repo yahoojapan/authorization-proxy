@@ -64,16 +64,37 @@ func parseParams() (*params, error) {
 
 // run starts the daemon and listens for OS signal.
 func run(cfg config.Config) []error {
-	g := glg.Get().
-		SetLevelMode(glg.LOG, glg.NONE).
-		SetLevelMode(glg.PRINT, glg.NONE).
-		SetLevelMode(glg.DEBG, glg.NONE)
+	g := glg.Get().SetMode(glg.NONE)
 
-	if cfg.Debug {
-		g.SetLevelMode(glg.DEBG, glg.STD)
+	switch cfg.Log.Level {
+	case "":
+		// disable logging
+	case "fatal":
+		g = g.SetLevelMode(glg.FATAL, glg.STD).
+			SetLevelMode(glg.ERR, glg.STD)
+	case "error":
+		g = g.SetLevelMode(glg.FATAL, glg.STD).
+			SetLevelMode(glg.ERR, glg.STD)
+	case "warn":
+		g = g.SetLevelMode(glg.FATAL, glg.STD).
+			SetLevelMode(glg.ERR, glg.STD).
+			SetLevelMode(glg.WARN, glg.STD)
+	case "info":
+		g = g.SetLevelMode(glg.FATAL, glg.STD).
+			SetLevelMode(glg.ERR, glg.STD).
+			SetLevelMode(glg.WARN, glg.STD).
+			SetLevelMode(glg.INFO, glg.STD)
+	case "debug":
+		g = g.SetLevelMode(glg.FATAL, glg.STD).
+			SetLevelMode(glg.ERR, glg.STD).
+			SetLevelMode(glg.WARN, glg.STD).
+			SetLevelMode(glg.INFO, glg.STD).
+			SetLevelMode(glg.DEBG, glg.STD)
+	default:
+		return []error{errors.New("invalid log level")}
 	}
 
-	if !cfg.EnableColorLogging {
+	if !cfg.Log.Color {
 		g.DisableColor()
 	}
 
@@ -145,7 +166,7 @@ func main() {
 	}
 
 	errs := run(*cfg)
-	if errs != nil && len(errs) > 0 {
+	if len(errs) > 0 {
 		var emsg string
 		for _, err = range errs {
 			emsg += "\n" + err.Error()
