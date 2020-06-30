@@ -52,10 +52,10 @@ type server struct {
 	cfg config.Server
 
 	// ShutdownDelay
-	pwt time.Duration
+	sdd time.Duration
 
 	// ShutdownTimeout
-	sddur time.Duration
+	sdt time.Duration
 
 	// mutext lock variable
 	mu sync.RWMutex
@@ -113,12 +113,12 @@ func NewServer(opts ...Option) Server {
 		s.dsrv.SetKeepAlivesEnabled(true)
 	}
 
-	s.sddur, err = time.ParseDuration(s.cfg.ShutdownTimeout)
+	s.sdt, err = time.ParseDuration(s.cfg.ShutdownTimeout)
 	if err != nil {
 		glg.Warn(err)
 	}
 
-	s.pwt, err = time.ParseDuration(s.cfg.ShutdownDelay)
+	s.sdd, err = time.ParseDuration(s.cfg.ShutdownDelay)
 	if err != nil {
 		glg.Warn(err)
 	}
@@ -280,13 +280,13 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 }
 
 func (s *server) hcShutdown(ctx context.Context) error {
-	hctx, hcancel := context.WithTimeout(ctx, s.sddur)
+	hctx, hcancel := context.WithTimeout(ctx, s.sdt)
 	defer hcancel()
 	return s.hcsrv.Shutdown(hctx)
 }
 
 func (s *server) dShutdown(ctx context.Context) error {
-	dctx, dcancel := context.WithTimeout(ctx, s.sddur)
+	dctx, dcancel := context.WithTimeout(ctx, s.sdt)
 	defer dcancel()
 	return s.dsrv.Shutdown(dctx)
 }
@@ -294,8 +294,8 @@ func (s *server) dShutdown(ctx context.Context) error {
 // apiShutdown returns any error when shutdown the authorization proxy server.
 // Before shutdown the authorization proxy server, it will sleep config.ShutdownDelay to prevent any issue from K8s
 func (s *server) apiShutdown(ctx context.Context) error {
-	time.Sleep(s.pwt)
-	sctx, scancel := context.WithTimeout(ctx, s.sddur)
+	time.Sleep(s.sdd)
+	sctx, scancel := context.WithTimeout(ctx, s.sdt)
 	defer scancel()
 	return s.srv.Shutdown(sctx)
 }

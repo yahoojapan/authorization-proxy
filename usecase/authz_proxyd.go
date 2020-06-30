@@ -130,7 +130,7 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 		/*
 			Read on emap is safe here, if and only if:
 			1. emap is not used in the parenet goroutine
-			2. the writer goroutine returns only if all erros are written, i.e. pch is closed
+			2. the writer goroutine returns only if all errors are written, i.e. pch is closed
 			3. this goroutine should wait for the writer goroutine to end, i.e. eg.Wait()
 		*/
 		// aggregate all errors as array

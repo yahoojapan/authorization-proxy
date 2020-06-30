@@ -70,8 +70,7 @@ func run(cfg config.Config) []error {
 	case "":
 		// disable logging
 	case "fatal":
-		g = g.SetLevelMode(glg.FATAL, glg.STD).
-			SetLevelMode(glg.ERR, glg.STD)
+		g = g.SetLevelMode(glg.FATAL, glg.STD)
 	case "error":
 		g = g.SetLevelMode(glg.FATAL, glg.STD).
 			SetLevelMode(glg.ERR, glg.STD)

@@ -90,7 +90,6 @@ func NewTLSConfig(cfg config.TLS) (*tls.Config, error) {
 		t.ClientAuth = tls.RequireAndVerifyClientCert
 	}
 
-	t.BuildNameToCertificate()
 	return t, nil
 }
 

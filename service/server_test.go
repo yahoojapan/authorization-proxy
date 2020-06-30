@@ -128,8 +128,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 		cfg   config.Server
 	}
 	type args struct {
-		ctx        context.Context
-		cancelFunc context.CancelFunc
+		ctx context.Context
 	}
 	type test struct {
 		name       string
@@ -776,8 +775,8 @@ func Test_server_hcShutdown(t *testing.T) {
 		hcsrv      *http.Server
 		hcrunning  bool
 		cfg        config.Server
-		pwt        time.Duration
-		sddur      time.Duration
+		sdd        time.Duration
+		sdt        time.Duration
 	}
 	type args struct {
 		ctx context.Context
@@ -831,8 +830,8 @@ func Test_server_hcShutdown(t *testing.T) {
 				hcsrv:      tt.fields.hcsrv,
 				hcRunning:  tt.fields.hcrunning,
 				cfg:        tt.fields.cfg,
-				pwt:        tt.fields.pwt,
-				sddur:      tt.fields.sddur,
+				sdd:        tt.fields.sdd,
+				sdt:        tt.fields.sdt,
 			}
 			e := s.hcShutdown(tt.args.ctx)
 			if err := tt.checkFunc(s, e, tt.want); err != nil {
@@ -849,8 +848,8 @@ func Test_server_apiShutdown(t *testing.T) {
 		hcsrv      *http.Server
 		hcrunning  bool
 		cfg        config.Server
-		pwt        time.Duration
-		sddur      time.Duration
+		sdd        time.Duration
+		sdt        time.Duration
 	}
 	type args struct {
 		ctx context.Context
@@ -904,8 +903,8 @@ func Test_server_apiShutdown(t *testing.T) {
 				hcsrv:      tt.fields.hcsrv,
 				hcRunning:  tt.fields.hcrunning,
 				cfg:        tt.fields.cfg,
-				pwt:        tt.fields.pwt,
-				sddur:      tt.fields.sddur,
+				sdd:        tt.fields.sdd,
+				sdt:        tt.fields.sdt,
 			}
 			e := s.apiShutdown(tt.args.ctx)
 			if err := tt.checkFunc(s, e, tt.want); err != nil {
@@ -925,7 +924,6 @@ func Test_server_createHealthCheckServiceMux(t *testing.T) {
 		beforeFunc func() error
 		checkFunc  func(*http.ServeMux) error
 		afterFunc  func() error
-		wantErr    error
 	}
 	tests := []test{
 		func() test {
@@ -981,7 +979,6 @@ func Test_server_handleHealthCheckRequest(t *testing.T) {
 		beforeFunc func() error
 		checkFunc  func() error
 		afterFunc  func() error
-		wantErr    error
 	}
 	tests := []test{
 		func() test {
