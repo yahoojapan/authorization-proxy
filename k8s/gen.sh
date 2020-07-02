@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DEPLOYMENT_NAME="provider-test"
-DEBUG="false"
+LOG_LEVEL="info"
 ATHENZ_URL="athenz.io/zts/v1"
 MAX_REPLICA=50
 MIN_REPLICA=10
@@ -67,7 +67,7 @@ spec:
           failureThreshold: 2
           httpGet:
             path: /healthz
-            port: 8081
+            port: 6082
           initialDelaySeconds: 3
           periodSeconds: 3
           successThreshold: 1
@@ -139,42 +139,74 @@ metadata:
   namespace: default
 data:
   ${SIDECAR_CONFIG_FILE}: |
-    version: "v1.0.0"
-    debug: ${DEBUG}
+    version: "v2.0.0"
     server:
       port: ${SIDECAR_PORT}
-      health_check_port: 8081
-      health_check_path: /healthz
       timeout: 10s
-      shutdown_duration: 10s
-      probe_wait_time: 9s
+      shutdownTimeout: 10s
+      shutdownDelay: 9s
       tls:
-        enabled: false
-        cert_key: ""
-        key_key: ""
-        ca_key: ""
+        enable: false
+        certPath: ""
+        keyPath: ""
+        caPath: ""
+      healthCheck:
+        port: 6082
+        endpoint: /healthz
+      debug:
+        enable: false
+        port: 6083
+        dump: true
+        profiling: true
     athenz:
       url: ${ATHENZ_URL}
       timeout: 30s
-      root_ca: ""
+      caPath: ""
+      # caPath: /etc/ssl/cert.pem
     proxy:
-      scheme: "http"
-      host: "localhost"
+      scheme: http
+      host: localhost
       port: ${APP_PORT}
-      role_header_key: Athenz-Role-Auth
-      buffer_size: 4096
-    provider:
-      pubKeyRefreshDuration: 24h
-      pubKeySysAuthDomain: sys.auth
-      pubKeyEtagExpTime: 168h
-      pubKeyEtagFlushDuration: 84h
+      bufferSize: 4096
+      originHealthCheckPaths: []
+    authorization:
       athenzDomains:
       - provider-domain1
       - provider-domain2
-      policyExpireMargin: 48h
-      policyRefreshDuration: 1h
-      policyEtagExpTime: 48h
-      policyEtagFlushDuration: 24h
+      publicKey:
+        sysAuthDomain: sys.auth
+        refreshPeriod: 24h
+        retryDelay: ""
+        eTagExpiry: 168h
+        eTagPurgePeriod: 84h
+      policy:
+        expiryMargin: 48h
+        refreshPeriod: 1h
+        purgePeriod: 24h
+        retryDelay: ""
+        retryAttempts: 0
+      jwk:
+        refreshPeriod: ""
+        retryDelay: ""
+      accessToken:
+        enable: true
+        verifyCertThumbprint: true
+        verifyClientID: true
+        authorizedClientIDs:
+          common_name1:
+            - client_id1
+            - client_id2
+          common_name2:
+            - client_id1
+            - client_id2
+        certBackdateDuration: 1h
+        certOffsetDuration: 1h
+      roleToken:
+        enable: true
+        roleAuthHeader: Athenz-Role-Auth
+    log:
+      level: ${LOG_LEVEL}
+      color: false
 ---
 apiVersion: v1
 kind: Secret
