@@ -1,3 +1,4 @@
+---
 version: v2.0.0
 server:
   port: 8082
@@ -5,13 +6,13 @@ server:
   shutdownTimeout: 10s
   shutdownDelay: 9s
   tls:
-    enable: false
-    certPath: /etc/athenz/provider/keys/server.crt
-    keyPath: /etc/athenz/provider/keys/private.key
-    caPath: /etc/athenz/provider/keys/ca.crt
+    enable: true
+    certPath: "test/data/dummyServer.crt"
+    keyPath: "test/data/dummyServer.key"
+    caPath: "test/data/dummyCa.pem"
   healthCheck:
     port: 6082
-    endpoint: "/healthz"
+    endpoint: /healthz
   debug:
     enable: false
     port: 6083
@@ -20,7 +21,8 @@ server:
 athenz:
   url: https://athenz.io:4443/zts/v1
   timeout: 30s
-  caPath: ""
+  caPath: _athenz_root_ca_
+  # caPath: /etc/ssl/cert.pem
 proxy:
   scheme: http
   host: localhost
@@ -29,23 +31,27 @@ proxy:
   originHealthCheckPaths: []
 authorization:
   athenzDomains:
-    - domain1
+  - provider-domain1
+  - provider-domain2
   publicKey:
-    sysAuthDomain: "sys.auth"
-    refreshPeriod: "24h"
+    sysAuthDomain: sys.auth
+    refreshPeriod: 24h
     retryDelay: ""
-    eTagExpiry: "168h"
-    eTagPurgePeriod: "84h"
+    eTagExpiry: 168h
+    eTagPurgePeriod: 84h
   policy:
-    expiryMargin: "48h"
-    refreshPeriod: "1h"
-    purgePeriod: "24h"
-    retryDelay: "1m"
-    retryAttempts: 2
+    expiryMargin: 48h
+    refreshPeriod: 1h
+    purgePeriod: 24h
+    retryDelay: ""
+    retryAttempts: 0
+  jwk:
+    refreshPeriod: ""
+    retryDelay: ""
   accessToken:
     enable: true
     verifyCertThumbprint: true
-    verifyClientID: false
+    verifyClientID: true
     authorizedClientIDs:
       common_name1:
         - client_id1
@@ -56,8 +62,8 @@ authorization:
     certBackdateDuration: 1h
     certOffsetDuration: 1h
   roleToken:
-      enable: true
-      roleAuthHeader: Athenz-Role-Auth
+    enable: true
+    roleAuthHeader: Athenz-Role-Auth
 log:
-  level: "info"
-  color: false
+  level: debug
+  color: true

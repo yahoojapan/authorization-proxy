@@ -76,20 +76,16 @@ func TestNew(t *testing.T) {
 			},
 			want: &Config{
 				Version: "v2.0.0",
-				Log: Log{
-					Level: "info",
-					Color: false,
-				},
 				Server: Server{
 					Port:            8082,
 					Timeout:         "10s",
 					ShutdownTimeout: "10s",
 					ShutdownDelay:   "9s",
 					TLS: TLS{
-						Enable:   false,
-						CertPath: "/etc/athenz/provider/keys/server.crt",
-						KeyPath:  "/etc/athenz/provider/keys/private.key",
-						CAPath:   "/etc/athenz/provider/keys/ca.crt",
+						Enable:   true,
+						CertPath: "test/data/dummyServer.crt",
+						KeyPath:  "test/data/dummyServer.key",
+						CAPath:   "test/data/dummyCa.pem",
 					},
 					HealthCheck: HealthCheck{
 						Port:     6082,
@@ -105,7 +101,7 @@ func TestNew(t *testing.T) {
 				Athenz: Athenz{
 					URL:     "https://athenz.io:4443/zts/v1",
 					Timeout: "30s",
-					CAPath:  "",
+					CAPath:  "_athenz_root_ca_",
 				},
 				Proxy: Proxy{
 					Scheme:                 "http",
@@ -122,23 +118,24 @@ func TestNew(t *testing.T) {
 						ETagPurgePeriod: "84h",
 					},
 					AthenzDomains: []string{
-						"domain1",
+						"provider-domain1",
+						"provider-domain2",
 					},
 					Policy: Policy{
 						ExpiryMargin:  "48h",
 						RefreshPeriod: "1h",
 						PurgePeriod:   "24h",
-						RetryDelay:    "1m",
-						RetryAttempts: 2,
+						RetryDelay:    "",
+						RetryAttempts: 0,
 					},
-					RoleToken: RoleToken{
-						Enable:         true,
-						RoleAuthHeader: "Athenz-Role-Auth",
+					JWK: JWK{
+						RefreshPeriod: "",
+						RetryDelay:    "",
 					},
 					AccessToken: AccessToken{
 						Enable:               true,
 						VerifyCertThumbprint: true,
-						VerifyClientID:       false,
+						VerifyClientID:       true,
 						AuthorizedClientIDs: map[string][]string{
 							"common_name1": {"client_id1", "client_id2"},
 							"common_name2": {"client_id1", "client_id2"},
@@ -146,6 +143,14 @@ func TestNew(t *testing.T) {
 						CertBackdateDuration: "1h",
 						CertOffsetDuration:   "1h",
 					},
+					RoleToken: RoleToken{
+						Enable:         true,
+						RoleAuthHeader: "Athenz-Role-Auth",
+					},
+				},
+				Log: Log{
+					Level: "debug",
+					Color: true,
 				},
 			},
 		},

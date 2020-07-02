@@ -53,7 +53,7 @@ Authorization Proxy acts as a reverse proxy sitting in front of the server appli
 
 To authenticate the request, the authorization proxy should know which client identity (role) can take an action on which URL endpoint, therefore the Athenz authorizer is introduced.
 
-![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/docs/policy_updater_overview.png)
+![Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer/raw/master/docs/assets/policy_updater_overview.png)
 
 The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodically updates the access token JWK, role token public key, and Athenz policy data from the Athenz Server. It decodes and validates the policy data. The decoded policy will store in the memory cache inside the Athenz authorizer for later authorization checks. The Athenz authorizer also helps to extract client credentials from the HTTP/HTTPS request header.
 
