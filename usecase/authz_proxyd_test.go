@@ -571,7 +571,31 @@ func Test_newAuthzD(t *testing.T) {
 		wantErrStr string
 	}{
 		{
-			name: "test new Authorization fail",
+			name: "test new Authorization fail, Athenz.Timeout",
+			args: args{
+				cfg: config.Config{
+					Athenz: config.Athenz{
+						Timeout: "invalid",
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "newAuthzD(): Athenz.Timeout: time: invalid duration invalid",
+		},
+		{
+			name: "test new Authorization fail, Athenz.CAPath",
+			args: args{
+				cfg: config.Config{
+					Athenz: config.Athenz{
+						CAPath: "../test/data/non_existing_ca.pem",
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "newAuthzD(): Athenz.CAPath: x509.SystemCertPool(): open ../test/data/non_existing_ca.pem: no such file or directory",
+		},
+		{
+			name: "test new Authorization fail, authorizerd.New",
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
@@ -582,14 +606,16 @@ func Test_newAuthzD(t *testing.T) {
 				},
 			},
 			want:       false,
-			wantErrStr: "error create pubkeyd: invalid refresh duration: time: invalid duration invalid_period",
+			wantErrStr: "error create pubkeyd: invalid refresh period: time: invalid duration invalid_period",
 		},
 		{
 			name: "test success new Authorization",
 			args: args{
 				cfg: config.Config{
 					Athenz: config.Athenz{
-						URL: "athenz.io",
+						URL:     "athenz.io",
+						Timeout: "30s",
+						CAPath:  "../test/data/dummyCa.pem",
 					},
 					Authorization: config.Authorization{
 						AthenzDomains: []string{"dummyDom1", "dummyDom2"},

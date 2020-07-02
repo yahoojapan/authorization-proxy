@@ -384,7 +384,7 @@ func Test_run(t *testing.T) {
 				},
 			},
 			checkFunc: func(gotErrs []error) error {
-				want := "usecase returned error: cannot newAuthzD(cfg): error create pubkeyd: invalid refresh duration: time: invalid duration dummy"
+				want := "usecase returned error: cannot newAuthzD(cfg): error create pubkeyd: invalid refresh period: time: invalid duration dummy"
 				if len(gotErrs) != 1 {
 					return errors.New("len(gotErrs) != 1")
 				}

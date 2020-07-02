@@ -18,6 +18,9 @@ package usecase
 
 import (
 	"context"
+	"crypto/tls"
+	"net/http"
+	"time"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
@@ -147,28 +150,51 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 }
 
 func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
+	client := http.DefaultClient
+	if cfg.Athenz.Timeout != "" {
+		t, err := time.ParseDuration(cfg.Athenz.Timeout)
+		if err != nil {
+			return nil, errors.Wrap(err, "newAuthzD(): Athenz.Timeout")
+		}
+		client.Timeout = t
+	}
+	if cfg.Athenz.CAPath != "" {
+		cp, err := service.NewX509CertPool(cfg.Athenz.CAPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "newAuthzD(): Athenz.CAPath")
+		}
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: cp,
+			},
+		}
+	}
+
 	authzCfg := cfg.Authorization
 	sharedOpts := []authorizerd.Option{
 		authorizerd.WithAthenzURL(cfg.Athenz.URL),
+		authorizerd.WithHTTPClient(client),
 	}
 	pubkeyOpts := []authorizerd.Option{
-		authorizerd.WithPubkeyRefreshDuration(authzCfg.PublicKey.RefreshPeriod),
 		authorizerd.WithPubkeySysAuthDomain(authzCfg.PublicKey.SysAuthDomain),
-		authorizerd.WithPubkeyEtagExpTime(authzCfg.PublicKey.ETagExpiry),
-		authorizerd.WithPubkeyEtagFlushDuration(authzCfg.PublicKey.ETagPurgePeriod),
-		authorizerd.WithPubkeyErrRetryInterval(authzCfg.PublicKey.RetryDelay),
+		authorizerd.WithPubkeyRefreshPeriod(authzCfg.PublicKey.RefreshPeriod),
+		authorizerd.WithPubkeyETagExpiry(authzCfg.PublicKey.ETagExpiry),
+		authorizerd.WithPubkeyETagPurgePeriod(authzCfg.PublicKey.ETagPurgePeriod),
+		authorizerd.WithPubkeyRetryDelay(authzCfg.PublicKey.RetryDelay),
 	}
 	policyOpts := []authorizerd.Option{
 		authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
-		authorizerd.WithPolicyExpireMargin(authzCfg.Policy.ExpiryMargin),
-		authorizerd.WithPolicyRefreshDuration(authzCfg.Policy.RefreshPeriod),
-		authorizerd.WithPolicyErrRetryInterval(authzCfg.Policy.RetryDelay),
+		authorizerd.WithPolicyExpiryMargin(authzCfg.Policy.ExpiryMargin),
+		authorizerd.WithPolicyRefreshPeriod(authzCfg.Policy.RefreshPeriod),
+		authorizerd.WithPolicyPurgePeriod(authzCfg.Policy.PurgePeriod),
+		authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
+		authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
 	}
 	var rtOpts []authorizerd.Option
 	if authzCfg.RoleToken.Enable {
 		rtOpts = []authorizerd.Option{
 			authorizerd.WithEnableRoleToken(),
-			authorizerd.WithRTHeader(cfg.Authorization.RoleToken.RoleAuthHeader),
+			authorizerd.WithRoleAuthHeader(cfg.Authorization.RoleToken.RoleAuthHeader),
 		}
 	} else {
 		rtOpts = []authorizerd.Option{
@@ -197,8 +223,8 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		jwkOpts = []authorizerd.Option{
 			authorizerd.WithEnableJwkd(),
 			// use value in config.go in later version
-			authorizerd.WithJwkRefreshDuration(authzCfg.JWK.RefreshPeriod),
-			authorizerd.WithJwkErrRetryInterval(authzCfg.JWK.RetryDelay),
+			authorizerd.WithJwkRefreshPeriod(authzCfg.JWK.RefreshPeriod),
+			authorizerd.WithJwkRetryDelay(authzCfg.JWK.RetryDelay),
 		}
 	} else {
 		atOpts = []authorizerd.Option{
