@@ -108,11 +108,11 @@ func TestNew(t *testing.T) {
 					CAPath:  "",
 				},
 				Proxy: Proxy{
-					Scheme:         "http",
-					Host:           "localhost",
-					Port:           80,
-					BufferSize:     4096,
-					BypassURLPaths: []string{},
+					Scheme:                 "http",
+					Host:                   "localhost",
+					Port:                   80,
+					BufferSize:             4096,
+					OriginHealthCheckPaths: []string{},
 				},
 				Authorization: Authorization{
 					PublicKey: PublicKey{

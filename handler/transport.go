@@ -34,7 +34,7 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	for _, urlPath := range t.cfg.BypassURLPaths {
+	for _, urlPath := range t.cfg.OriginHealthCheckPaths {
 		if urlPath == r.URL.Path {
 			glg.Info("Authorization checking skipped on: " + r.URL.Path)
 			r.TLS = nil

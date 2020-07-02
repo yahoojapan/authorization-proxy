@@ -139,10 +139,10 @@ type Proxy struct {
 	// BufferSize represents the reverse proxy buffer size.
 	BufferSize uint64 `yaml:"bufferSize"`
 
-	// BypassURLPaths represents URL paths that require to bypass authorization.
+	// OriginHealthCheckPaths represents health check paths of your origin application.
 	// WARNING!!! Setting this configuration may introduce security hole in your system. ONLY set this configuration as the application's health check endpoint.
 	// Tips for performance: define your health check endpoint with a different length from the most frequently used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
-	BypassURLPaths []string `yaml:"bypassUrlPaths"`
+	OriginHealthCheckPaths []string `yaml:"originHealthCheckPaths"`
 }
 
 // Authorization represents the detail authorization configuration.
