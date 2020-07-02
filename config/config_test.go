@@ -158,15 +158,13 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.beforeFunc != nil {
-				err := tt.beforeFunc()
-				if err != nil {
+				if err := tt.beforeFunc(); err != nil {
 					t.Error(err)
 				}
 			}
 			if tt.afterFunc != nil {
 				defer func() {
-					err := tt.afterFunc()
-					if err != nil {
+					if err := tt.afterFunc(); err != nil {
 						t.Error(err)
 					}
 				}()
@@ -251,15 +249,13 @@ func TestGetActualValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.beforeFunc != nil {
-				err := tt.beforeFunc()
-				if err != nil {
+				if err := tt.beforeFunc(); err != nil {
 					t.Error(err)
 				}
 			}
 			if tt.afterFunc != nil {
 				defer func() {
-					err := tt.afterFunc()
-					if err != nil {
+					if err := tt.afterFunc(); err != nil {
 						t.Error(err)
 					}
 				}()
