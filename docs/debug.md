@@ -25,7 +25,7 @@ server:
 ...
 ```
 
-The example configuration file is [here](../config/test/data/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../test/data/example_config.yaml). For more information, please refer to [config.go](../config/config.go).
 
 ### Example:
 
@@ -85,4 +85,4 @@ server:
 ...
 ```
 
-The example configuration file is [here](../config/test/data/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../test/data/example_config.yaml). For more information, please refer to [config.go](../config/config.go).
