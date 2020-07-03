@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
 )
 
 func TestNewServer(t *testing.T) {
