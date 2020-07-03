@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func Test_transport_RoundTrip(t *testing.T) {
@@ -35,9 +35,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 						return errors.New("dummy error")
 					},
 				},
-				cfg: config.Proxy{
-					RoleHeader: "",
-				},
+				cfg: config.Proxy{},
 			},
 			args: args{
 				r: func() *http.Request {
@@ -62,9 +60,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 						return nil
 					},
 				},
-				cfg: config.Proxy{
-					RoleHeader: "",
-				},
+				cfg: config.Proxy{},
 			},
 			args: args{
 				r: func() *http.Request {
@@ -93,8 +89,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					RoleHeader:     "",
-					BypassURLPaths: []string{},
+					OriginHealthCheckPaths: []string{},
 				},
 			},
 			args: args{
@@ -109,7 +104,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "BypassURLPaths match, bypass role token verification",
+			name: "OriginHealthCheckPaths match, bypass role token verification",
 			fields: fields{
 				RoundTripper: &RoundTripperMock{
 					RoundTripFunc: func(req *http.Request) (*http.Response, error) {
@@ -124,7 +119,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					BypassURLPaths: []string{
+					OriginHealthCheckPaths: []string{
 						"/healthz",
 					},
 				},
@@ -141,7 +136,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "BypassURLPaths ANY match, bypass role token verification",
+			name: "OriginHealthCheckPaths ANY match, bypass role token verification",
 			fields: fields{
 				RoundTripper: &RoundTripperMock{
 					RoundTripFunc: func(req *http.Request) (*http.Response, error) {
@@ -156,7 +151,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					BypassURLPaths: []string{
+					OriginHealthCheckPaths: []string{
 						"/healthz",
 						"/healthz/",
 					},
@@ -174,7 +169,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "BypassURLPaths NONE match, verify role token",
+			name: "OriginHealthCheckPaths NONE match, verify role token",
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
@@ -183,7 +178,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				cfg: config.Proxy{
-					BypassURLPaths: []string{
+					OriginHealthCheckPaths: []string{
 						"/healthz",
 					},
 				},
@@ -197,7 +192,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "BypassURLPaths NOT set, verify role token",
+			name: "OriginHealthCheckPaths NOT set, verify role token",
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{

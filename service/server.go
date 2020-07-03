@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/kpango/glg"
-	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
 )
 
 // Server represents a authorization proxy server behavior
@@ -51,11 +51,11 @@ type server struct {
 
 	cfg config.Server
 
-	// ProbeWaitTime
-	pwt time.Duration
+	// ShutdownDelay
+	sdd time.Duration
 
-	// ShutdownDuration
-	sddur time.Duration
+	// ShutdownTimeout
+	sdt time.Duration
 
 	// mutext lock variable
 	mu sync.RWMutex
@@ -81,7 +81,7 @@ var (
 // The authorization proxy server is a http.Server instance, which the port number is read from "config.Server.Port"
 // , and set the handler as this function argument "handler".
 //
-// The health check server is a http.Server instance, which the port number is read from "config.Server.HealthzPort"
+// The health check server is a http.Server instance, which the port number is read from "config.Server.HealthCheck.Port"
 // , and the handler is as follow - Handle HTTP GET request and always return HTTP Status OK (200) response.
 func NewServer(opts ...Option) Server {
 	var err error
@@ -97,28 +97,28 @@ func NewServer(opts ...Option) Server {
 	}
 	s.srv.SetKeepAlivesEnabled(true)
 
-	if s.healthzSrvEnable() {
+	if s.hcSrvEnable() {
 		s.hcsrv = &http.Server{
-			Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
-			Handler: createHealthCheckServiceMux(s.cfg.HealthzPath),
+			Addr:    fmt.Sprintf(":%d", s.cfg.HealthCheck.Port),
+			Handler: createHealthCheckServiceMux(s.cfg.HealthCheck.Endpoint),
 		}
 		s.hcsrv.SetKeepAlivesEnabled(true)
 	}
 
 	if s.debugSrvEnable() {
 		s.dsrv = &http.Server{
-			Addr:    fmt.Sprintf(":%d", s.cfg.DebugServer.Port),
+			Addr:    fmt.Sprintf(":%d", s.cfg.Debug.Port),
 			Handler: s.dsHandler,
 		}
 		s.dsrv.SetKeepAlivesEnabled(true)
 	}
 
-	s.sddur, err = time.ParseDuration(s.cfg.ShutdownDuration)
+	s.sdt, err = time.ParseDuration(s.cfg.ShutdownTimeout)
 	if err != nil {
 		glg.Warn(err)
 	}
 
-	s.pwt, err = time.ParseDuration(s.cfg.ProbeWaitTime)
+	s.sdd, err = time.ParseDuration(s.cfg.ShutdownDelay)
 	if err != nil {
 		glg.Warn(err)
 	}
@@ -128,7 +128,7 @@ func NewServer(opts ...Option) Server {
 
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
 // This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
-// Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ProbeWaitTime), while the health check server will shutdown immediately
+// Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ShutdownDelay), while the health check server will shutdown immediately
 func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	var (
 		echan = make(chan []error, 1)
@@ -158,7 +158,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.mu.Unlock()
 	}()
 
-	if s.healthzSrvEnable() {
+	if s.hcSrvEnable() {
 		wg.Add(1)
 		hech = make(chan error, 1)
 
@@ -224,7 +224,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			}
 			if s.dRunning {
 				glg.Info("authorization proxy debug server will shutdown...")
-				errs = appendErr(errs, s.dShutdown(context.Background()))
+				appendErr(errs, s.dShutdown(context.Background()))
 			}
 			glg.Info("authorization proxy has already shutdown gracefully")
 		}
@@ -280,22 +280,22 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 }
 
 func (s *server) hcShutdown(ctx context.Context) error {
-	hctx, hcancel := context.WithTimeout(ctx, s.sddur)
+	hctx, hcancel := context.WithTimeout(ctx, s.sdt)
 	defer hcancel()
 	return s.hcsrv.Shutdown(hctx)
 }
 
 func (s *server) dShutdown(ctx context.Context) error {
-	dctx, dcancel := context.WithTimeout(ctx, s.sddur)
+	dctx, dcancel := context.WithTimeout(ctx, s.sdt)
 	defer dcancel()
 	return s.dsrv.Shutdown(dctx)
 }
 
 // apiShutdown returns any error when shutdown the authorization proxy server.
-// Before shutdown the authorization proxy server, it will sleep config.ProbeWaitTime to prevent any issue from K8s
+// Before shutdown the authorization proxy server, it will sleep config.ShutdownDelay to prevent any issue from K8s
 func (s *server) apiShutdown(ctx context.Context) error {
-	time.Sleep(s.pwt)
-	sctx, scancel := context.WithTimeout(ctx, s.sddur)
+	time.Sleep(s.sdd)
+	sctx, scancel := context.WithTimeout(ctx, s.sdt)
 	defer scancel()
 	return s.srv.Shutdown(sctx)
 }
@@ -322,7 +322,7 @@ func handleHealthCheckRequest(w http.ResponseWriter, r *http.Request) {
 
 // listenAndServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
 func (s *server) listenAndServeAPI() error {
-	if !s.cfg.TLS.Enabled {
+	if !s.cfg.TLS.Enable {
 		return s.srv.ListenAndServe()
 	}
 
@@ -336,10 +336,10 @@ func (s *server) listenAndServeAPI() error {
 	return s.srv.ListenAndServeTLS("", "")
 }
 
-func (s *server) healthzSrvEnable() bool {
-	return s.cfg.HealthzPort > 0
+func (s *server) hcSrvEnable() bool {
+	return s.cfg.HealthCheck.Port > 0
 }
 
 func (s *server) debugSrvEnable() bool {
-	return s.cfg.DebugServer.Enable
+	return s.cfg.Debug.Enable
 }

@@ -18,18 +18,21 @@ package usecase
 
 import (
 	"context"
+	"crypto/tls"
+	"net/http"
+	"time"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/handler"
-	"github.com/yahoojapan/authorization-proxy/v2/infra"
-	"github.com/yahoojapan/authorization-proxy/v2/router"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/handler"
+	"github.com/yahoojapan/authorization-proxy/v3/infra"
+	"github.com/yahoojapan/authorization-proxy/v3/router"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v3"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
 )
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
@@ -130,7 +133,7 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 		/*
 			Read on emap is safe here, if and only if:
 			1. emap is not used in the parenet goroutine
-			2. the writer goroutine returns only if all erros are written, i.e. pch is closed
+			2. the writer goroutine returns only if all errors are written, i.e. pch is closed
 			3. this goroutine should wait for the writer goroutine to end, i.e. eg.Wait()
 		*/
 		// aggregate all errors as array
@@ -147,28 +150,51 @@ func (g *authzProxyDaemon) Start(ctx context.Context) <-chan []error {
 }
 
 func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
+	client := http.DefaultClient
+	if cfg.Athenz.Timeout != "" {
+		t, err := time.ParseDuration(cfg.Athenz.Timeout)
+		if err != nil {
+			return nil, errors.Wrap(err, "newAuthzD(): Athenz.Timeout")
+		}
+		client.Timeout = t
+	}
+	if cfg.Athenz.CAPath != "" {
+		cp, err := service.NewX509CertPool(cfg.Athenz.CAPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "newAuthzD(): Athenz.CAPath")
+		}
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: cp,
+			},
+		}
+	}
+
 	authzCfg := cfg.Authorization
 	sharedOpts := []authorizerd.Option{
 		authorizerd.WithAthenzURL(cfg.Athenz.URL),
+		authorizerd.WithHTTPClient(client),
 	}
 	pubkeyOpts := []authorizerd.Option{
-		authorizerd.WithPubkeyRefreshDuration(authzCfg.PubKeyRefreshDuration),
-		authorizerd.WithPubkeySysAuthDomain(authzCfg.PubKeySysAuthDomain),
-		authorizerd.WithPubkeyEtagExpTime(authzCfg.PubKeyEtagExpTime),
-		authorizerd.WithPubkeyEtagFlushDuration(authzCfg.PubKeyEtagFlushDur),
-		authorizerd.WithPubkeyErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+		authorizerd.WithPubkeySysAuthDomain(authzCfg.PublicKey.SysAuthDomain),
+		authorizerd.WithPubkeyRefreshPeriod(authzCfg.PublicKey.RefreshPeriod),
+		authorizerd.WithPubkeyETagExpiry(authzCfg.PublicKey.ETagExpiry),
+		authorizerd.WithPubkeyETagPurgePeriod(authzCfg.PublicKey.ETagPurgePeriod),
+		authorizerd.WithPubkeyRetryDelay(authzCfg.PublicKey.RetryDelay),
 	}
 	policyOpts := []authorizerd.Option{
 		authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
-		authorizerd.WithPolicyExpireMargin(authzCfg.PolicyExpireMargin),
-		authorizerd.WithPolicyRefreshDuration(authzCfg.PolicyRefreshDuration),
-		authorizerd.WithPolicyErrRetryInterval(authzCfg.PolicyErrRetryInterval),
+		authorizerd.WithPolicyExpiryMargin(authzCfg.Policy.ExpiryMargin),
+		authorizerd.WithPolicyRefreshPeriod(authzCfg.Policy.RefreshPeriod),
+		authorizerd.WithPolicyPurgePeriod(authzCfg.Policy.PurgePeriod),
+		authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
+		authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
 	}
 	var rtOpts []authorizerd.Option
-	if authzCfg.Role.Enable {
+	if authzCfg.RoleToken.Enable {
 		rtOpts = []authorizerd.Option{
 			authorizerd.WithEnableRoleToken(),
-			authorizerd.WithRTHeader(cfg.Proxy.RoleHeader),
+			authorizerd.WithRoleAuthHeader(cfg.Authorization.RoleToken.RoleAuthHeader),
 		}
 	} else {
 		rtOpts = []authorizerd.Option{
@@ -181,24 +207,24 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 
 	var atOpts []authorizerd.Option
 	var jwkOpts []authorizerd.Option
-	if authzCfg.Access.Enable {
+	if authzCfg.AccessToken.Enable {
 		atOpts = []authorizerd.Option{
 			authorizerd.WithAccessTokenParam(
 				authorizerd.NewAccessTokenParam(
-					authzCfg.Access.Enable,
-					authzCfg.Access.VerifyCertThumbprint,
-					authzCfg.Access.CertBackdateDur,
-					authzCfg.Access.CertOffsetDur,
-					authzCfg.Access.VerifyClientID,
-					authzCfg.Access.AuthorizedClientIDs,
+					authzCfg.AccessToken.Enable,
+					authzCfg.AccessToken.VerifyCertThumbprint,
+					authzCfg.AccessToken.CertBackdateDuration,
+					authzCfg.AccessToken.CertOffsetDuration,
+					authzCfg.AccessToken.VerifyClientID,
+					authzCfg.AccessToken.AuthorizedClientIDs,
 				),
 			),
 		}
 		jwkOpts = []authorizerd.Option{
 			authorizerd.WithEnableJwkd(),
 			// use value in config.go in later version
-			authorizerd.WithJwkRefreshDuration(authzCfg.PubKeyRefreshDuration),
-			authorizerd.WithJwkErrRetryInterval(authzCfg.PubKeyErrRetryInterval),
+			authorizerd.WithJwkRefreshPeriod(authzCfg.JWK.RefreshPeriod),
+			authorizerd.WithJwkRetryDelay(authzCfg.JWK.RetryDelay),
 		}
 	} else {
 		atOpts = []authorizerd.Option{

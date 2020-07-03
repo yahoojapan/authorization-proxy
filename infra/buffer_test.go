@@ -31,7 +31,7 @@ func TestNewBuffer(t *testing.T) {
 		checkFunc func(got, want *buffer) error
 	}
 	tests := []testcase{
-		testcase{
+		{
 			name: "Check newBuffer, with 0 size",
 			args: args{
 				size: 0,
@@ -44,7 +44,7 @@ func TestNewBuffer(t *testing.T) {
 				return nil
 			},
 		},
-		testcase{
+		{
 			name: "Check newBuffer, positive size",
 			args: args{
 				size: 37,
@@ -90,13 +90,12 @@ func Test_buffer_Get(t *testing.T) {
 		size *uint64
 	}
 	type testcase struct {
-		name      string
-		fields    fields
-		want      []byte
-		checkFunc func(got, want *buffer) error
+		name   string
+		fields fields
+		want   []byte
 	}
 	tests := []testcase{
-		testcase{
+		{
 			name: "Check buffer Get, get from internal pool",
 			fields: fields{
 				pool: sync.Pool{
@@ -141,14 +140,14 @@ func Test_buffer_Put(t *testing.T) {
 		checkFunc func(got *buffer) error
 	}
 	tests := []testcase{
-		testcase{
+		{
 			name: "Check buffer Put, with 0 size",
 			fields: fields{
 				pool: sync.Pool{New: func() interface{} { return make([]byte, 0, 134) }},
 				size: func(i uint64) *uint64 { return &i }(135),
 			},
 			args: args{
-				buf: make([]byte, 0, 0),
+				buf: make([]byte, 0),
 			},
 			checkFunc: func(got *buffer) error {
 				wantSize := uint64(135)
@@ -173,14 +172,14 @@ func Test_buffer_Put(t *testing.T) {
 				return nil
 			},
 		},
-		testcase{
+		{
 			name: "Check buffer Put, with buffer len and cap > current size",
 			fields: fields{
 				pool: sync.Pool{New: func() interface{} { return make([]byte, 0, 165) }},
 				size: func(i uint64) *uint64 { return &i }(166),
 			},
 			args: args{
-				buf: make([]byte, 169, 169),
+				buf: make([]byte, 169),
 			},
 			checkFunc: func(got *buffer) error {
 				wantSize := uint64(169)
@@ -236,7 +235,7 @@ func Test_max(t *testing.T) {
 		want uint64
 	}
 	tests := []testcase{
-		testcase{
+		{
 			name: "Check max, x < y",
 			args: args{
 				x: uint64(227),
@@ -244,14 +243,14 @@ func Test_max(t *testing.T) {
 			},
 			want: uint64(228),
 		},
-		testcase{
+		{
 			name: "Check max, x == y",
 			args: args{
 				x: uint64(235), y: uint64(235),
 			},
 			want: uint64(235),
 		},
-		testcase{
+		{
 			name: "Check max, x > y",
 			args: args{
 				y: uint64(242),

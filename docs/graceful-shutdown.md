@@ -2,7 +2,7 @@
 # Graceful shutdown
 
 The sidecar server supports graceful shutdown.
-To enable it, set `shutdown_duration` and `probe_wait_time` to value > 0 in the `config.yaml`.
+To enable it, set `shutdownTimeout` and `shutdownDelay` to value > 0 in the `config.yaml`.
 
 <!-- TOC -->
 
@@ -45,15 +45,16 @@ To enable it, set `shutdown_duration` and `probe_wait_time` to value > 0 in the 
                 periodSeconds: 3
     ```
 1. make sure the `config.yaml` has the correct value
-    - `probe_wait_time = failureThreshold * periodSeconds + timeoutSeconds` (add 1s for buffer)
-    - `0 < shutdown_duration < terminationGracePeriodSeconds - probe_wait_time`
+    - `shutdownDelay = failureThreshold * periodSeconds + timeoutSeconds` (add 1s for buffer)
+    - `0 < shutdownTimeout < terminationGracePeriodSeconds - shutdownDelay`
     - sample
     ```yaml
-    version: "v1.0.0"
+    version: "v2.0.0"
     server:
-        health_check_port: 8081
-        health_check_path: /healthz
-        shutdown_duration: 10s
-        probe_wait_time: 9s
+        shutdownTimeout: 10s
+        shutdownDelay: 9s
+        healthCheck:
+            port: 8081
+            endpoint: "/healthz"
     ```
-1. make sure your application can still handle new requests after shutdown for `probe_wait_time` seconds
+1. make sure your application can still handle new requests after shutdown for `shutdownDelay` seconds

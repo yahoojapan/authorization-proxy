@@ -1,0 +1,69 @@
+---
+version: v2.0.0
+server:
+  port: 8082
+  timeout: 10s
+  shutdownTimeout: 10s
+  shutdownDelay: 9s
+  tls:
+    enable: true
+    certPath: "test/data/dummyServer.crt"
+    keyPath: "test/data/dummyServer.key"
+    caPath: "test/data/dummyCa.pem"
+  healthCheck:
+    port: 6082
+    endpoint: /healthz
+  debug:
+    enable: false
+    port: 6083
+    dump: true
+    profiling: true
+athenz:
+  url: https://athenz.io:4443/zts/v1
+  timeout: 30s
+  caPath: _athenz_root_ca_
+  # caPath: /etc/ssl/cert.pem
+proxy:
+  scheme: http
+  host: localhost
+  port: 80
+  bufferSize: 4096
+  originHealthCheckPaths: []
+authorization:
+  athenzDomains:
+  - provider-domain1
+  - provider-domain2
+  publicKey:
+    sysAuthDomain: sys.auth
+    refreshPeriod: 24h
+    retryDelay: ""
+    eTagExpiry: 168h
+    eTagPurgePeriod: 84h
+  policy:
+    expiryMargin: 48h
+    refreshPeriod: 1h
+    purgePeriod: 24h
+    retryDelay: ""
+    retryAttempts: 0
+  jwk:
+    refreshPeriod: ""
+    retryDelay: ""
+  accessToken:
+    enable: true
+    verifyCertThumbprint: true
+    verifyClientID: true
+    authorizedClientIDs:
+      common_name1:
+        - client_id1
+        - client_id2
+      common_name2:
+        - client_id1
+        - client_id2
+    certBackdateDuration: 1h
+    certOffsetDuration: 1h
+  roleToken:
+    enable: true
+    roleAuthHeader: Athenz-Role-Auth
+log:
+  level: debug
+  color: true

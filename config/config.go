@@ -25,195 +25,229 @@ import (
 )
 
 const (
-	// currentVersion represents the configuration version.
-	currentVersion = "v1.0.0"
+	// currentVersion represents the current configuration version.
+	currentVersion = "v2.0.0"
 )
 
-// Config represents an application configuration content (config.yaml).
-// In K8s environment, this configuration is stored in K8s ConfigMap.
+// Config represents the configuration (config.yaml) of authorization proxy.
 type Config struct {
-	// Version represents configuration file version.
+	// Version represents the configuration file version.
 	Version string `yaml:"version"`
 
-	// Debug represents to print debug message or not.
-	Debug bool `yaml:"debug"`
-
-	// EnableColorLogging represents if user want to enable colorized logging.
-	EnableColorLogging bool `yaml:"enable_log_color"`
-
-	// Server represents the authorization proxy and health check server configuration.
+	// Server represents the authorization proxy and the health check server configuration.
 	Server Server `yaml:"server"`
 
-	// Athenz represents Athenz Data for authorization proxy to connect to Athenz server.
+	// Athenz represents the Athenz server connection configuration.
 	Athenz Athenz `yaml:"athenz"`
 
-	// Proxy represents the proxy destination of the authorization proxy.
+	// Proxy represents the proxy destination configuration.
 	Proxy Proxy `yaml:"proxy"`
 
-	// Authorization represents the detail configuration of the authorization proxy.
-	Authorization Authorization `yaml:"provider"`
+	// Authorization represents the detail authorization configuration.
+	Authorization Authorization `yaml:"authorization"`
+
+	// Log represents the logger configuration.
+	Log Log `yaml:"log"`
 }
 
-// Server represents authorization proxy server and health check server configuration.
+// Server represents the authorization proxy and the health check server configuration.
 type Server struct {
-	// Port represents the server port.
+	// Port represents the server listening port.
 	Port int `yaml:"port"`
 
-	// HealthzPort represents health check server port.
-	HealthzPort int `yaml:"health_check_port"`
-
-	// HealthzPath represents the API path (pattern) for health check server.
-	HealthzPath string `yaml:"health_check_path"`
-
-	// Timeout represents the maximum authorization proxy server request handling duration.
+	// Timeout represents the maximum request handling duration.
 	Timeout string `yaml:"timeout"`
 
-	// ShutdownDuration represents the maximum shutdown duration.
-	ShutdownDuration string `yaml:"shutdown_duration"`
+	// ShutdownTimeout represents the duration before force shutdown.
+	ShutdownTimeout string `yaml:"shutdownTimeout"`
 
-	// ProbeWaitTime represents the pause duration before shutting down authorization proxy server after health check server shutdown.
-	ProbeWaitTime string `yaml:"probe_wait_time"`
+	// ShutdownDelay represents the delay duration between the health check server shutdown and the client sidecar server shutdown.
+	ShutdownDelay string `yaml:"shutdownDelay"`
 
-	// TLS represents the TLS configuration for authorization proxy server.
+	// TLS represents the TLS configuration of the authorization proxy.
 	TLS TLS `yaml:"tls"`
 
-	// DebugServer represent the debug server.
-	DebugServer DebugServer `yaml:"debug_server"`
+	// HealthCheck represents the health check server configuration.
+	HealthCheck HealthCheck `yaml:"healthCheck"`
+
+	// Debug represents the debug server configuration.
+	Debug Debug `yaml:"debug"`
 }
 
-// TLS represents the TLS configuration for authorization proxy server.
+// TLS represents the TLS configuration of the authorization proxy.
 type TLS struct {
-	// Enable represents the authorization proxy server enable TLS or not.
-	Enabled bool `yaml:"enabled"`
-
-	// Cert represents the certificate file path of authorization proxy server.
-	Cert string `yaml:"cert"`
-
-	// Key represents the private key file path of authorization proxy server certificate.
-	Key string `yaml:"key"`
-
-	// CA represents the CA certificates file path for verifying clients connecting to authorization proxy server.
-	CA string `yaml:"ca"`
-}
-
-// Athenz represents the configuration for authorization proxy server to connect to Athenz.
-type Athenz struct {
-	// URL represents the Athenz (ZMS and ZTS) URL handle authentication and authorization request.
-	URL string `yaml:"url"`
-
-	// Timeout represents the request timeout duration to Athenz server.
-	Timeout string `yaml:"timeout"`
-
-	// AthenzRootCA is the environment variable name having the Athenz root CA certificate file path for connecting to Athenz.
-	AthenzRootCA string `yaml:"root_ca"`
-}
-
-// Proxy represent the proxy destination of the authorization proxy.
-type Proxy struct {
-	// Scheme represent the HTTP URL scheme of the proxy destination, default is http.
-	Scheme string `yaml:"scheme"`
-
-	// Host represent the proxy destination host, for example localhost.
-	Host string `yaml:"host"`
-
-	// Port represent the proxy destination port number.
-	Port uint16 `yaml:"port"`
-
-	// RoleHeader represent the HTTP header key name of the role token for Role token proxy request.
-	RoleHeader string `yaml:"role_header_key"`
-
-	// BufferSize represent the reverse proxy buffer size.
-	BufferSize uint64 `yaml:"buffer_size"`
-
-	// BypassURLPaths represent URL paths that require authorization bypassing.
-	// WARNING!!! Setting this configuration may introduce security hole in your system. Do NOT set this configuration with URL paths other than application's healthcheck endpoint.
-	// Tips for performance: define your healthcheck endpoint with different lenght from the most frequestly used endpoint, e.g. `/most_used` (len: 10) with `/healthcheck` (len: 12), instead of `/healthccc` (len: 10)
-	BypassURLPaths []string `yaml:"bypass_url_paths"`
-}
-
-// Authorization represents the detail configuration of the authorization proxy.
-type Authorization struct {
-	// PubKeyRefreshDuration represents the refresh duration of Athenz PubKey.
-	PubKeyRefreshDuration string `yaml:"pubKeyRefreshDuration"`
-
-	// PubKeySysAuthDomain represents the system authentication domain of Athenz.
-	PubKeySysAuthDomain string `yaml:"pubKeySysAuthDomain"`
-
-	// PubKeyEtagExpTime represents the Etag cache expiration time of Athenz PubKey.
-	PubKeyEtagExpTime string `yaml:"pubKeyEtagExpTime"`
-
-	// PubKeyEtagFlushDur represent the Etag cache expiration check duration.
-	PubKeyEtagFlushDur string `yaml:"pubKeyEtagFlushDur"`
-
-	// PubKeyErrRetryInterval represent the retry interval when fail to get the pubkey from Athenz server.
-	PubKeyErrRetryInterval string `yaml:"pubKeyErrRetryInterval"`
-
-	// AthenzDomains represents the Athenz domains to fetch the policy.
-	AthenzDomains []string `yaml:"athenzDomains"`
-
-	// PolicyExpireMargin represents the policy expire margin to force refresh policies of Athenz domains.
-	PolicyExpireMargin string `yaml:"policyExpireMargin"`
-
-	// PolicyRefreshDuration represents the refresh duration of policy.
-	PolicyRefreshDuration string `yaml:"policyRefreshDuration"`
-
-	// PolicyEtagExpTime represents the Etag cache expiration time of policy.
-	PolicyEtagExpTime string `yaml:"policyEtagExpTime"`
-
-	// PolicyEtagFlushDur represent the Etag cache expiration check duration.
-	PolicyEtagFlushDur string `yaml:"policyEtagFlushDur"`
-
-	// PolicyErrRetryInterval represent the retry interval when fail to get the policies from Athenz server.
-	PolicyErrRetryInterval string `yaml:"policyErrRetryInterval"`
-
-	// Access represents the configuration to control access token verification.
-	Access Access `yaml:"access_token"`
-
-	// Role represents the configuration to control role token verification.
-	Role Role `yaml:"roletoken"`
-}
-
-// Access represents the access token configuration.
-type Access struct {
-	// Enable decides whether to verify access token.
+	// Enable represents whether to enable TLS.
 	Enable bool `yaml:"enable"`
 
-	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
-	VerifyCertThumbprint bool `yaml:"verify_cert_thumbprint"`
+	// CertPath represents the server certificate file path.
+	CertPath string `yaml:"certPath"`
 
-	// VerifyClientID represents whether to enforce certificate common name and client_id verification.
-	VerifyClientID bool `yaml:"verify_client_id"`
+	// KeyPath represents the private key file path of the server certificate.
+	KeyPath string `yaml:"keyPath"`
 
-	// AuthorizedClientIDs represents list of allowed client_id and common name.
-	AuthorizedClientIDs map[string][]string `yaml:"authorized_client_ids"`
-
-	// CertBackdateDur represents the certificate issue time backdating duration. (for usecase: new cert + old token)
-	CertBackdateDur string `yaml:"cert_backdate_dur"`
-
-	// CertOffsetDur represents the certificate issue time offset duration when comparing with the issue time of the access token. (for usecase: new cert + old token)
-	CertOffsetDur string `yaml:"cert_offset_dur"`
+	// CAPath represents the CA certificate chain file path for verifying client certificates.
+	CAPath string `yaml:"caPath"`
 }
 
-// Role represents the role token configuration.
-type Role struct {
-	// Enable decides whether to verify role token.
-	// Now, even if false, role token feature is forced to be enabled.
-	Enable bool `yaml:"enable"`
+// HealthCheck represents the health check server configuration.
+type HealthCheck struct {
+	// Port represents the server listening port.
+	Port int `yaml:"port"`
+
+	// Endpoint represents the health check endpoint (pattern).
+	Endpoint string `yaml:"endpoint"`
 }
 
-// DebugServer represents the server for debug use.
-type DebugServer struct {
+// Debug represents the debug server configuration.
+type Debug struct {
 	// Enable represents if user want to enable debug server functionality.
 	Enable bool `yaml:"enable"`
 
 	// Port represents debug server port.
 	Port int `yaml:"port"`
 
-	// EnableDump represents if user want to enable memory dump functionality.
-	EnableDump bool `yaml:"enable_dump"`
+	// Dump represents whether to enable memory dump functionality.
+	Dump bool `yaml:"dump"`
 
-	// EnableProfiling represents if user want to enable profiling functionality.
-	EnableProfiling bool `yaml:"enable_profiling"`
+	// Profiling represents whether to enable profiling functionality.
+	Profiling bool `yaml:"profiling"`
+}
+
+// Athenz represents the Athenz server connection configuration.
+type Athenz struct {
+	// URL represents the Athenz (ZMS or ZTS) API URL.
+	URL string `yaml:"url"`
+
+	// Timeout represents the request timeout duration to Athenz server.
+	Timeout string `yaml:"timeout"`
+
+	// CAPath represents the CA certificate chain file path for verifying Athenz server certificate.
+	CAPath string `yaml:"caPath"`
+}
+
+// Proxy represents the proxy destination configuration.
+type Proxy struct {
+	// Scheme represents the HTTP URL scheme of the proxy destination, default is http.
+	Scheme string `yaml:"scheme"`
+
+	// Host represents the proxy destination host, for example, localhost.
+	Host string `yaml:"host"`
+
+	// Port represents the proxy destination port number.
+	Port uint16 `yaml:"port"`
+
+	// BufferSize represents the reverse proxy buffer size.
+	BufferSize uint64 `yaml:"bufferSize"`
+
+	// OriginHealthCheckPaths represents health check paths of your origin application.
+	// WARNING!!! Setting this configuration may introduce security hole in your system. ONLY set this configuration as the application's health check endpoint.
+	// Tips for performance: define your health check endpoint with a different length from the most frequently used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
+	OriginHealthCheckPaths []string `yaml:"originHealthCheckPaths"`
+}
+
+// Authorization represents the detail authorization configuration.
+type Authorization struct {
+	// AthenzDomains represents Athenz domains containing the RBAC policies.
+	AthenzDomains []string `yaml:"athenzDomains"`
+
+	// PublicKey represents the configuration to fetch Athenz public keys.
+	PublicKey PublicKey `yaml:"publicKey"`
+
+	// Policy represents the configuration to fetch Athenz policies.
+	Policy Policy `yaml:"policy"`
+
+	// JWK represents the configuration to fetch Athenz JWK.
+	JWK JWK `yaml:"jwk"`
+
+	// AccessToken represents the configuration to control access token verification.
+	AccessToken AccessToken `yaml:"accessToken"`
+
+	// RoleToken represents the configuration to control role token verification.
+	RoleToken RoleToken `yaml:"roleToken"`
+}
+
+// PublicKey represents the configuration to fetch Athenz public keys.
+type PublicKey struct {
+	// SysAuthDomain represents the system authentication domain of Athenz.
+	SysAuthDomain string `yaml:"sysAuthDomain"`
+
+	// RefreshPeriod represents the duration of the refresh period.
+	RefreshPeriod string `yaml:"refreshPeriod"`
+
+	// RetryDelay represents the duration between each retry.
+	RetryDelay string `yaml:"retryDelay"`
+
+	// ETagExpiry represents the duration before Etag expires.
+	ETagExpiry string `yaml:"eTagExpiry"`
+
+	// ETagPurgePeriod represents the duration of purging expired items in the ETag cache.
+	ETagPurgePeriod string `yaml:"eTagPurgePeriod"`
+}
+
+// Policy represents the configuration to fetch Athenz policies.
+type Policy struct {
+	// ExpiryMargin represents the policy expiry margin to force refresh policies beforehand.
+	ExpiryMargin string `yaml:"expiryMargin"`
+
+	// RefreshPeriod represents the duration of the refresh period.
+	RefreshPeriod string `yaml:"refreshPeriod"`
+
+	// PurgePeriod represents the duration of purging expired items in the cache.
+	PurgePeriod string `yaml:"purgePeriod"`
+
+	// RetryDelay represents the duration between each retry.
+	RetryDelay string `yaml:"retryDelay"`
+
+	// RetryAttempts represents number of attempts to retry.
+	RetryAttempts int `yaml:"retryAttempts"`
+}
+
+// JWK represents the configuration to fetch Athenz JWK.
+type JWK struct {
+	// RefreshPeriod represents the duration of the refresh period.
+	RefreshPeriod string `yaml:"refreshPeriod"`
+
+	// RetryDelay represents the duration between each retry.
+	RetryDelay string `yaml:"retryDelay"`
+}
+
+// AccessToken represents the configuration to control access token verification.
+type AccessToken struct {
+	// Enable decides whether to verify access token.
+	Enable bool `yaml:"enable"`
+
+	// VerifyCertThumbprint represents whether to enforce certificate thumbprint verification.
+	VerifyCertThumbprint bool `yaml:"verifyCertThumbprint"`
+
+	// VerifyClientID represents whether to enforce certificate common name and client_id verification.
+	VerifyClientID bool `yaml:"verifyClientID"`
+
+	// AuthorizedClientIDs represents list of allowed client_id and common name.
+	AuthorizedClientIDs map[string][]string `yaml:"authorizedClientIDs"`
+
+	// CertBackdateDuration represents the certificate issue time backdating duration. (for usecase: new cert + old token)
+	CertBackdateDuration string `yaml:"certBackdateDuration"`
+
+	// CertOffsetDuration represents the certificate issue time offset when comparing with the issue time of the access token. (for usecase: new cert + old token)
+	CertOffsetDuration string `yaml:"certOffsetDuration"`
+}
+
+// RoleToken represents the configuration to control role token verification.
+type RoleToken struct {
+	// Enable decides whether to verify role token.
+	Enable bool `yaml:"enable"`
+
+	// RoleAuthHeader represents the HTTP header for extracting the role token.
+	RoleAuthHeader string `yaml:"roleAuthHeader"`
+}
+
+// Log represents the logger configuration.
+type Log struct {
+	// Level represents the logger output level. Values: "debug", "info", "warn", "error", "fatal".
+	Level string `yaml:"level"`
+
+	// Color represents whether to print ANSI escape code.
+	Color bool `yaml:"color"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
@@ -227,15 +261,11 @@ func New(path string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "decode file failed")
 	}
-	// roletoken must be enabled by default.
-	// so, force enable here.
-	// if we default to access token, we will change it here.
-	cfg.Authorization.Role.Enable = true
 
 	return cfg, nil
 }
 
-// GetVersion returns the current configuration version of Authorization Proxy.
+// GetVersion returns the current configuration version of the authorization proxy.
 func GetVersion() string {
 	return currentVersion
 }

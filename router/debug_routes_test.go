@@ -8,13 +8,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func TestNewDebugRoutes(t *testing.T) {
 	type args struct {
-		cfg config.DebugServer
+		cfg config.Debug
 		a   service.Authorizationd
 	}
 	type test struct {
@@ -27,9 +27,9 @@ func TestNewDebugRoutes(t *testing.T) {
 		test{
 			name: "return all enable success",
 			args: args{
-				cfg: config.DebugServer{
-					EnableDump:      true,
-					EnableProfiling: true,
+				cfg: config.Debug{
+					Dump:      true,
+					Profiling: true,
 				},
 				a: nil,
 			},
@@ -137,9 +137,9 @@ func TestNewDebugRoutes(t *testing.T) {
 		test{
 			name: "return enable dump only success",
 			args: args{
-				cfg: config.DebugServer{
-					EnableDump:      true,
-					EnableProfiling: false,
+				cfg: config.Debug{
+					Dump:      true,
+					Profiling: false,
 				},
 				a: nil,
 			},
@@ -175,9 +175,9 @@ func TestNewDebugRoutes(t *testing.T) {
 		test{
 			name: "return enable profiling success",
 			args: args{
-				cfg: config.DebugServer{
-					EnableDump:      false,
-					EnableProfiling: true,
+				cfg: config.Debug{
+					Dump:      false,
+					Profiling: true,
 				},
 				a: nil,
 			},
@@ -277,9 +277,9 @@ func TestNewDebugRoutes(t *testing.T) {
 		test{
 			name: "disable all and return success",
 			args: args{
-				cfg: config.DebugServer{
-					EnableDump:      false,
-					EnableProfiling: false,
+				cfg: config.Debug{
+					Dump:      false,
+					Profiling: false,
 				},
 				a: nil,
 			},

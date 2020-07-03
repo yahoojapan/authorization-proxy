@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 
 	"github.com/pkg/errors"
 )
@@ -32,21 +32,26 @@ func TestNew(t *testing.T) {
 					URL: "athenz.io",
 				},
 				Authorization: config.Authorization{
-					PubKeyRefreshDuration: "10s",
-					PubKeySysAuthDomain:   "dummy.sys.auth",
-					PubKeyEtagExpTime:     "10s",
-					PubKeyEtagFlushDur:    "10s",
-					AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
-					PolicyExpireMargin:    "10s",
-					PolicyRefreshDuration: "10s",
-					PolicyEtagExpTime:     "10s",
-					PolicyEtagFlushDur:    "10s",
-					Access: config.Access{
+					AthenzDomains: []string{"dummyDom1", "dummyDom2"},
+					PublicKey: config.PublicKey{
+						SysAuthDomain:   "dummy.sys.auth",
+						RefreshPeriod:   "10s",
+						ETagExpiry:      "10s",
+						ETagPurgePeriod: "10s",
+					},
+					Policy: config.Policy{
+						ExpiryMargin:  "10s",
+						RefreshPeriod: "10s",
+						PurgePeriod:   "10s",
+					},
+					AccessToken: config.AccessToken{
 						Enable: true,
 					},
 				},
 				Server: config.Server{
-					HealthzPath: "/dummy",
+					HealthCheck: config.HealthCheck{
+						Endpoint: "/dummy",
+					},
 				},
 				Proxy: config.Proxy{
 					BufferSize: 512,
@@ -79,7 +84,9 @@ func TestNew(t *testing.T) {
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "dummy",
+						PublicKey: config.PublicKey{
+							RefreshPeriod: "dummy",
+						},
 					},
 				},
 			},
@@ -187,11 +194,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -201,14 +205,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{ctx.Err()}
-									return
-								}
+								ech <- []error{ctx.Err()}
 							}()
 							return ech
 						},
@@ -229,13 +230,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -266,11 +265,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -281,7 +277,6 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								ech <- []error{errors.WithMessage(dummyErr, "server fails")}
-								return
 							}()
 							return ech
 						},
@@ -301,13 +296,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -346,11 +339,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 								ech <- errors.WithMessage(dummyErr, "authorizer daemon fails")
 
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -360,14 +350,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{ctx.Err()}
-									return
-								}
+								ech <- []error{ctx.Err()}
 							}()
 							return ech
 						},
@@ -389,13 +376,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -426,11 +411,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -440,14 +422,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{}
-									return
-								}
+								ech <- []error{}
 							}()
 							return ech
 						},
@@ -468,13 +447,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -506,11 +483,8 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							go func() {
 								defer close(ech)
 								// return only if context cancel
-								select {
-								case <-ctx.Done():
-									ech <- ctx.Err()
-									return
-								}
+								<-ctx.Done()
+								ech <- ctx.Err()
 							}()
 							return ech
 						},
@@ -520,14 +494,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 							ech := make(chan []error)
 							go func() {
 								defer close(ech)
-								select {
-								case <-ctx.Done():
-									// simulate graceful shutdown
-									time.Sleep(1 * time.Millisecond)
+								<-ctx.Done()
+								// simulate graceful shutdown
+								time.Sleep(1 * time.Millisecond)
 
-									ech <- []error{dummyErr, ctx.Err()}
-									return
-								}
+								ech <- []error{dummyErr, ctx.Err()}
 							}()
 							return ech
 						},
@@ -548,13 +519,11 @@ func Test_authzProxyDaemon_Start(t *testing.T) {
 					mux.Lock()
 					go func() {
 						defer mux.Unlock()
-						select {
-						case err, ok := <-got:
-							if !ok {
-								return
-							}
-							gotErrs = append(gotErrs, err)
+						err, ok := <-got
+						if !ok {
+							return
 						}
+						gotErrs = append(gotErrs, err)
 					}()
 					time.Sleep(time.Second)
 
@@ -602,39 +571,68 @@ func Test_newAuthzD(t *testing.T) {
 		wantErrStr string
 	}{
 		{
-			name: "test new Authorization fail",
+			name: "test new Authorization fail, Athenz.Timeout",
 			args: args{
 				cfg: config.Config{
-					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "invalid_duration",
+					Athenz: config.Athenz{
+						Timeout: "invalid",
 					},
 				},
 			},
 			want:       false,
-			wantErrStr: "error create pubkeyd: invalid refresh duration: time: invalid duration invalid_duration",
+			wantErrStr: "newAuthzD(): Athenz.Timeout: time: invalid duration invalid",
+		},
+		{
+			name: "test new Authorization fail, Athenz.CAPath",
+			args: args{
+				cfg: config.Config{
+					Athenz: config.Athenz{
+						CAPath: "../test/data/non_existing_ca.pem",
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "newAuthzD(): Athenz.CAPath: x509.SystemCertPool(): open ../test/data/non_existing_ca.pem: no such file or directory",
+		},
+		{
+			name: "test new Authorization fail, authorizerd.New",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PublicKey: config.PublicKey{
+							RefreshPeriod: "invalid_period",
+						},
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "error create pubkeyd: invalid refresh period: time: invalid duration invalid_period",
 		},
 		{
 			name: "test success new Authorization",
 			args: args{
 				cfg: config.Config{
 					Athenz: config.Athenz{
-						URL: "athenz.io",
-					},
-					Proxy: config.Proxy{
-						RoleHeader: "Athenz-Role-Auth",
+						URL:     "athenz.io",
+						Timeout: "30s",
+						CAPath:  "../test/data/dummyCa.pem",
 					},
 					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "10s",
-						PubKeySysAuthDomain:   "dummy.sys.auth",
-						PubKeyEtagExpTime:     "10s",
-						PubKeyEtagFlushDur:    "10s",
-						AthenzDomains:         []string{"dummyDom1", "dummyDom2"},
-						PolicyExpireMargin:    "10s",
-						PolicyRefreshDuration: "10s",
-						PolicyEtagExpTime:     "10s",
-						PolicyEtagFlushDur:    "10s",
-						Role: config.Role{
-							Enable: true,
+						AthenzDomains: []string{"dummyDom1", "dummyDom2"},
+						PublicKey: config.PublicKey{
+							SysAuthDomain:   "dummy.sys.auth",
+							RefreshPeriod:   "10s",
+							ETagExpiry:      "10s",
+							ETagPurgePeriod: "10s",
+						},
+						Policy: config.Policy{
+							ExpiryMargin:  "10s",
+							RefreshPeriod: "10s",
+							PurgePeriod:   "10s",
+						},
+						RoleToken: config.RoleToken{
+							Enable:         true,
+							RoleAuthHeader: "Athenz-Role-Auth",
 						},
 					},
 				},
@@ -646,18 +644,21 @@ func Test_newAuthzD(t *testing.T) {
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "10s",
-						PubKeyEtagExpTime:     "10s",
-						PubKeyEtagFlushDur:    "10s",
-						PolicyExpireMargin:    "10s",
-						PolicyRefreshDuration: "10s",
-						PolicyEtagExpTime:     "10s",
-						PolicyEtagFlushDur:    "10s",
-						Access: config.Access{
+						PublicKey: config.PublicKey{
+							SysAuthDomain:   "10s",
+							ETagExpiry:      "10s",
+							ETagPurgePeriod: "10s",
+						},
+						Policy: config.Policy{
+							ExpiryMargin:  "10s",
+							RefreshPeriod: "10s",
+							PurgePeriod:   "10s",
+						},
+						AccessToken: config.AccessToken{
 							Enable:               true,
 							VerifyCertThumbprint: false,
-							CertBackdateDur:      "10s",
-							CertOffsetDur:        "10s",
+							CertBackdateDuration: "10s",
+							CertOffsetDuration:   "10s",
 						},
 					},
 				},
@@ -669,14 +670,17 @@ func Test_newAuthzD(t *testing.T) {
 			args: args{
 				cfg: config.Config{
 					Authorization: config.Authorization{
-						PubKeyRefreshDuration: "10s",
-						PubKeyEtagExpTime:     "10s",
-						PubKeyEtagFlushDur:    "10s",
-						PolicyExpireMargin:    "10s",
-						PolicyRefreshDuration: "10s",
-						PolicyEtagExpTime:     "10s",
-						PolicyEtagFlushDur:    "10s",
-						Access: config.Access{
+						PublicKey: config.PublicKey{
+							SysAuthDomain:   "10s",
+							ETagExpiry:      "10s",
+							ETagPurgePeriod: "10s",
+						},
+						Policy: config.Policy{
+							ExpiryMargin:  "10s",
+							RefreshPeriod: "10s",
+							PurgePeriod:   "10s",
+						},
+						AccessToken: config.AccessToken{
 							Enable:         true,
 							VerifyClientID: false,
 							AuthorizedClientIDs: map[string][]string{

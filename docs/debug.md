@@ -1,9 +1,21 @@
 # Features to Debug
 
-# Table of Contents
+<a id="markdown-table-of-contents" name="table-of-contents"></a>
+## Table of Contents
 
-1. [Get policy cache](#get-policy-cache)
+<!-- TOC depthFrom:2 -->
 
+- [Features to Debug](#features-to-debug)
+    - [Table of Contents](#table-of-contents)
+    - [Get policy cache](#get-policy-cache)
+        - [Configuration](#configuration)
+        - [Example:](#example)
+    - [Profiling](#profiling)
+        - [Configuration](#configuration-1)
+
+<!-- /TOC -->
+
+<a id="markdown-get-policy-cache" name="get-policy-cache"></a>
 ## Get policy cache
 
 - Only accepts HTTP `GET` request
@@ -11,22 +23,24 @@
 - Response body contains below information in JSON format.
 - It will expose the entire policy cache to the client.
 
+<a id="markdown-configuration" name="configuration"></a>
 ### Configuration
 
 Example configuration for debug policy cache interface:
 
 ```yaml
-version: v1.0.0
+version: v2.0.0
 server:
-  debug_server:
+  debug:
     enable: true
     port: 6083
-    enable_dump: true
+    dump: true
 ...
 ```
 
-The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../test/data/example_config.yaml). For more information, please refer to [config.go](../config/config.go).
 
+<a id="markdown-example" name="example"></a>
 ### Example:
 
 ```bash
@@ -65,24 +79,26 @@ Output:
 }
 ```
 
+<a id="markdown-profiling" name="profiling"></a>
 ## Profiling
 
 - Only accepts HTTP `GET` request
 - The endpoint is `/debug/pprof`
 - User can access this endpoint though web browser.
 
+<a id="markdown-configuration-1" name="configuration-1"></a>
 ### Configuration
 
 Example configuration for profiling interface:
 
 ```yaml
-version: v1.0.0
+version: v2.0.0
 server:
-  debug_server:
+  debug:
     enable: true
     port: 6083
-    enable_pprof: true
+    profiling: true
 ...
 ```
 
-The example configuration file is [here](../config/testdata/example_config.yaml). For more information, please refer to [config.go](./config/config.go).
+The example configuration file is [here](../test/data/example_config.yaml). For more information, please refer to [config.go](../config/config.go).

@@ -14,9 +14,9 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/infra"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/infra"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func TestNew(t *testing.T) {

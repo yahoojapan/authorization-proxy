@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 
 	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
 )
 
 // NewTLSConfig returns a *tls.Config struct or error.
@@ -68,9 +68,9 @@ func NewTLSConfig(cfg config.TLS) (*tls.Config, error) {
 		ClientAuth: tls.NoClientCert,
 	}
 
-	cert := config.GetActualValue(cfg.Cert)
-	key := config.GetActualValue(cfg.Key)
-	ca := config.GetActualValue(cfg.CA)
+	cert := config.GetActualValue(cfg.CertPath)
+	key := config.GetActualValue(cfg.KeyPath)
+	ca := config.GetActualValue(cfg.CAPath)
 
 	if cert != "" && key != "" {
 		crt, err := tls.LoadX509KeyPair(cert, key)
@@ -90,7 +90,6 @@ func NewTLSConfig(cfg config.TLS) (*tls.Config, error) {
 		t.ClientAuth = tls.RequireAndVerifyClientCert
 	}
 
-	t.BuildNameToCertificate()
 	return t, nil
 }
 

@@ -16,12 +16,12 @@ limitations under the License.
 
 package handler
 
-// RFC7807Error represent the error message fulfilling RFC7807 standard.
+// RFC7807Error represents the error message fulfilling RFC7807 standard.
 type RFC7807Error struct {
 	Type          string `json:"type"`
 	Title         string `json:"title"`
 	Status        int
-	InvalidParams []InvalidParam `json:"invalid-params,ommitempty"`
+	InvalidParams []InvalidParam `json:"invalid-params,omitempty"`
 	Detail        string         `json:"detail"`
 	Instance      string         `json:"instance"`
 	RoleToken     string         `json:"role_token"`
@@ -34,7 +34,7 @@ type InvalidParam struct {
 }
 
 const (
-	// ProblemJSONContentType represent the media type of the error response
+	// ProblemJSONContentType represents the media type of the error response
 	ProblemJSONContentType = "application/problem+json"
 
 	// HTTPStatusClientClosedRequest represents a non-standard status code meaning that the client closed the connection before the server answered the request

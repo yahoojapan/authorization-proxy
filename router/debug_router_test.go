@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/kpango/glg"
-	"github.com/yahoojapan/authorization-proxy/v2/config"
-	"github.com/yahoojapan/authorization-proxy/v2/handler"
-	"github.com/yahoojapan/authorization-proxy/v2/service"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/handler"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func TestNewDebugRouter(t *testing.T) {
@@ -52,8 +52,8 @@ func TestNewDebugRouter(t *testing.T) {
 			name: "new debug router success with routes",
 			args: args{
 				cfg: config.Server{
-					DebugServer: config.DebugServer{
-						EnableProfiling: true,
+					Debug: config.Debug{
+						Profiling: true,
 					},
 				},
 				a: nil,

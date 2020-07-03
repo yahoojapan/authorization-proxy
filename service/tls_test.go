@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/v2/config"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
 )
 
 func TestNewTLSConfig(t *testing.T) {
@@ -21,9 +21,9 @@ func TestNewTLSConfig(t *testing.T) {
 	}
 	defaultArgs := args{
 		cfg: config.TLS{
-			Cert: "./assets/dummyServer.crt",
-			Key:  "./assets/dummyServer.key",
-			CA:   "./assets/dummyCa.pem",
+			CertPath: "../test/data/dummyServer.crt",
+			KeyPath:  "../test/data/dummyServer.key",
+			CAPath:   "../test/data/dummyCa.pem",
 		},
 	}
 
@@ -187,7 +187,7 @@ func TestNewTLSConfig(t *testing.T) {
 			name: "cert file not found return value Certificates test.",
 			args: args{
 				cfg: config.TLS{
-					Cert: "",
+					CertPath: "",
 				},
 			},
 			want: &tls.Config{
@@ -213,7 +213,7 @@ func TestNewTLSConfig(t *testing.T) {
 			name: "cert file not found return value ClientAuth test.",
 			args: args{
 				cfg: config.TLS{
-					Cert: "",
+					CertPath: "",
 				},
 			},
 			want: &tls.Config{
@@ -239,8 +239,8 @@ func TestNewTLSConfig(t *testing.T) {
 			name: "CA file not found return value ClientAuth test.",
 			args: args{
 				cfg: config.TLS{
-					Cert: "",
-					CA:   "",
+					CertPath: "",
+					CAPath:   "",
 				},
 			},
 
@@ -322,11 +322,11 @@ func TestNewX509CertPool(t *testing.T) {
 		{
 			name: "Check Append CA is correct",
 			args: args{
-				path: "./assets/dummyCa.pem",
+				path: "../test/data/dummyCa.pem",
 			},
 			want: func() *x509.CertPool {
 				wantPool := x509.NewCertPool()
-				c, err := ioutil.ReadFile("./assets/dummyCa.pem")
+				c, err := ioutil.ReadFile("../test/data/dummyCa.pem")
 				if err != nil {
 					panic(err)
 				}
