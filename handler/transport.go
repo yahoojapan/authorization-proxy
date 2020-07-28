@@ -36,6 +36,8 @@ type transport struct {
 	cfg  config.Proxy
 }
 
+// Based on the following.
+// https://github.com/golang/oauth2/blob/master/transport.go
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for _, urlPath := range t.cfg.OriginHealthCheckPaths {
 		if urlPath == r.URL.Path {

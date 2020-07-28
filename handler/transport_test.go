@@ -2,6 +2,8 @@ package handler
 
 import (
 	"errors"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
+	"github.com/yahoojapan/athenz-authorizer/v4/role"
 	"net/http"
 	"reflect"
 	"testing"
@@ -31,8 +33,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("dummy error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("dummy error")
 					},
 				},
 				cfg: config.Proxy{},
@@ -56,8 +58,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return nil
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return &role.Token{}, nil
 					},
 				},
 				cfg: config.Proxy{},
@@ -84,8 +86,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return nil
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return &role.Token{}, nil
 					},
 				},
 				cfg: config.Proxy{
@@ -114,8 +116,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -146,8 +148,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -173,8 +175,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -196,8 +198,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{},
