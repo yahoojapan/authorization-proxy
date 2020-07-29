@@ -27,9 +27,9 @@ import (
 
 func TestNew(t *testing.T) {
 	rt := &role.Token{
-		Domain:        "domain",
-		Roles:         []string{"role1", "role2", "role3"},
-		Principal:     "principal",
+		Domain:        "rt_domain",
+		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
+		Principal:     "rt_principal",
 		IntTimeStamp:  1595908257,
 		ExpiryTime:    time.Now(),
 		IntExpiryTime: 1595908265,
@@ -38,10 +38,10 @@ func TestNew(t *testing.T) {
 		UnsignedToken: "",
 	}
 	bc := access.BaseClaim{jwt.StandardClaims{
-		Audience:  "domain",
-		ExpiresAt: 1595908265,
-		IssuedAt:  1595908257,
-		Subject:   "principal",
+		Audience:  "at_domain",
+		ExpiresAt: 1595908275,
+		IssuedAt:  1595908267,
+		Subject:   "at_principal",
 	}}
 	at := &access.OAuth2AccessTokenClaim{
 		AuthTime:       0,
@@ -49,7 +49,7 @@ func TestNew(t *testing.T) {
 		ClientID:       "client_id",
 		UserID:         "",
 		ProxyPrincipal: "",
-		Scope:          []string{"role1", "role2", "role3"},
+		Scope:          []string{"at_role1", "at_role2", "at_role3"},
 		Confirm:        nil,
 		BaseClaim:      bc,
 	}
@@ -145,6 +145,11 @@ func TestNew(t *testing.T) {
 						return err
 					}
 
+					key, want = "X-Athenz-Client-ID", "nil"
+					if _, ok := header[key]; ok {
+						return errors.Errorf("unexpected header %v, got: %v, want %v", key, header[key], want)
+					}
+
 					return nil
 				},
 			}
@@ -157,6 +162,7 @@ func TestNew(t *testing.T) {
 					"X-Athenz-Domain":     r.Header.Get("X-Athenz-Domain"),
 					"X-Athenz-Issued-At":  r.Header.Get("X-Athenz-Issued-At"),
 					"X-Athenz-Expires-At": r.Header.Get("X-Athenz-Expires-At"),
+					"X-Athenz-Client-ID":  r.Header.Get("X-Athenz-Client-ID"),
 				}
 
 				body, err1 := json.Marshal(header)
@@ -209,23 +215,27 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", rt.GetName()
+					key, want = "X-Athenz-Principal", at.GetName()
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Role", strings.Join(rt.GetRoles(), ",")
+					key, want = "X-Athenz-Role", strings.Join(at.GetRoles(), ",")
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", rt.GetDomain()
+					key, want = "X-Athenz-Domain", at.GetDomain()
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.GetIssueTime(), 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(at.GetIssueTime(), 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(rt.GetExpiryTime(), 10)
+					key, want = "X-Athenz-Expires-At", strconv.FormatInt(at.GetExpiryTime(), 10)
+					if err := f(key, want); err != nil {
+						return err
+					}
+					key, want = "X-Athenz-Client-ID", at.GetClientID()
 					if err := f(key, want); err != nil {
 						return err
 					}
