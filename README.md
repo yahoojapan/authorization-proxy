@@ -23,6 +23,7 @@
             - [Authorization success](#authorization-success)
             - [Authorization failed](#authorization-failed)
         - [Mapping rules](#mapping-rules)
+        - [HTTP request headers](#http-request-headers)
     - [Features to Debug](#features-to-debug)
     - [Configuration](#configuration)
     - [License](#license)
@@ -61,7 +62,7 @@ The [Athenz authorizer](https://github.com/yahoojapan/athenz-authorizer) periodi
 
 ![Auth success](./docs/assets/auth_proxy_use_case_auth_success.png)
 
-The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be forwarded to the server application.
+The authorization proxy will call the Athenz authorizer and check if the client can take an action to a specific URL endpoint. If the client is allowed to take an action the URL endpoint, the request will then be forwarded to the server application with authorization information.([HTTP request headers](#http-request-headers))
 
 #### Authorization failed
 
@@ -84,6 +85,19 @@ The mapping rules are described as below.
 | Resource        | HTTP/HTTPS request URL path, supports wildcard             | Resource         | /api/*             |
 
 ⚠️ All the HTTP/HTTPS methods and URI paths are normalized to lower case.
+
+### HTTP request headers
+
+When a request is authorized by the authorization proxy, The following HTTP headers is set in the request.
+
+| HTTP Header Name    | Description                                                              | Example           |
+|---------------------|--------------------------------------------------------------------------|-------------------|
+| X-Athenz-Principal  | Authorized principal                                                     | principal         |
+| X-Athenz-Role       | Authorized role(A comma-separated string if there is more than one)      | role1,role2,role3 |
+| X-Athenz-Domain     | Authorized domain                                                        | domain            |
+| X-Athenz-Client-ID  | Authorized client_id                                                     | client-id         |
+| X-Athenz-Issued-At  | The date and time the approved token was issued                          | 1596158946        |
+| X-Athenz-Expires-At | The date and time the approved token expires                             | 1596158953        |
 
 ## Features to Debug
 
