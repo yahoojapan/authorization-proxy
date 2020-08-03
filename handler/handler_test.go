@@ -25,17 +25,32 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
+type oAuthAccessToken struct {
+	principal
+	clientID string
+}
+
+func (c *oAuthAccessToken) ClientID() string {
+	return c.clientID
+}
+
 func TestNew(t *testing.T) {
 	rt := &role.Token{
 		Domain:        "rt_domain",
 		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
 		Principal:     "rt_principal",
 		IntTimeStamp:  1595908257,
-		ExpiryTime:    time.Now(),
-		IntExpiryTime: 1595908265,
+		ExpiryTime:    time.Unix(1595908265, 0),
 		KeyID:         "",
 		Signature:     "",
 		UnsignedToken: "",
+	}
+	prt := &principal{
+		name:       rt.Principal,
+		roles:      rt.Roles,
+		domain:     rt.Domain,
+		issueTime:  rt.IntTimeStamp,
+		expiryTime: rt.ExpiryTime.Unix(),
 	}
 	bc := access.BaseClaim{jwt.StandardClaims{
 		Audience:  "at_domain",
@@ -52,6 +67,16 @@ func TestNew(t *testing.T) {
 		Scope:          []string{"at_role1", "at_role2", "at_role3"},
 		Confirm:        nil,
 		BaseClaim:      bc,
+	}
+	pat := &oAuthAccessToken{
+		principal: principal{
+			name:       at.BaseClaim.Subject,
+			roles:      at.Scope,
+			domain:     at.BaseClaim.Audience,
+			issueTime:  at.IssuedAt,
+			expiryTime: at.ExpiresAt,
+		},
+		clientID: at.ClientID,
 	}
 	type args struct {
 		cfg  config.Proxy
@@ -102,7 +127,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return rt, nil
+							return prt, nil
 						},
 					},
 				},
@@ -124,23 +149,23 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", rt.GetName()
+					key, want = "X-Athenz-Principal", rt.Principal
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Role", strings.Join(rt.GetRoles(), ",")
+					key, want = "X-Athenz-Role", strings.Join(rt.Roles, ",")
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", rt.GetDomain()
+					key, want = "X-Athenz-Domain", rt.Domain
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.GetIssueTime(), 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.IntTimeStamp, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(rt.GetExpiryTime(), 10)
+					key, want = "X-Athenz-Expires-At", strconv.FormatInt(rt.ExpiryTime.Unix(), 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -193,7 +218,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return at, nil
+							return pat, nil
 						},
 					},
 				},
@@ -215,27 +240,27 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", at.GetName()
+					key, want = "X-Athenz-Principal", at.BaseClaim.Subject
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Role", strings.Join(at.GetRoles(), ",")
+					key, want = "X-Athenz-Role", strings.Join(at.Scope, ",")
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", at.GetDomain()
+					key, want = "X-Athenz-Domain", at.BaseClaim.Audience
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(at.GetIssueTime(), 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(at.IssuedAt, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(at.GetExpiryTime(), 10)
+					key, want = "X-Athenz-Expires-At", strconv.FormatInt(at.ExpiresAt, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Client-ID", at.GetClientID()
+					key, want = "X-Athenz-Client-ID", at.ClientID
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -308,7 +333,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return rt, nil
+							return prt, nil
 						},
 					},
 				},
@@ -337,7 +362,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return rt, nil
+							return prt, nil
 						},
 					},
 				},
@@ -441,7 +466,7 @@ func TestReverseProxyFatal(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &DummyPrincipal{}, nil
+							return &principal{}, nil
 						},
 					},
 				},

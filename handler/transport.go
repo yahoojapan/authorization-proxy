@@ -63,14 +63,14 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	req2 := cloneRequest(r) // per RoundTripper contract
 
-	req2.Header.Set("X-Athenz-Principal", p.GetName())
-	req2.Header.Set("X-Athenz-Role", strings.Join(p.GetRoles(), ","))
-	req2.Header.Set("X-Athenz-Domain", p.GetDomain())
-	req2.Header.Set("X-Athenz-Issued-At", strconv.FormatInt(p.GetIssueTime(), 10))
-	req2.Header.Set("X-Athenz-Expires-At", strconv.FormatInt(p.GetExpiryTime(), 10))
+	req2.Header.Set("X-Athenz-Principal", p.Name())
+	req2.Header.Set("X-Athenz-Role", strings.Join(p.Roles(), ","))
+	req2.Header.Set("X-Athenz-Domain", p.Domain())
+	req2.Header.Set("X-Athenz-Issued-At", strconv.FormatInt(p.IssueTime(), 10))
+	req2.Header.Set("X-Athenz-Expires-At", strconv.FormatInt(p.ExpiryTime(), 10))
 
-	if c, ok := p.(authorizerd.ClientID); ok {
-		req2.Header.Set("X-Athenz-Client-ID", c.GetClientID())
+	if c, ok := p.(authorizerd.OAuthAccessToken); ok {
+		req2.Header.Set("X-Athenz-Client-ID", c.ClientID())
 	}
 
 	req2.TLS = nil
