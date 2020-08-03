@@ -96,7 +96,7 @@ When a request is authorized by the authorization proxy, The following HTTP head
 | X-Athenz-Role       | Authorized role (A comma-separated string if there is more than one)      | role1,role2,role3 |
 | X-Athenz-Domain     | Authorized domain                                                        | domain            |
 | X-Athenz-Client-ID  | Authorized client_id                                                     | client-id         |
-| X-Athenz-Issued-At  | The date and time the approved token was issued                          | 1596158946        |
+| X-Athenz-Issued-At  | Unix timestamp in second that the authorized identity was issued                          | 1596158946        |
 | X-Athenz-Expires-At | The date and time the approved token expires                             | 1596158953        |
 
 ## Features to Debug
