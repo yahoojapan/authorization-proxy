@@ -93,7 +93,7 @@ When a request is authorized by the authorization proxy, The following HTTP head
 | HTTP Header Name    | Description                                                              | Example           |
 |---------------------|--------------------------------------------------------------------------|-------------------|
 | X-Athenz-Principal  | Authorized principal                                                     | principal         |
-| X-Athenz-Role       | Authorized role(A comma-separated string if there is more than one)      | role1,role2,role3 |
+| X-Athenz-Role       | Authorized role (A comma-separated string if there is more than one)      | role1,role2,role3 |
 | X-Athenz-Domain     | Authorized domain                                                        | domain            |
 | X-Athenz-Client-ID  | Authorized client_id                                                     | client-id         |
 | X-Athenz-Issued-At  | The date and time the approved token was issued                          | 1596158946        |
