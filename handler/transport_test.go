@@ -11,34 +11,6 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
-type principal struct {
-	name       string
-	roles      []string
-	domain     string
-	issueTime  int64
-	expiryTime int64
-}
-
-func (p *principal) Name() string {
-	return p.name
-}
-
-func (p *principal) Roles() []string {
-	return p.roles
-}
-
-func (p *principal) Domain() string {
-	return p.domain
-}
-
-func (p *principal) IssueTime() int64 {
-	return p.issueTime
-}
-
-func (p *principal) ExpiryTime() int64 {
-	return p.expiryTime
-}
-
 func Test_transport_RoundTrip(t *testing.T) {
 	type fields struct {
 		RoundTripper http.RoundTripper
@@ -86,7 +58,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 				},
 				prov: &service.AuthorizerdMock{
 					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-						return &principal{}, nil
+						return &RoleTokenMock{}, nil
 					},
 				},
 				cfg: config.Proxy{},
@@ -114,7 +86,7 @@ func Test_transport_RoundTrip(t *testing.T) {
 				},
 				prov: &service.AuthorizerdMock{
 					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-						return &principal{}, nil
+						return &RoleTokenMock{}, nil
 					},
 				},
 				cfg: config.Proxy{

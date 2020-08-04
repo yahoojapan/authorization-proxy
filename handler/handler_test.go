@@ -25,59 +25,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
-type oAuthAccessToken struct {
-	principal
-	clientID string
-}
-
-func (c *oAuthAccessToken) ClientID() string {
-	return c.clientID
-}
-
 func TestNew(t *testing.T) {
-	rt := &role.Token{
-		Domain:        "rt_domain",
-		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
-		Principal:     "rt_principal",
-		IntTimeStamp:  1595908257,
-		ExpiryTime:    time.Unix(1595908265, 0),
-		KeyID:         "",
-		Signature:     "",
-		UnsignedToken: "",
-	}
-	prt := &principal{
-		name:       rt.Principal,
-		roles:      rt.Roles,
-		domain:     rt.Domain,
-		issueTime:  rt.IntTimeStamp,
-		expiryTime: rt.ExpiryTime.Unix(),
-	}
-	bc := access.BaseClaim{jwt.StandardClaims{
-		Audience:  "at_domain",
-		ExpiresAt: 1595908275,
-		IssuedAt:  1595908267,
-		Subject:   "at_principal",
-	}}
-	at := &access.OAuth2AccessTokenClaim{
-		AuthTime:       0,
-		Version:        0,
-		ClientID:       "client_id",
-		UserID:         "",
-		ProxyPrincipal: "",
-		Scope:          []string{"at_role1", "at_role2", "at_role3"},
-		Confirm:        nil,
-		BaseClaim:      bc,
-	}
-	pat := &oAuthAccessToken{
-		principal: principal{
-			name:       at.BaseClaim.Subject,
-			roles:      at.Scope,
-			domain:     at.BaseClaim.Audience,
-			issueTime:  at.IssuedAt,
-			expiryTime: at.ExpiresAt,
-		},
-		clientID: at.ClientID,
-	}
 	type args struct {
 		cfg  config.Proxy
 		bp   httputil.BufferPool
@@ -87,6 +35,32 @@ func TestNew(t *testing.T) {
 		name      string
 		args      args
 		checkFunc func(http.Handler) error
+	}
+	rt := role.Token{
+		Domain:        "rt_domain",
+		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
+		Principal:     "rt_principal",
+		IntTimeStamp:  1595908257,
+		ExpiryTime:    time.Unix(1595908265, 0),
+		KeyID:         "",
+		Signature:     "",
+		UnsignedToken: "",
+	}
+	bc := access.BaseClaim{jwt.StandardClaims{
+		Audience:  "at_domain",
+		ExpiresAt: 1595908275,
+		IssuedAt:  1595908267,
+		Subject:   "at_principal",
+	}}
+	at := access.OAuth2AccessTokenClaim{
+		AuthTime:       0,
+		Version:        0,
+		ClientID:       "client_id",
+		UserID:         "",
+		ProxyPrincipal: "",
+		Scope:          []string{"at_role1", "at_role2", "at_role3"},
+		Confirm:        nil,
+		BaseClaim:      bc,
 	}
 	tests := []test{
 		func() test {
@@ -127,7 +101,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return prt, nil
+							return &RoleTokenMock{t: rt}, nil
 						},
 					},
 				},
@@ -218,7 +192,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return pat, nil
+							return &OAuth2AccessTokenMock{t: at}, nil
 						},
 					},
 				},
@@ -333,7 +307,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return prt, nil
+							return &RoleTokenMock{t: rt}, nil
 						},
 					},
 				},
@@ -362,7 +336,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return prt, nil
+							return &RoleTokenMock{t: rt}, nil
 						},
 					},
 				},
@@ -466,7 +440,7 @@ func TestReverseProxyFatal(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &principal{}, nil
+							return &RoleTokenMock{}, nil
 						},
 					},
 				},
