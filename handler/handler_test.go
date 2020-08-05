@@ -89,7 +89,7 @@ func TestNew(t *testing.T) {
 			srv := httptest.NewServer(handler)
 
 			return test{
-				name: "Check that the request with roletoken headers is redirected",
+				name: "Check that the request with role token headers is redirected",
 				args: args{
 					cfg: config.Proxy{
 						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
