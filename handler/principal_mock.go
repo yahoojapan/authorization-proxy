@@ -27,7 +27,7 @@ func (rt *RoleTokenMock) Domain() string {
 
 // IssueTime is a mock implementation of Principal
 func (rt *RoleTokenMock) IssueTime() int64 {
-	return rt.t.IntTimeStamp
+	return rt.t.TimeStamp.Unix()
 }
 
 // ExpiryTime is a mock implementation of Principal

@@ -40,7 +40,7 @@ func TestNew(t *testing.T) {
 		Domain:        "rt_domain",
 		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
 		Principal:     "rt_principal",
-		IntTimeStamp:  1595908257,
+		TimeStamp:     time.Unix(1595908257, 0),
 		ExpiryTime:    time.Unix(1595908265, 0),
 		KeyID:         "",
 		Signature:     "",
@@ -135,7 +135,7 @@ func TestNew(t *testing.T) {
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.IntTimeStamp, 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.TimeStamp.Unix(), 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
