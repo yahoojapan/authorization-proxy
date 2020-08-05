@@ -180,7 +180,7 @@ func TestNew(t *testing.T) {
 			srv := httptest.NewServer(handler)
 
 			return test{
-				name: "Check that the request with accesstoken headers is redirected",
+				name: "Check that the request with access token headers is redirected",
 				args: args{
 					cfg: config.Proxy{
 						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
