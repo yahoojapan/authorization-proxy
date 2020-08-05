@@ -101,7 +101,23 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &RoleTokenMock{t: rt}, nil
+							return &PrincipalMock{
+								NameFunc: func() string {
+									return rt.Principal
+								},
+								RolesFunc: func() []string {
+									return rt.Roles
+								},
+								DomainFunc: func() string {
+									return rt.Domain
+								},
+								IssueTimeFunc: func() int64 {
+									return rt.TimeStamp.Unix()
+								},
+								ExpiryTimeFunc: func() int64 {
+									return rt.ExpiryTime.Unix()
+								},
+							}, nil
 						},
 					},
 				},
@@ -192,7 +208,28 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &OAuth2AccessTokenMock{t: at}, nil
+							return &OAuthAccessTokenMock{
+								PrincipalMock: PrincipalMock{
+									NameFunc: func() string {
+										return at.Subject
+									},
+									RolesFunc: func() []string {
+										return at.Scope
+									},
+									DomainFunc: func() string {
+										return at.Audience
+									},
+									IssueTimeFunc: func() int64 {
+										return at.IssuedAt
+									},
+									ExpiryTimeFunc: func() int64 {
+										return at.ExpiresAt
+									},
+								},
+								ClientIDFunc: func() string {
+									return at.ClientID
+								},
+							}, nil
 						},
 					},
 				},
@@ -214,7 +251,7 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", at.BaseClaim.Subject
+					key, want = "X-Athenz-Principal", at.Subject
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -222,7 +259,7 @@ func TestNew(t *testing.T) {
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", at.BaseClaim.Audience
+					key, want = "X-Athenz-Domain", at.Audience
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -307,7 +344,23 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &RoleTokenMock{t: rt}, nil
+							return &PrincipalMock{
+								NameFunc: func() string {
+									return rt.Principal
+								},
+								RolesFunc: func() []string {
+									return rt.Roles
+								},
+								DomainFunc: func() string {
+									return rt.Domain
+								},
+								IssueTimeFunc: func() int64 {
+									return rt.TimeStamp.Unix()
+								},
+								ExpiryTimeFunc: func() int64 {
+									return rt.ExpiryTime.Unix()
+								},
+							}, nil
 						},
 					},
 				},
@@ -336,7 +389,23 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &RoleTokenMock{t: rt}, nil
+							return &PrincipalMock{
+								NameFunc: func() string {
+									return rt.Principal
+								},
+								RolesFunc: func() []string {
+									return rt.Roles
+								},
+								DomainFunc: func() string {
+									return rt.Domain
+								},
+								IssueTimeFunc: func() int64 {
+									return rt.TimeStamp.Unix()
+								},
+								ExpiryTimeFunc: func() int64 {
+									return rt.ExpiryTime.Unix()
+								},
+							}, nil
 						},
 					},
 				},
@@ -440,7 +509,7 @@ func TestReverseProxyFatal(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &RoleTokenMock{}, nil
+							return &PrincipalMock{}, nil
 						},
 					},
 				},

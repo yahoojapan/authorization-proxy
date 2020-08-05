@@ -58,7 +58,23 @@ func Test_transport_RoundTrip(t *testing.T) {
 				},
 				prov: &service.AuthorizerdMock{
 					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-						return &RoleTokenMock{}, nil
+						return &PrincipalMock{
+							NameFunc: func() string {
+								return ""
+							},
+							RolesFunc: func() []string {
+								return []string{}
+							},
+							DomainFunc: func() string {
+								return ""
+							},
+							IssueTimeFunc: func() int64 {
+								return 0
+							},
+							ExpiryTimeFunc: func() int64 {
+								return 0
+							},
+						}, nil
 					},
 				},
 				cfg: config.Proxy{},
@@ -86,7 +102,23 @@ func Test_transport_RoundTrip(t *testing.T) {
 				},
 				prov: &service.AuthorizerdMock{
 					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-						return &RoleTokenMock{}, nil
+						return &PrincipalMock{
+							NameFunc: func() string {
+								return ""
+							},
+							RolesFunc: func() []string {
+								return []string{}
+							},
+							DomainFunc: func() string {
+								return ""
+							},
+							IssueTimeFunc: func() int64 {
+								return 0
+							},
+							ExpiryTimeFunc: func() int64 {
+								return 0
+							},
+						}, nil
 					},
 				},
 				cfg: config.Proxy{
