@@ -88,7 +88,7 @@ The mapping rules are described as below.
 
 ### HTTP request headers
 
-When a request is authorized by the authorization proxy, The following HTTP headers is added in the request.
+When a request is authorized by the authorization proxy, the following HTTP headers is added in the request.
 
 | HTTP Header Name    | Description                                                              | Example           |
 |---------------------|--------------------------------------------------------------------------|-------------------|
