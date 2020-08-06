@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
-	"github.com/yahoojapan/athenz-authorizer/v4/access"
 	"github.com/yahoojapan/athenz-authorizer/v4/role"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/infra"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -17,12 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/infra"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func TestNew(t *testing.T) {
@@ -36,31 +32,44 @@ func TestNew(t *testing.T) {
 		args      args
 		checkFunc func(http.Handler) error
 	}
-	rt := role.Token{
-		Domain:        "rt_domain",
-		Roles:         []string{"rt_role1", "rt_role2", "rt_role3"},
-		Principal:     "rt_principal",
-		TimeStamp:     time.Unix(1595908257, 0),
-		ExpiryTime:    time.Unix(1595908265, 0),
-		KeyID:         "",
-		Signature:     "",
-		UnsignedToken: "",
+	pm := PrincipalMock{
+		NameFunc: func() string {
+			return "rt_principal"
+		},
+		RolesFunc: func() []string {
+			return []string{"rt_role1", "rt_role2", "rt_role3"}
+		},
+		DomainFunc: func() string {
+			return "rt_domain"
+		},
+		IssueTimeFunc: func() int64 {
+			return 1595908257
+		},
+		ExpiryTimeFunc: func() int64 {
+			return 1595908265
+		},
 	}
-	bc := access.BaseClaim{jwt.StandardClaims{
-		Audience:  "at_domain",
-		ExpiresAt: 1595908275,
-		IssuedAt:  1595908267,
-		Subject:   "at_principal",
-	}}
-	at := access.OAuth2AccessTokenClaim{
-		AuthTime:       0,
-		Version:        0,
-		ClientID:       "client_id",
-		UserID:         "",
-		ProxyPrincipal: "",
-		Scope:          []string{"at_role1", "at_role2", "at_role3"},
-		Confirm:        nil,
-		BaseClaim:      bc,
+	oatm := OAuthAccessTokenMock{
+		PrincipalMock: PrincipalMock{
+			NameFunc: func() string {
+				return "at_principal"
+			},
+			RolesFunc: func() []string {
+				return []string{"at_role1", "at_role2", "at_role3"}
+			},
+			DomainFunc: func() string {
+				return "at_domain"
+			},
+			IssueTimeFunc: func() int64 {
+				return 1595908267
+			},
+			ExpiryTimeFunc: func() int64 {
+				return 1595908275
+			},
+		},
+		ClientIDFunc: func() string {
+			return "client_id"
+		},
 	}
 	tests := []test{
 		func() test {
@@ -101,23 +110,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &PrincipalMock{
-								NameFunc: func() string {
-									return rt.Principal
-								},
-								RolesFunc: func() []string {
-									return rt.Roles
-								},
-								DomainFunc: func() string {
-									return rt.Domain
-								},
-								IssueTimeFunc: func() int64 {
-									return rt.TimeStamp.Unix()
-								},
-								ExpiryTimeFunc: func() int64 {
-									return rt.ExpiryTime.Unix()
-								},
-							}, nil
+							return &pm, nil
 						},
 					},
 				},
@@ -139,23 +132,23 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", rt.Principal
+					key, want = "X-Athenz-Principal", "rt_principal"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Role", strings.Join(rt.Roles, ",")
+					key, want = "X-Athenz-Role", "rt_role1,rt_role2,rt_role3"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", rt.Domain
+					key, want = "X-Athenz-Domain", "rt_domain"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(rt.TimeStamp.Unix(), 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(1595908257, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(rt.ExpiryTime.Unix(), 10)
+					key, want = "X-Athenz-Expires-At", strconv.FormatInt(1595908265, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -208,28 +201,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &OAuthAccessTokenMock{
-								PrincipalMock: PrincipalMock{
-									NameFunc: func() string {
-										return at.Subject
-									},
-									RolesFunc: func() []string {
-										return at.Scope
-									},
-									DomainFunc: func() string {
-										return at.Audience
-									},
-									IssueTimeFunc: func() int64 {
-										return at.IssuedAt
-									},
-									ExpiryTimeFunc: func() int64 {
-										return at.ExpiresAt
-									},
-								},
-								ClientIDFunc: func() string {
-									return at.ClientID
-								},
-							}, nil
+							return &oatm, nil
 						},
 					},
 				},
@@ -251,27 +223,27 @@ func TestNew(t *testing.T) {
 					}
 
 					var key, want string
-					key, want = "X-Athenz-Principal", at.Subject
+					key, want = "X-Athenz-Principal", "at_principal"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Role", strings.Join(at.Scope, ",")
+					key, want = "X-Athenz-Role", "at_role1,at_role2,at_role3"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Domain", at.Audience
+					key, want = "X-Athenz-Domain", "at_domain"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(at.IssuedAt, 10)
+					key, want = "X-Athenz-Issued-At", strconv.FormatInt(1595908267, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(at.ExpiresAt, 10)
+					key, want = "X-Athenz-Expires-At", strconv.FormatInt(1595908275, 10)
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Client-ID", at.ClientID
+					key, want = "X-Athenz-Client-ID", "client_id"
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -344,23 +316,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &PrincipalMock{
-								NameFunc: func() string {
-									return rt.Principal
-								},
-								RolesFunc: func() []string {
-									return rt.Roles
-								},
-								DomainFunc: func() string {
-									return rt.Domain
-								},
-								IssueTimeFunc: func() int64 {
-									return rt.TimeStamp.Unix()
-								},
-								ExpiryTimeFunc: func() int64 {
-									return rt.ExpiryTime.Unix()
-								},
-							}, nil
+							return &pm, nil
 						},
 					},
 				},
@@ -389,23 +345,7 @@ func TestNew(t *testing.T) {
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
 						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
-							return &PrincipalMock{
-								NameFunc: func() string {
-									return rt.Principal
-								},
-								RolesFunc: func() []string {
-									return rt.Roles
-								},
-								DomainFunc: func() string {
-									return rt.Domain
-								},
-								IssueTimeFunc: func() int64 {
-									return rt.TimeStamp.Unix()
-								},
-								ExpiryTimeFunc: func() int64 {
-									return rt.ExpiryTime.Unix()
-								},
-							}, nil
+							return &pm, nil
 						},
 					},
 				},
