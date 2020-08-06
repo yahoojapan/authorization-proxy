@@ -144,11 +144,11 @@ func TestNew(t *testing.T) {
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(1595908257, 10)
+					key, want = "X-Athenz-Issued-At", "1595908257"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(1595908265, 10)
+					key, want = "X-Athenz-Expires-At", "1595908265"
 					if err := f(key, want); err != nil {
 						return err
 					}
@@ -235,11 +235,11 @@ func TestNew(t *testing.T) {
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Issued-At", strconv.FormatInt(1595908267, 10)
+					key, want = "X-Athenz-Issued-At", "1595908267"
 					if err := f(key, want); err != nil {
 						return err
 					}
-					key, want = "X-Athenz-Expires-At", strconv.FormatInt(1595908275, 10)
+					key, want = "X-Athenz-Expires-At", "1595908275"
 					if err := f(key, want); err != nil {
 						return err
 					}
