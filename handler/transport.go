@@ -17,7 +17,10 @@ limitations under the License.
 package handler
 
 import (
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/yahoojapan/authorization-proxy/v3/config"
 	"github.com/yahoojapan/authorization-proxy/v3/service"
@@ -33,6 +36,8 @@ type transport struct {
 	cfg  config.Proxy
 }
 
+// Based on the following.
+// https://github.com/golang/oauth2/blob/bf48bf16ab8d622ce64ec6ce98d2c98f916b6303/transport.go
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	for _, urlPath := range t.cfg.OriginHealthCheckPaths {
 		if urlPath == r.URL.Path {
@@ -42,10 +47,48 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		}
 	}
 
-	if err := t.prov.Verify(r, r.Method, r.URL.Path); err != nil {
+	reqBodyClosed := false
+	if r.Body != nil {
+		defer func() {
+			if !reqBodyClosed {
+				r.Body.Close()
+			}
+		}()
+	}
+
+	p, err := t.prov.Authorize(r, r.Method, r.URL.Path)
+	if err != nil {
 		return nil, errors.Wrap(err, ErrMsgUnverified)
 	}
 
-	r.TLS = nil
-	return t.RoundTripper.RoundTrip(r)
+	req2 := cloneRequest(r) // per RoundTripper contract
+
+	req2.Header.Set("X-Athenz-Principal", p.Name())
+	req2.Header.Set("X-Athenz-Role", strings.Join(p.Roles(), ","))
+	req2.Header.Set("X-Athenz-Domain", p.Domain())
+	req2.Header.Set("X-Athenz-Issued-At", strconv.FormatInt(p.IssueTime(), 10))
+	req2.Header.Set("X-Athenz-Expires-At", strconv.FormatInt(p.ExpiryTime(), 10))
+
+	if c, ok := p.(authorizerd.OAuthAccessToken); ok {
+		req2.Header.Set("X-Athenz-Client-ID", c.ClientID())
+	}
+
+	req2.TLS = nil
+	// req.Body is assumed to be closed by the base RoundTripper.
+	reqBodyClosed = true
+	return t.RoundTripper.RoundTrip(req2)
+}
+
+// cloneRequest returns a clone of the provided *http.Request.
+// The clone is a shallow copy of the struct and its Header map.
+func cloneRequest(r *http.Request) *http.Request {
+	// shallow copy of the struct
+	r2 := new(http.Request)
+	*r2 = *r
+	// deep copy of the Header
+	r2.Header = make(http.Header, len(r.Header))
+	for k, s := range r.Header {
+		r2.Header[k] = append([]string(nil), s...)
+	}
+	return r2
 }

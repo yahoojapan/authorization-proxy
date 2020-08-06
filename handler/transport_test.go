@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
 	"net/http"
 	"reflect"
 	"testing"
@@ -10,6 +11,20 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
+type readCloseCounter struct {
+	CloseCount int
+	ReadErr    error
+}
+
+func (r *readCloseCounter) Read(b []byte) (int, error) {
+	return 0, r.ReadErr
+}
+
+func (r *readCloseCounter) Close() error {
+	r.CloseCount++
+	return nil
+}
+
 func Test_transport_RoundTrip(t *testing.T) {
 	type fields struct {
 		RoundTripper http.RoundTripper
@@ -17,22 +32,24 @@ func Test_transport_RoundTrip(t *testing.T) {
 		cfg          config.Proxy
 	}
 	type args struct {
-		r *http.Request
+		r    *http.Request
+		body *readCloseCounter
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *http.Response
-		wantErr bool
+		name           string
+		fields         fields
+		args           args
+		want           *http.Response
+		wantErr        bool
+		wantCloseCount int
 	}{
 		{
 			name: "verify role token failed",
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("dummy error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("dummy error")
 					},
 				},
 				cfg: config.Proxy{},
@@ -42,8 +59,12 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
-			wantErr: true,
+			wantErr:        true,
+			wantCloseCount: 1,
 		},
 		{
 			name: "verify role token success",
@@ -56,8 +77,24 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return nil
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return &PrincipalMock{
+							NameFunc: func() string {
+								return ""
+							},
+							RolesFunc: func() []string {
+								return []string{}
+							},
+							DomainFunc: func() string {
+								return ""
+							},
+							IssueTimeFunc: func() int64 {
+								return 0
+							},
+							ExpiryTimeFunc: func() int64 {
+								return 0
+							},
+						}, nil
 					},
 				},
 				cfg: config.Proxy{},
@@ -67,11 +104,15 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
 			want: &http.Response{
 				StatusCode: 999,
 			},
-			wantErr: false,
+			wantErr:        false,
+			wantCloseCount: 0,
 		},
 		{
 			name: "verify role token success (empty bypass URLs)",
@@ -84,8 +125,24 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return nil
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return &PrincipalMock{
+							NameFunc: func() string {
+								return ""
+							},
+							RolesFunc: func() []string {
+								return []string{}
+							},
+							DomainFunc: func() string {
+								return ""
+							},
+							IssueTimeFunc: func() int64 {
+								return 0
+							},
+							ExpiryTimeFunc: func() int64 {
+								return 0
+							},
+						}, nil
 					},
 				},
 				cfg: config.Proxy{
@@ -97,11 +154,15 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
 			want: &http.Response{
 				StatusCode: 999,
 			},
-			wantErr: false,
+			wantErr:        false,
+			wantCloseCount: 0,
 		},
 		{
 			name: "OriginHealthCheckPaths match, bypass role token verification",
@@ -114,8 +175,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -129,11 +190,15 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io/healthz", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
 			want: &http.Response{
 				StatusCode: 200,
 			},
-			wantErr: false,
+			wantErr:        false,
+			wantCloseCount: 0,
 		},
 		{
 			name: "OriginHealthCheckPaths ANY match, bypass role token verification",
@@ -146,8 +211,8 @@ func Test_transport_RoundTrip(t *testing.T) {
 					},
 				},
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -162,19 +227,23 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io/healthz/", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
 			want: &http.Response{
 				StatusCode: 200,
 			},
-			wantErr: false,
+			wantErr:        false,
+			wantCloseCount: 0,
 		},
 		{
 			name: "OriginHealthCheckPaths NONE match, verify role token",
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{
@@ -188,16 +257,20 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io/healthz/", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
-			wantErr: true,
+			wantErr:        true,
+			wantCloseCount: 1,
 		},
 		{
 			name: "OriginHealthCheckPaths NOT set, verify role token",
 			fields: fields{
 				RoundTripper: nil,
 				prov: &service.AuthorizerdMock{
-					VerifyFunc: func(r *http.Request, act, res string) error {
-						return errors.New("role token error")
+					VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+						return nil, errors.New("role token error")
 					},
 				},
 				cfg: config.Proxy{},
@@ -207,8 +280,12 @@ func Test_transport_RoundTrip(t *testing.T) {
 					r, _ := http.NewRequest("GET", "http://athenz.io/healthz", nil)
 					return r
 				}(),
+				body: &readCloseCounter{
+					ReadErr: errors.New("readCloseCounter.Read not implemented"),
+				},
 			},
-			wantErr: true,
+			wantErr:        true,
+			wantCloseCount: 1,
 		},
 	}
 	for _, tt := range tests {
@@ -218,6 +295,9 @@ func Test_transport_RoundTrip(t *testing.T) {
 				prov:         tt.fields.prov,
 				cfg:          tt.fields.cfg,
 			}
+			if tt.args.body != nil {
+				tt.args.r.Body = tt.args.body
+			}
 			got, err := tr.RoundTrip(tt.args.r)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("transport.RoundTrip() error = %v, wantErr %v", err, tt.wantErr)
@@ -225,6 +305,11 @@ func Test_transport_RoundTrip(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("transport.RoundTrip() = %v, want %v", got, tt.want)
+			}
+			if tt.args.body != nil {
+				if tt.args.body.CloseCount != tt.wantCloseCount {
+					t.Errorf("Body was closed %d times, expected %d", tt.args.body.CloseCount, tt.wantCloseCount)
+				}
 			}
 		})
 	}
