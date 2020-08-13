@@ -40,6 +40,7 @@ authorization:
     eTagExpiry: 168h
     eTagPurgePeriod: 84h
   policy:
+    disable: false
     expiryMargin: 48h
     refreshPeriod: 1h
     purgePeriod: 24h

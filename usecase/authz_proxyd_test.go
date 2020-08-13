@@ -695,6 +695,28 @@ func Test_newAuthzD(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "test success policy disable",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						PublicKey: config.PublicKey{
+							SysAuthDomain:   "10s",
+							ETagExpiry:      "10s",
+							ETagPurgePeriod: "10s",
+						},
+						Policy: config.Policy{
+							Disable: true,
+						},
+						RoleToken: config.RoleToken{
+							Enable:         true,
+							RoleAuthHeader: "Athenz-Role-Auth",
+						},
+					},
+				},
+			},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
