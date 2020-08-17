@@ -182,13 +182,20 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 		authorizerd.WithPubkeyETagPurgePeriod(authzCfg.PublicKey.ETagPurgePeriod),
 		authorizerd.WithPubkeyRetryDelay(authzCfg.PublicKey.RetryDelay),
 	}
-	policyOpts := []authorizerd.Option{
-		authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
-		authorizerd.WithPolicyExpiryMargin(authzCfg.Policy.ExpiryMargin),
-		authorizerd.WithPolicyRefreshPeriod(authzCfg.Policy.RefreshPeriod),
-		authorizerd.WithPolicyPurgePeriod(authzCfg.Policy.PurgePeriod),
-		authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
-		authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
+	var policyOpts []authorizerd.Option
+	if authzCfg.Policy.Disable {
+		policyOpts = []authorizerd.Option{
+			authorizerd.WithDisablePolicyd(),
+		}
+	} else {
+		policyOpts = []authorizerd.Option{
+			authorizerd.WithAthenzDomains(authzCfg.AthenzDomains...),
+			authorizerd.WithPolicyExpiryMargin(authzCfg.Policy.ExpiryMargin),
+			authorizerd.WithPolicyRefreshPeriod(authzCfg.Policy.RefreshPeriod),
+			authorizerd.WithPolicyPurgePeriod(authzCfg.Policy.PurgePeriod),
+			authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
+			authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
+		}
 	}
 	var rtOpts []authorizerd.Option
 	if authzCfg.RoleToken.Enable {

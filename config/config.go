@@ -186,6 +186,9 @@ type PublicKey struct {
 
 // Policy represents the configuration to fetch Athenz policies.
 type Policy struct {
+	// Disable decides whether to check the policy.
+	Disable bool `yaml:"disable"`
+
 	// ExpiryMargin represents the policy expiry margin to force refresh policies beforehand.
 	ExpiryMargin string `yaml:"expiryMargin"`
 
