@@ -212,6 +212,9 @@ type JWK struct {
 
 	// RetryDelay represents the duration between each retry.
 	RetryDelay string `yaml:"retryDelay"`
+
+	// URLs represents URLs that delivers JWK Set excluding athenz.
+	URLs []string `yaml:"urls"`
 }
 
 // AccessToken represents the configuration to control access token verification.

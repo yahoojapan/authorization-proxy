@@ -232,6 +232,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 			// use value in config.go in later version
 			authorizerd.WithJwkRefreshPeriod(authzCfg.JWK.RefreshPeriod),
 			authorizerd.WithJwkRetryDelay(authzCfg.JWK.RetryDelay),
+			authorizerd.WithJwkURLs(authzCfg.JWK.URLs),
 		}
 	} else {
 		atOpts = []authorizerd.Option{
