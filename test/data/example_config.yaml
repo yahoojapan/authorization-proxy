@@ -49,6 +49,8 @@ authorization:
   jwk:
     refreshPeriod: ""
     retryDelay: ""
+    urls:
+      - https://jwk.athenz.io:4443/path/to/key
   accessToken:
     enable: true
     verifyCertThumbprint: true

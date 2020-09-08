@@ -131,6 +131,7 @@ func TestNew(t *testing.T) {
 					JWK: JWK{
 						RefreshPeriod: "",
 						RetryDelay:    "",
+						URLs:          []string{"https://jwk.athenz.io:4443/path/to/key"},
 					},
 					AccessToken: AccessToken{
 						Enable:               true,
