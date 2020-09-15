@@ -50,7 +50,8 @@ authorization:
     refreshPeriod: ""
     retryDelay: ""
     urls:
-      - https://jwk.athenz.io:4443/path/to/key
+      - http://your-jwk-set-url1
+      - https://your-jwk-set-url2
   accessToken:
     enable: true
     verifyCertThumbprint: true
