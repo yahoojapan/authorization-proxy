@@ -67,6 +67,8 @@ github.com/yahoojapan/athenz-authorizer/v4 v4.1.0 h1:c3vlnDnEkGOuSPt99HIW4JKjDp1
 github.com/yahoojapan/athenz-authorizer/v4 v4.1.0/go.mod h1:Zf2aL9WwNpyWBBdPajIjRsfmqIB4fBO29kQLwx/pnjo=
 github.com/yahoojapan/athenz-authorizer/v4 v4.1.2 h1:w1fddJy6ruJ0HWGtTxuJOfHOR5jsKIC5Zyy9F//t8lg=
 github.com/yahoojapan/athenz-authorizer/v4 v4.1.2/go.mod h1:Zf2aL9WwNpyWBBdPajIjRsfmqIB4fBO29kQLwx/pnjo=
+github.com/yahoojapan/athenz-authorizer/v4 v4.2.0 h1:UJRuehNUvHCGK0qHeqS11bvqWP5lVlAheD6KTPbGU4I=
+github.com/yahoojapan/athenz-authorizer/v4 v4.2.0/go.mod h1:Zf2aL9WwNpyWBBdPajIjRsfmqIB4fBO29kQLwx/pnjo=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/zeebo/xxh3 v0.0.0-20191227220208-65f423c10688 h1:C5YYdD+oJh6KoLMePMeA/+PPy2vgsEb6UBBMIy4ug+s=
 github.com/zeebo/xxh3 v0.0.0-20191227220208-65f423c10688/go.mod h1:e/zZObEJWtkq6f+bAzme0xQJSGI75oxoeqS+f2I7YVI=
