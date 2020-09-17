@@ -5,12 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
-	"github.com/yahoojapan/athenz-authorizer/v4/role"
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/infra"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -19,6 +13,13 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/pkg/errors"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
+	"github.com/yahoojapan/athenz-authorizer/v5/role"
+	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v3/infra"
+	"github.com/yahoojapan/authorization-proxy/v3/service"
 )
 
 func TestNew(t *testing.T) {
