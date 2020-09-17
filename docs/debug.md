@@ -51,30 +51,33 @@ Output:
 
 ```json
 {
-    "domain1:role.role1": [
+    "domain1:role.role1":  [
         {
-            "resource_domain": "resource_domain1",
+           "resource_domain": "resource_domain1",
             "effect": null,
             "action": "action_name1",
-            "resource": "role.role1",
-            "regex_string": "^action_name1-role.role1$"
+            "resource": "resource_name1",
+            "action_regexp_string": "^action_name1$",
+            "resource_regexp_string": "^resource_name1$"
         },
         {
-            "resource_domain": "resource_domain2",
+           "resource_domain": "resource_domain2",
             "effect": null,
             "action": "*",
             "resource": "*",
-            "regex_string": "^.*-.*$"
-        }
+            "action_regexp_string": "^.*$",
+            "resource_regexp_string": "^.*$"
+        },
     ],
-    "domain2:role.role2": [
+    "domain2:role.role2":  [
         {
-            "resource_domain": "resource_domain3",
+           "resource_domain": "resource_domain3",
             "effect": null,
-            "action": "action_name2",
-            "resource": "role.role2",
-            "regex_string": "^action_name2-role.role2$"
-        }
+            "action": "action_name3",
+            "resource": "resource_name3",
+            "action_regexp_string": "^action_name3$",
+            "resource_regexp_string": "^resource_name3$"
+        },
     ]
 }
 ```
