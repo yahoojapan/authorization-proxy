@@ -28,8 +28,8 @@ import (
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
 
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
 // Func represents the a handle function type

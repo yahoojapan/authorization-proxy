@@ -8,8 +8,8 @@ import (
 
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
 type readCloseCounter struct {

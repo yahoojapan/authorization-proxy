@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
 func TestNewDebugRoutes(t *testing.T) {

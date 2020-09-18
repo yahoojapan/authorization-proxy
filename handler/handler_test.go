@@ -17,9 +17,9 @@ import (
 	"github.com/pkg/errors"
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"github.com/yahoojapan/athenz-authorizer/v5/role"
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/infra"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"github.com/yahoojapan/authorization-proxy/v4/infra"
+	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
 func TestNew(t *testing.T) {

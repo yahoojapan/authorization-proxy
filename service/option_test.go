@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/yahoojapan/authorization-proxy/v3/config"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
 )
 
 func TestWithServerConfig(t *testing.T) {
