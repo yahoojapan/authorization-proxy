@@ -22,9 +22,9 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/yahoojapan/authorization-proxy/v3/config"
-	"github.com/yahoojapan/authorization-proxy/v3/handler"
-	"github.com/yahoojapan/authorization-proxy/v3/service"
+	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"github.com/yahoojapan/authorization-proxy/v4/handler"
+	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
 // Route contains information and handler of an API endpoint

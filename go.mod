@@ -1,4 +1,4 @@
-module github.com/yahoojapan/authorization-proxy/v3
+module github.com/yahoojapan/authorization-proxy/v4
 
 go 1.14
 
