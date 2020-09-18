@@ -32,7 +32,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v3/router"
 	"github.com/yahoojapan/authorization-proxy/v3/service"
 
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 )
 
 // AuthzProxyDaemon represents Authorization Proxy daemon behavior.
@@ -232,6 +232,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 			// use value in config.go in later version
 			authorizerd.WithJwkRefreshPeriod(authzCfg.JWK.RefreshPeriod),
 			authorizerd.WithJwkRetryDelay(authzCfg.JWK.RetryDelay),
+			authorizerd.WithJwkURLs(authzCfg.JWK.URLs),
 		}
 	} else {
 		atOpts = []authorizerd.Option{

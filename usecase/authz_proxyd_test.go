@@ -661,6 +661,9 @@ func Test_newAuthzD(t *testing.T) {
 							CertOffsetDuration:   "10s",
 						},
 					},
+					Athenz: config.Athenz{
+						URL: "dummy-athenz-url",
+					},
 				},
 			},
 			want: true,
@@ -690,6 +693,9 @@ func Test_newAuthzD(t *testing.T) {
 								},
 							},
 						},
+					},
+					Athenz: config.Athenz{
+						URL: "dummy-athenz-url",
 					},
 				},
 			},

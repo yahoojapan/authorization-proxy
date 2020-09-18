@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"crypto/x509"
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v4"
 	"net/http"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 )
 
 // AuthorizerdMock is a mock of Authorizerd
