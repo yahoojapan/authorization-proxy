@@ -46,6 +46,25 @@ authorization:
     purgePeriod: 24h
     retryDelay: ""
     retryAttempts: 0
+    mappingRules:
+      domain1:
+        - method: get1
+          action: read_bill1
+          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}1"
+          resource: beans.{beanType}1
+        - method: put1
+          action: write_bill1
+          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}1"
+          resource: beans.{beanType}1
+      domain2:
+        - method: get2
+          action: read_bill2
+          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}2"
+          resource: beans.{beanType}2
+        - method: put2
+          action: write_bill2
+          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}2"
+          resource: beans.{beanType}2
   jwk:
     refreshPeriod: ""
     retryDelay: ""

@@ -195,6 +195,7 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 			authorizerd.WithPolicyPurgePeriod(authzCfg.Policy.PurgePeriod),
 			authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
 			authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
+			authorizerd.WithTranslator(&authorizerd.MappingRules{Rules: authzCfg.Policy.MappingRules}),
 		}
 	}
 	var rtOpts []authorizerd.Option
