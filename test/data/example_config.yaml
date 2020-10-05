@@ -48,23 +48,19 @@ authorization:
     retryAttempts: 0
     mappingRules:
       domain1:
-        - method: get1
-          action: read_bill1
-          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}1"
-          resource: beans.{beanType}1
-        - method: put1
-          action: write_bill1
-          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}1"
-          resource: beans.{beanType}1
+        - method: get
+          action: action
+          path: "/path1/{path2}"
+          resource: path1.{path2}
+        - method: get
+          action: action
+          path: "/path?param={value}"
+          resource: path.{value}
       domain2:
-        - method: get2
-          action: read_bill2
-          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}2"
-          resource: beans.{beanType}2
-        - method: put2
-          action: write_bill2
-          path: "/coffee_master/us/wholesalers/purchase/beans/{beanType}2"
-          resource: beans.{beanType}2
+        - method: get
+          action: action
+          path: "/path1/{path2}?param={value}"
+          resource: {path2}.{value}
   jwk:
     refreshPeriod: ""
     retryDelay: ""

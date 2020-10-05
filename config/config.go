@@ -205,7 +205,7 @@ type Policy struct {
 	// RetryAttempts represents number of attempts to retry.
 	RetryAttempts int `yaml:"retryAttempts"`
 
-	//
+	// MappingRules represents translation rules for determining action and resource.
 	MappingRules map[string][]authorizerd.Rule `yaml:"mappingRules"`
 }
 
