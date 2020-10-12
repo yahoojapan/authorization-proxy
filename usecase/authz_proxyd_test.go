@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"reflect"
 	"sort"
 	"sync"
@@ -609,6 +610,33 @@ func Test_newAuthzD(t *testing.T) {
 			wantErrStr: "error create pubkeyd: invalid refresh period: time: invalid duration invalid_period",
 		},
 		{
+			name: "test new Authorization fail, invalid MappingRules",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						Policy: config.Policy{
+							MappingRules: map[string][]authorizerd.Rule{
+								"": {
+									authorizerd.Rule{
+										Method:   "get",
+										Path:     "/path",
+										Action:   "action",
+										Resource: "resource",
+									},
+								},
+							},
+						},
+						RoleToken: config.RoleToken{
+							Enable:         true,
+							RoleAuthHeader: "Athenz-Role-Auth",
+						},
+					},
+				},
+			},
+			want:       false,
+			wantErrStr: "newAuthzD(): Failed to create a MappingRules: domain is empty",
+		},
+		{
 			name: "test success new Authorization",
 			args: args{
 				cfg: config.Config{
@@ -713,6 +741,32 @@ func Test_newAuthzD(t *testing.T) {
 						},
 						Policy: config.Policy{
 							Disable: true,
+						},
+						RoleToken: config.RoleToken{
+							Enable:         true,
+							RoleAuthHeader: "Athenz-Role-Auth",
+						},
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "test success mappingRules set",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						Policy: config.Policy{
+							MappingRules: map[string][]authorizerd.Rule{
+								"domain": {
+									authorizerd.Rule{
+										Method:   "get",
+										Path:     "/path",
+										Action:   "action",
+										Resource: "resource",
+									},
+								},
+							},
 						},
 						RoleToken: config.RoleToken{
 							Enable:         true,
