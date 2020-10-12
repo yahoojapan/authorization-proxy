@@ -46,6 +46,21 @@ authorization:
     purgePeriod: 24h
     retryDelay: ""
     retryAttempts: 0
+    mappingRules:
+      domain1:
+        - method: get
+          action: action
+          path: "/path1/{path2}"
+          resource: path1.{path2}
+        - method: get
+          action: action
+          path: "/path?param={value}"
+          resource: "path.{value}"
+      domain2:
+        - method: get
+          action: action
+          path: "/path1/{path2}?param={value}"
+          resource: "{path2}.{value}"
   jwk:
     refreshPeriod: ""
     retryDelay: ""

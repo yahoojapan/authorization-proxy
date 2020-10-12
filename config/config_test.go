@@ -18,6 +18,7 @@ package config
 
 import (
 	"fmt"
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"os"
 	"reflect"
 	"testing"
@@ -127,6 +128,30 @@ func TestNew(t *testing.T) {
 						PurgePeriod:   "24h",
 						RetryDelay:    "",
 						RetryAttempts: 0,
+						MappingRules: map[string][]authorizerd.Rule{
+							"domain1": {
+								authorizerd.Rule{
+									Method:   "get",
+									Path:     "/path1/{path2}",
+									Action:   "action",
+									Resource: "path1.{path2}",
+								},
+								authorizerd.Rule{
+									Method:   "get",
+									Path:     "/path?param={value}",
+									Action:   "action",
+									Resource: "path.{value}",
+								},
+							},
+							"domain2": {
+								authorizerd.Rule{
+									Method:   "get",
+									Path:     "/path1/{path2}?param={value}",
+									Action:   "action",
+									Resource: "{path2}.{value}",
+								},
+							},
+						},
 					},
 					JWK: JWK{
 						RefreshPeriod: "",

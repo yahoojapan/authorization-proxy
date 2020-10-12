@@ -196,6 +196,14 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 			authorizerd.WithPolicyRetryDelay(authzCfg.Policy.RetryDelay),
 			authorizerd.WithPolicyRetryAttempts(authzCfg.Policy.RetryAttempts),
 		}
+
+		if rules := authzCfg.Policy.MappingRules; rules != nil {
+			translator, err := authorizerd.NewMappingRules(rules)
+			if err != nil {
+				return nil, errors.Wrap(err, "newAuthzD(): Failed to create a MappingRules")
+			}
+			policyOpts = append(policyOpts, authorizerd.WithTranslator(translator))
+		}
 	}
 	var rtOpts []authorizerd.Option
 	if authzCfg.RoleToken.Enable {
