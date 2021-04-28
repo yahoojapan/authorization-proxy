@@ -32,7 +32,7 @@ jobs:
             rm -rf example
             go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
             go tool cover -html=coverage.out -o coverage.html
-            bash <(curl -s https://codecov.io/bash)
+            # bash <(curl -s https://codecov.io/bash)
       - store_artifacts:
           path: ./coverage.html
       - save_cache:
