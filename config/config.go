@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 import (
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"os"
 	"strings"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v2"
@@ -37,6 +38,9 @@ type Config struct {
 
 	// Server represents the authorization proxy and the health check server configuration.
 	Server Server `yaml:"server"`
+
+	// Server represents the authorization grpc proxy and the health check server configuration.
+	GRPCServer Server `yaml:"grpc_server"`
 
 	// Athenz represents the Athenz server connection configuration.
 	Athenz Athenz `yaml:"athenz"`

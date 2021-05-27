@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 
 	"github.com/kpango/glg"
 	"github.com/yahoojapan/authorization-proxy/v4/config"
@@ -39,6 +40,8 @@ type server struct {
 	srv        *http.Server
 	srvHandler http.Handler
 	srvRunning bool
+
+	grpcSrv *grpc.Server
 
 	// Health Check server
 	hcsrv     *http.Server
@@ -124,6 +127,18 @@ func NewServer(opts ...Option) Server {
 	}
 
 	return s
+}
+
+type grpcServer struct {
+}
+
+func NewGRPCServer(opts ...Option) Server {
+	// srv := NewGRPC(Poxy, )
+	return nil
+}
+
+func (gs *grpcServer) ListenAndServe(ctx context.Context) <-chan []error {
+	return nil
 }
 
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
