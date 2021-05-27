@@ -39,9 +39,6 @@ type Config struct {
 	// Server represents the authorization proxy and the health check server configuration.
 	Server Server `yaml:"server"`
 
-	// Server represents the authorization grpc proxy and the health check server configuration.
-	GRPCServer Server `yaml:"grpc_server"`
-
 	// Athenz represents the Athenz server connection configuration.
 	Athenz Athenz `yaml:"athenz"`
 
@@ -69,6 +66,9 @@ type Server struct {
 	// ShutdownDelay represents the delay duration between the health check server shutdown and the client sidecar server shutdown.
 	ShutdownDelay string `yaml:"shutdownDelay"`
 
+	// GRPCServer
+	GRPCServer GRPCServer `yaml:"grpc_server"`
+
 	// TLS represents the TLS configuration of the authorization proxy.
 	TLS TLS `yaml:"tls"`
 
@@ -77,6 +77,23 @@ type Server struct {
 
 	// Debug represents the debug server configuration.
 	Debug Debug `yaml:"debug"`
+}
+
+type GRPCServer struct {
+	// Enable
+	Enable bool `yaml:"enable"`
+
+	// Port represents the server listening port.
+	Port int `yaml:"port"`
+
+	// Timeout represents the maximum request handling duration.
+	Timeout string `yaml:"timeout"`
+
+	// ShutdownTimeout represents the duration before force shutdown.
+	ShutdownTimeout string `yaml:"shutdownTimeout"`
+
+	// ShutdownDelay represents the delay duration between the health check server shutdown and the client sidecar server shutdown.
+	ShutdownDelay string `yaml:"shutdownDelay"`
 }
 
 // TLS represents the TLS configuration of the authorization proxy.

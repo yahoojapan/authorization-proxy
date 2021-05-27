@@ -18,11 +18,15 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
@@ -41,7 +45,9 @@ type server struct {
 	srvHandler http.Handler
 	srvRunning bool
 
-	grpcSrv *grpc.Server
+	grpcSrv        *grpc.Server
+	grpcHandler    grpc.StreamHandler
+	grpcSrvRunning bool
 
 	// Health Check server
 	hcsrv     *http.Server
@@ -100,6 +106,13 @@ func NewServer(opts ...Option) Server {
 	}
 	s.srv.SetKeepAlivesEnabled(true)
 
+	if s.grpcSrvEnable() {
+		s.grpcSrv = grpc.NewServer(
+			grpc.CustomCodec(proxy.Codec()),
+			grpc.UnknownServiceHandler(s.grpcHandler),
+		)
+	}
+
 	if s.hcSrvEnable() {
 		s.hcsrv = &http.Server{
 			Addr:    fmt.Sprintf(":%d", s.cfg.HealthCheck.Port),
@@ -129,18 +142,6 @@ func NewServer(opts ...Option) Server {
 	return s
 }
 
-type grpcServer struct {
-}
-
-func NewGRPCServer(opts ...Option) Server {
-	// srv := NewGRPC(Poxy, )
-	return nil
-}
-
-func (gs *grpcServer) ListenAndServe(ctx context.Context) <-chan []error {
-	return nil
-}
-
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
 // This function start both health check and authorization proxy server, and the server will close whenever the context receive a Done signal.
 // Whenever the server closed, the authorization proxy server will shutdown after a defined duration (cfg.ShutdownDelay), while the health check server will shutdown immediately
@@ -149,9 +150,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		echan = make(chan []error, 1)
 
 		// error channels to keep track server status
-		sech = make(chan error, 1)
-		hech chan error
-		dech chan error
+		sech  = make(chan error, 1)
+		gsech = make(chan error, 1)
+		hech  chan error
+		dech  chan error
 	)
 
 	wg := new(sync.WaitGroup)
@@ -172,6 +174,26 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		s.srvRunning = false
 		s.mu.Unlock()
 	}()
+
+	if s.grpcSrvEnable() {
+		wg.Add(1)
+
+		go func() {
+			s.mu.Lock()
+			s.grpcSrvRunning = true
+			s.mu.Unlock()
+			wg.Done()
+
+			glg.Info("authorization grpc proxy api server starting")
+			gsech <- s.listenAndGRPCServeAPI()
+			glg.Info("authorization grpc proxy api server closed")
+			close(gsech)
+
+			s.mu.Lock()
+			s.grpcSrvRunning = false
+			s.mu.Unlock()
+		}()
+	}
 
 	if s.hcSrvEnable() {
 		wg.Add(1)
@@ -237,6 +259,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				glg.Info("authorization proxy api server will shutdown...")
 				errs = appendErr(errs, s.apiShutdown(context.Background()))
 			}
+			if s.grpcSrvRunning {
+				glg.Info("authorization grpc proxy api server will shutdown...")
+				s.grpcShutdown()
+			}
 			if s.dRunning {
 				glg.Info("authorization proxy debug server will shutdown...")
 				appendErr(errs, s.dShutdown(context.Background()))
@@ -255,6 +281,17 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				return
 
 			case err := <-sech: // when authorization proxy server returns, close running servers and return any error
+				if err != nil {
+					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
+				}
+
+				s.mu.RLock()
+				shutdownSrvs(errs)
+				s.mu.RUnlock()
+				echan <- errs
+				return
+
+			case err := <-gsech: // when authorization proxy grpc server returns, close running servers and return any error
 				if err != nil {
 					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
 				}
@@ -315,6 +352,13 @@ func (s *server) apiShutdown(ctx context.Context) error {
 	return s.srv.Shutdown(sctx)
 }
 
+// apiShutdown returns any error when shutdown the authorization proxy server.
+// Before shutdown the authorization proxy server, it will sleep config.ShutdownDelay to prevent any issue from K8s
+func (s *server) grpcShutdown() {
+	time.Sleep(s.sdd)
+	s.grpcSrv.GracefulStop()
+}
+
 // createHealthCheckServiceMux return a *http.ServeMux object
 // The function will register the health check server handler for given pattern, and return
 func createHealthCheckServiceMux(pattern string) *http.ServeMux {
@@ -351,8 +395,34 @@ func (s *server) listenAndServeAPI() error {
 	return s.srv.ListenAndServeTLS("", "")
 }
 
+// listenAndGRPCServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
+func (s *server) listenAndGRPCServeAPI() (err error) {
+	lfn := func() (net.Listener, error) {
+		port := strconv.Itoa(s.cfg.GRPCServer.Port)
+		if s.cfg.TLS.Enable {
+			cfg, err := NewTLSConfig(s.cfg.TLS)
+			if err != nil {
+				return nil, err
+			}
+			return tls.Listen("tcp", ":"+port, cfg)
+		}
+		return net.Listen("tcp", ":"+port)
+	}
+
+	l, err := lfn()
+	if err != nil {
+		return err
+	}
+
+	return s.grpcSrv.Serve(l)
+}
+
 func (s *server) hcSrvEnable() bool {
 	return s.cfg.HealthCheck.Port > 0
+}
+
+func (s *server) grpcSrvEnable() bool {
+	return s.cfg.GRPCServer.Enable
 }
 
 func (s *server) debugSrvEnable() bool {

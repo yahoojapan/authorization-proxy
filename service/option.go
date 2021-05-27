@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"google.golang.org/grpc"
 )
 
 // Option represents a functional option
@@ -20,6 +21,18 @@ func WithServerConfig(cfg config.Server) Option {
 func WithServerHandler(h http.Handler) Option {
 	return func(s *server) {
 		s.srvHandler = h
+	}
+}
+
+func WithGRPCHandler(h grpc.StreamHandler) Option {
+	return func(s *server) {
+		s.grpcHandler = h
+	}
+}
+
+func WithGRPCServer(srv *grpc.Server) Option {
+	return func(s *server) {
+		s.grpcSrv = srv
 	}
 }
 
