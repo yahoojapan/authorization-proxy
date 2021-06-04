@@ -8,9 +8,10 @@ alias:
           GOPATH: "/go"
           GO111MODULE: "on"
           REPO_NAME: "yahoojapan"
+          DOCKERHUB_REPO_NAME: "yahoojapan"
           IMAGE_NAME: "authorization-proxy"
           GITHUB_API: "https://api.github.com/"
-          DOCKER_USER: "kpango"
+          DOCKER_USER: "tatyano"
   setup_remote_docker: &setup_remote_docker
     version: 19.03.8
 
@@ -60,19 +61,19 @@ jobs:
               TAG=`cat ./.tag`
             fi
             if [ ! -z "$TAG" ]; then
-              docker build --build-arg APP_VERSION=${TAG} -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+              docker build --build-arg APP_VERSION=${TAG} -t ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest .
             else
-              # env DOCKER_BUILDKIT=1 docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
-              docker build -t ${REPO_NAME}/${IMAGE_NAME}:latest .
+              # env DOCKER_BUILDKIT=1 docker build -t ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest .
+              docker build -t ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest .
             fi
       - run:
           name: check build version
           command: |
-            docker run --rm --name ${IMAGE_NAME} ${REPO_NAME}/${IMAGE_NAME}:latest --version
+            docker run --rm --name ${IMAGE_NAME} ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest --version
       - run:
           name: save image
           command: |
-            docker image save ${REPO_NAME}/${IMAGE_NAME}:latest > ./docker-image.tar
+            docker image save ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest > ./docker-image.tar
       - persist_to_workspace:
           root: .
           paths:
@@ -90,7 +91,7 @@ jobs:
       - run:
           name: tag to latest
           command: |
-            docker tag ${REPO_NAME}/${IMAGE_NAME}:latest ${REPO_NAME}/${IMAGE_NAME}:nightly
+            docker tag ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:nightly
       - run:
           name: docker login
           command: |
@@ -98,7 +99,7 @@ jobs:
       - run:
           name: push image to registry
           command: |
-            docker push ${REPO_NAME}/${IMAGE_NAME}:nightly
+            docker push ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:nightly
   publish:
     <<: *default
     steps:
@@ -112,7 +113,7 @@ jobs:
       - run:
           name: tag to latest
           command: |
-            docker tag ${REPO_NAME}/${IMAGE_NAME}:latest ${REPO_NAME}/${IMAGE_NAME}:$CIRCLE_TAG
+            docker tag ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:latest ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}:$CIRCLE_TAG
       - run:
           name: docker login
           command: |
@@ -120,7 +121,7 @@ jobs:
       - run:
           name: push image to registry
           command: |
-            docker push ${REPO_NAME}/${IMAGE_NAME}
+            docker push ${DOCKERHUB_REPO_NAME}/${IMAGE_NAME}
   versioning:
     <<: *default
     steps:
