@@ -11,7 +11,7 @@ alias:
           DOCKERHUB_REPO_NAME: "yahoojapan"
           IMAGE_NAME: "authorization-proxy"
           GITHUB_API: "https://api.github.com/"
-          DOCKER_USER: "kpango"
+          DOCKER_USER: "tatyano"
   setup_remote_docker: &setup_remote_docker
     version: 19.03.8
 
