@@ -100,17 +100,17 @@ func NewServer(opts ...Option) Server {
 		o(s)
 	}
 
-	s.srv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
-		Handler: s.srvHandler,
-	}
-	s.srv.SetKeepAlivesEnabled(true)
-
 	if s.grpcSrvEnable() {
 		s.grpcSrv = grpc.NewServer(
 			grpc.CustomCodec(proxy.Codec()),
 			grpc.UnknownServiceHandler(s.grpcHandler),
 		)
+	} else {
+		s.srv = &http.Server{
+			Addr:    fmt.Sprintf(":%d", s.cfg.Port),
+			Handler: s.srvHandler,
+		}
+		s.srv.SetKeepAlivesEnabled(true)
 	}
 
 	if s.hcSrvEnable() {
@@ -159,25 +159,7 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 	wg := new(sync.WaitGroup)
 
 	wg.Add(1)
-	go func() {
-		s.mu.Lock()
-		s.srvRunning = true
-		s.mu.Unlock()
-		wg.Done()
-
-		glg.Info("authorization proxy api server starting")
-		sech <- s.listenAndServeAPI()
-		glg.Info("authorization proxy api server closed")
-		close(sech)
-
-		s.mu.Lock()
-		s.srvRunning = false
-		s.mu.Unlock()
-	}()
-
 	if s.grpcSrvEnable() {
-		wg.Add(1)
-
 		go func() {
 			s.mu.Lock()
 			s.grpcSrvRunning = true
@@ -191,6 +173,22 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 
 			s.mu.Lock()
 			s.grpcSrvRunning = false
+			s.mu.Unlock()
+		}()
+	} else {
+		go func() {
+			s.mu.Lock()
+			s.srvRunning = true
+			s.mu.Unlock()
+			wg.Done()
+
+			glg.Info("authorization proxy api server starting")
+			sech <- s.listenAndServeAPI()
+			glg.Info("authorization proxy api server closed")
+			close(sech)
+
+			s.mu.Lock()
+			s.srvRunning = false
 			s.mu.Unlock()
 		}()
 	}
@@ -398,7 +396,7 @@ func (s *server) listenAndServeAPI() error {
 // listenAndGRPCServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
 func (s *server) listenAndGRPCServeAPI() (err error) {
 	lfn := func() (net.Listener, error) {
-		port := strconv.Itoa(s.cfg.GRPCServer.Port)
+		port := strconv.Itoa(s.cfg.Port)
 		if s.cfg.TLS.Enable {
 			cfg, err := NewTLSConfig(s.cfg.TLS)
 			if err != nil {
@@ -422,7 +420,7 @@ func (s *server) hcSrvEnable() bool {
 }
 
 func (s *server) grpcSrvEnable() bool {
-	return s.cfg.GRPCServer.Enable
+	return s.cfg.Mode == config.GRPC
 }
 
 func (s *server) debugSrvEnable() bool {

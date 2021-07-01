@@ -31,6 +31,13 @@ const (
 	currentVersion = "v2.0.0"
 )
 
+type Mode string
+
+const (
+	HTTP Mode = "http"
+	GRPC Mode = "grpc"
+)
+
 // Config represents the configuration (config.yaml) of authorization proxy.
 type Config struct {
 	// Version represents the configuration file version.
@@ -45,6 +52,9 @@ type Config struct {
 	// Proxy represents the proxy destination configuration.
 	Proxy Proxy `yaml:"proxy"`
 
+	// GRPCProxy represents the proxy destination configuration.
+	GRPCProxy GRPCProxy `yaml:"grpc_proxy"`
+
 	// Authorization represents the detail authorization configuration.
 	Authorization Authorization `yaml:"authorization"`
 
@@ -54,6 +64,9 @@ type Config struct {
 
 // Server represents the authorization proxy and the health check server configuration.
 type Server struct {
+	// Mode represents the server mode.
+	Mode Mode `yaml:"mode"`
+
 	// Port represents the server listening port.
 	Port int `yaml:"port"`
 
@@ -65,9 +78,6 @@ type Server struct {
 
 	// ShutdownDelay represents the delay duration between the health check server shutdown and the client sidecar server shutdown.
 	ShutdownDelay string `yaml:"shutdownDelay"`
-
-	// GRPCServer
-	GRPCServer GRPCServer `yaml:"grpc_server"`
 
 	// TLS represents the TLS configuration of the authorization proxy.
 	TLS TLS `yaml:"tls"`
@@ -77,23 +87,6 @@ type Server struct {
 
 	// Debug represents the debug server configuration.
 	Debug Debug `yaml:"debug"`
-}
-
-type GRPCServer struct {
-	// Enable
-	Enable bool `yaml:"enable"`
-
-	// Port represents the server listening port.
-	Port int `yaml:"port"`
-
-	// Timeout represents the maximum request handling duration.
-	Timeout string `yaml:"timeout"`
-
-	// ShutdownTimeout represents the duration before force shutdown.
-	ShutdownTimeout string `yaml:"shutdownTimeout"`
-
-	// ShutdownDelay represents the delay duration between the health check server shutdown and the client sidecar server shutdown.
-	ShutdownDelay string `yaml:"shutdownDelay"`
 }
 
 // TLS represents the TLS configuration of the authorization proxy.
@@ -165,6 +158,15 @@ type Proxy struct {
 	// WARNING!!! Setting this configuration may introduce security hole in your system. ONLY set this configuration as the application's health check endpoint.
 	// Tips for performance: define your health check endpoint with a different length from the most frequently used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
 	OriginHealthCheckPaths []string `yaml:"originHealthCheckPaths"`
+}
+
+// GRPCProxy represents the grpc proxy destination configuration.
+type GRPCProxy struct {
+	// Host represents the proxy destination host, for example, localhost.
+	Host string `yaml:"host"`
+
+	// Port represents the proxy destination port number.
+	Port uint16 `yaml:"port"`
 }
 
 // Authorization represents the detail authorization configuration.

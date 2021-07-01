@@ -5,12 +5,7 @@ server:
   timeout: 10s
   shutdownTimeout: 10s
   shutdownDelay: 9s
-  grpc_server:
-    enable: true
-    port: 8081
-    timeout: 10s
-    shutdownTimeout: 10s
-    shutdownDelay: 9s
+  mode: GRPC
   tls:
     enable: true
     certPath: "test/data/dummyServer.crt"
@@ -35,6 +30,9 @@ proxy:
   port: 80
   bufferSize: 4096
   originHealthCheckPaths: []
+grpc_proxy:
+  host: localhost
+  port: 80
 authorization:
   athenzDomains:
   - provider-domain1

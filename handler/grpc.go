@@ -17,7 +17,7 @@ import (
 	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
 
-func NewGRPC(cfg config.Proxy, roleCfg config.RoleToken, prov service.Authorizationd) grpc.StreamHandler {
+func NewGRPC(cfg config.GRPCProxy, roleCfg config.RoleToken, prov service.Authorizationd) grpc.StreamHandler {
 	target := net.JoinHostPort(cfg.Host, strconv.Itoa(int(cfg.Port)))
 	return proxy.TransparentHandler(func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -46,7 +46,7 @@ func NewGRPC(cfg config.Proxy, roleCfg config.RoleToken, prov service.Authorizat
 			ctx = metadata.AppendToOutgoingContext(ctx, "X-Athenz-Client-ID", c.ClientID())
 		}
 
-		conn, err := grpc.DialContext(ctx, target, grpc.WithCodec(proxy.Codec()))
+		conn, err := grpc.DialContext(ctx, target, grpc.WithCodec(proxy.Codec()), grpc.WithInsecure())
 		return ctx, conn, err
 	})
 }

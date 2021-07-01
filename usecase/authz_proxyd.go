@@ -66,7 +66,7 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 			service.WithServerConfig(cfg.Server),
 			service.WithServerHandler(handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
 			service.WithDebugHandler(debugMux),
-			service.WithGRPCHandler(handler.NewGRPC(cfg.Proxy, cfg.Authorization.RoleToken, athenz)),
+			service.WithGRPCHandler(handler.NewGRPC(cfg.GRPCProxy, cfg.Authorization.RoleToken, athenz)),
 		),
 	}, nil
 }
