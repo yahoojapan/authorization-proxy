@@ -93,7 +93,7 @@ func TestNewTLSConfig(t *testing.T) {
 					}
 
 					if !match {
-						return fmt.Errorf("CurvePreferences not Find :\twant %s", string(want.MinVersion))
+						return fmt.Errorf("CurvePreferences not Find :\twant %d", want.MinVersion)
 					}
 				}
 				return nil
