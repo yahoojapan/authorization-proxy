@@ -315,7 +315,7 @@ func handleHealthCheckRequest(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(ContentType, fmt.Sprintf("%s;%s", TextPlain, CharsetUTF8))
 		_, err := fmt.Fprint(w, http.StatusText(http.StatusOK))
 		if err != nil {
-			glg.Fatal(errors.Wrap(err, "cannot fmt.Fprint(w, http.StatusText(http.StatusOK))"))
+			glg.Error(errors.Wrap(err, "cannot fmt.Fprint(w, http.StatusText(http.StatusOK))"))
 		}
 	}
 }

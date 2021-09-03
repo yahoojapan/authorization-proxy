@@ -52,7 +52,9 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			u.Host = host
 			req, err := http.NewRequest(r.Method, u.String(), r.Body)
 			if err != nil {
-				glg.Fatal(errors.Wrap(err, "NewRequest returned error"))
+				glg.Error(errors.Wrap(err, "NewRequest returned error"))
+				r.URL.Scheme = scheme
+				return
 			}
 			req.Header = r.Header
 			req.TLS = r.TLS
