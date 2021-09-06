@@ -1024,6 +1024,26 @@ func Test_server_handleHealthCheckRequest(t *testing.T) {
 				},
 			}
 		}(),
+		func() test {
+			rw := &ResponseWriterMock{
+				header: http.Header{},
+				writeFunc: func(buf []byte) (int, error) {
+					return len(buf), fmt.Errorf("Test error")
+				},
+			}
+
+			return test{
+				name: "Test handle response error",
+				args: args{
+					rw: rw,
+					r:  httptest.NewRequest(http.MethodGet, "/", nil),
+				},
+				checkFunc: func() error {
+					// Confirm if the above does not terminate
+					return nil
+				},
+			}
+		}(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
