@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -16,17 +15,24 @@ func (sm *ServerMock) ListenAndServe(ctx context.Context) <-chan []error {
 	return sm.ListenAndServeFunc(ctx)
 }
 
-type ResponseWriter struct {
+// ResponseWriterMock is a mock of ResponseWriter
+type ResponseWriterMock struct {
+	header    http.Header
+	writeFunc func(buf []byte) (int, error)
+	code      int
 }
 
-func (rw *ResponseWriter) Header() http.Header {
-	return http.Header{}
+// Header is a mock implementation of ResponseWriter.Header
+func (rw *ResponseWriterMock) Header() http.Header {
+	return rw.header
 }
 
-func (rw *ResponseWriter) Write(buf []byte) (int, error) {
-	return len(buf), errors.New("Test error")
+// Write is a mock implementation of ResponseWriter.Write
+func (rw *ResponseWriterMock) Write(buf []byte) (int, error) {
+	return rw.writeFunc(buf)
 }
 
-// WriteHeader implements http.ResponseWriter.
-func (rw *ResponseWriter) WriteHeader(code int) {
+// WriteHeader is a mock implementation of ResponseWriter.WriteHeader
+func (rw *ResponseWriterMock) WriteHeader(code int) {
+	rw.code = code
 }

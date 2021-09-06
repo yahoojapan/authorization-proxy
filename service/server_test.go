@@ -1025,7 +1025,12 @@ func Test_server_handleHealthCheckRequest(t *testing.T) {
 			}
 		}(),
 		func() test {
-			rw := &ResponseWriter{}
+			rw := &ResponseWriterMock{
+				header: http.Header{},
+				writeFunc: func(buf []byte) (int, error) {
+					return len(buf), fmt.Errorf("Test error")
+				},
+			}
 
 			return test{
 				name: "Test handle response error",
