@@ -397,6 +397,41 @@ func TestNew(t *testing.T) {
 				},
 			}
 		}(),
+		func() test {
+			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}))
+			srv := httptest.NewServer(handler)
+
+			return test{
+				name: "check error on new request",
+				args: args{
+					cfg: config.Proxy{
+						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
+						Port: func() uint16 {
+							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
+							return uint16(a)
+						}(),
+					},
+					bp: infra.NewBuffer(64),
+					prov: &service.AuthorizerdMock{
+						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+							return &pm, nil
+						},
+					},
+				},
+				checkFunc: func(h http.Handler) error {
+					rw := httptest.NewRecorder()
+					r := httptest.NewRequest("GET", "http://dummy.com", nil)
+					r.Method = "invalid_method()"
+					h.ServeHTTP(rw, r)
+					if rw.Code != http.StatusBadGateway {
+						return errors.Errorf("unexpected status code, got: %v, want: %v", rw.Code, http.StatusBadGateway)
+					}
+					return nil
+				},
+			}
+		}(),
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
