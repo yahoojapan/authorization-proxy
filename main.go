@@ -21,7 +21,6 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-
 	"path/filepath"
 	"runtime"
 	"syscall"

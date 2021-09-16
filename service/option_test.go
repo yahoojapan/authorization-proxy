@@ -1,12 +1,15 @@
 package service
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/pkg/errors"
 	"github.com/yahoojapan/authorization-proxy/v4/config"
+	"google.golang.org/grpc"
 )
 
 func TestWithServerConfig(t *testing.T) {
@@ -45,7 +48,7 @@ func TestWithServerConfig(t *testing.T) {
 	}
 }
 
-func TestWithServerHandler(t *testing.T) {
+func TestWithRestHandler(t *testing.T) {
 	type args struct {
 		h http.Handler
 	}
@@ -79,9 +82,125 @@ func TestWithServerHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := WithServerHandler(tt.args.h)
+			got := WithRestHandler(tt.args.h)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("WithServerHandler() error = %v", err)
+			}
+		})
+	}
+}
+
+func TestWithGRPCHandler(t *testing.T) {
+	type args struct {
+		h grpc.StreamHandler
+	}
+	type test struct {
+		name      string
+		args      args
+		checkFunc func(Option) error
+	}
+	tests := []test{
+		func() test {
+			h := func(srv interface{}, stream grpc.ServerStream) error {
+				return nil
+			}
+			return test{
+				name: "set success",
+				args: args{
+					h: h,
+				},
+				checkFunc: func(o Option) error {
+					srv := &server{}
+					o(srv)
+					if reflect.ValueOf(srv.grpcHandler).Pointer() != reflect.ValueOf(h).Pointer() {
+						return errors.New("value cannot set")
+					}
+					return nil
+				},
+			}
+		}(),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := WithGRPCHandler(tt.args.h)
+			if err := tt.checkFunc(got); err != nil {
+				t.Errorf("WithGRPCHandler() error = %v", err)
+			}
+		})
+	}
+}
+
+func TestWithGRPCloser(t *testing.T) {
+	type args struct {
+		c io.Closer
+	}
+	type test struct {
+		name      string
+		args      args
+		checkFunc func(Option) error
+	}
+	tests := []test{
+		func() test {
+			c := &io.PipeReader{}
+			return test{
+				name: "set success",
+				args: args{
+					c: c,
+				},
+				checkFunc: func(o Option) error {
+					srv := &server{}
+					o(srv)
+					if reflect.ValueOf(srv.grpcCloser).Pointer() != reflect.ValueOf(c).Pointer() {
+						return errors.New("value cannot set")
+					}
+					return nil
+				},
+			}
+		}(),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := WithGRPCCloser(tt.args.c)
+			if err := tt.checkFunc(got); err != nil {
+				t.Errorf("WithGRPCCloser() error = %v", err)
+			}
+		})
+	}
+}
+
+func TestWithGRPCServer(t *testing.T) {
+	type args struct {
+		srv *grpc.Server
+	}
+	type test struct {
+		name      string
+		args      args
+		checkFunc func(Option) error
+	}
+	tests := []test{
+		func() test {
+			gs := &grpc.Server{}
+			return test{
+				name: "set success",
+				args: args{
+					srv: gs,
+				},
+				checkFunc: func(o Option) error {
+					srv := &server{}
+					o(srv)
+					if !reflect.DeepEqual(srv.grpcSrv, gs) {
+						return errors.New("value cannot set")
+					}
+					return nil
+				},
+			}
+		}(),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := WithGRPCServer(tt.args.srv)
+			if err := tt.checkFunc(got); err != nil {
+				t.Errorf("WithGRPCServer() error = %v", err)
 			}
 		})
 	}

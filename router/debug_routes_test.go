@@ -24,7 +24,7 @@ func TestNewDebugRoutes(t *testing.T) {
 		want      []Route
 	}
 	tests := []test{
-		test{
+		{
 			name: "return all enable success",
 			args: args{
 				cfg: config.Debug{
@@ -134,7 +134,7 @@ func TestNewDebugRoutes(t *testing.T) {
 				},
 			},
 		},
-		test{
+		{
 			name: "return enable dump only success",
 			args: args{
 				cfg: config.Debug{
@@ -172,7 +172,7 @@ func TestNewDebugRoutes(t *testing.T) {
 				},
 			},
 		},
-		test{
+		{
 			name: "return enable profiling success",
 			args: args{
 				cfg: config.Debug{
@@ -274,7 +274,7 @@ func TestNewDebugRoutes(t *testing.T) {
 				},
 			},
 		},
-		test{
+		{
 			name: "disable all and return success",
 			args: args{
 				cfg: config.Debug{

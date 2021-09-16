@@ -18,10 +18,11 @@ package config
 
 import (
 	"fmt"
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"os"
 	"reflect"
 	"testing"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
 	"github.com/kpango/glg"
 )
@@ -58,7 +59,7 @@ func TestNew(t *testing.T) {
 				}
 				defer f.Close()
 
-				err = f.Chmod(0000)
+				err = f.Chmod(0o000)
 				if err != nil {
 					return err
 				}

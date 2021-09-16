@@ -17,9 +17,10 @@ limitations under the License.
 package config
 
 import (
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"os"
 	"strings"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v2"
@@ -262,7 +263,7 @@ type Log struct {
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
 func New(path string) (*Config, error) {
-	f, err := os.OpenFile(path, os.O_RDONLY, 0600)
+	f, err := os.OpenFile(path, os.O_RDONLY, 0o600)
 	if err != nil {
 		return nil, errors.Wrap(err, "OpenFile failed")
 	}

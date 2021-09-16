@@ -42,4 +42,10 @@ const (
 
 	// ErrMsgUnverified "unauthenticated/unauthorized"
 	ErrMsgUnverified = "unauthenticated/unauthorized"
+
+	// ErrGRPCMetadataNotFound "grpc metadata not found"
+	ErrGRPCMetadataNotFound = "grpc metadata not found"
+
+	// ErrRoleTokenNotFound "role token not found"
+	ErrRoleTokenNotFound = "role token not found"
 )

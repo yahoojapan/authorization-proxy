@@ -3,12 +3,13 @@ package usecase
 import (
 	"context"
 	"fmt"
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"reflect"
 	"sort"
 	"sync"
 	"testing"
 	"time"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
 	"github.com/yahoojapan/authorization-proxy/v4/config"
 	"github.com/yahoojapan/authorization-proxy/v4/service"

@@ -144,7 +144,7 @@ func TestNewTLSConfig(t *testing.T) {
 			},
 			checkFunc: func(got, want *tls.Config) error {
 				for _, wantVal := range want.Certificates {
-					var notExist = false
+					notExist := false
 					for _, gotVal := range got.Certificates {
 						if gotVal.PrivateKey == wantVal.PrivateKey {
 							notExist = true
@@ -289,7 +289,6 @@ func TestNewTLSConfig(t *testing.T) {
 
 			if tt.afterFunc != nil {
 				tt.afterFunc(tt.args)
-
 			}
 		})
 	}
