@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -1343,7 +1344,7 @@ func Test_server_grpcShutdown(t *testing.T) {
 				name: "grpcShutdown works",
 				fields: fields{
 					grpcSrv:    grpcSrv,
-					grpcCloser: io.NopCloser(nil),
+					grpcCloser: ioutil.NopCloser(nil),
 				},
 				beforeFunc: func() error {
 					l, err := net.Listen("tcp", ":9998")
