@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -1338,6 +1339,7 @@ func Test_server_grpcShutdown(t *testing.T) {
 				grpc.CustomCodec(proxy.Codec()),
 				grpc.UnknownServiceHandler(grpcHandler),
 			)
+			var mux sync.Mutex
 			running := true
 
 			return test{
@@ -1353,7 +1355,10 @@ func Test_server_grpcShutdown(t *testing.T) {
 					}
 					go func() {
 						grpcSrv.Serve(l)
+
+						mux.Lock()
 						running = false
+						mux.Unlock()
 					}()
 					return nil
 				},
@@ -1361,6 +1366,9 @@ func Test_server_grpcShutdown(t *testing.T) {
 					if err := checkGRPCSrvRunning(grpcSrvAddr); err == nil {
 						return errors.New("server running")
 					}
+
+					mux.Lock()
+					defer mux.Unlock()
 					if running {
 						return errors.New("server running")
 					}
