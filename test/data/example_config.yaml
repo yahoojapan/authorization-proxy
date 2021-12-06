@@ -29,6 +29,20 @@ proxy:
   port: 80
   bufferSize: 4096
   originHealthCheckPaths: []
+  transport:
+    tlsHandshakeTimeout: "10s"
+    disableKeepAlives: false
+    disableCompression: false
+    maxIdleConns: 100
+    maxIdleConnsPerHost: 0
+    maxConnsPerHost: 0
+    idleConnTimeout: "90s"
+    responseHeaderTimeout: "0"
+    expectContinueTimeout: "1s"
+    maxResponseHeaderBytes: 0
+    writeBufferSize: 0
+    readBufferSize: 0
+    forceAttemptHTTP2: true
 authorization:
   athenzDomains:
   - provider-domain1
