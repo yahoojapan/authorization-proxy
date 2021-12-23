@@ -148,7 +148,7 @@ type Proxy struct {
 	OriginHealthCheckPaths []string `yaml:"originHealthCheckPaths"`
 
 	// Transport exposes http.Transport parameters
-	Transport Transport `yaml:"transport"`
+	Transport Transport `yaml:"transport,omitempty"`
 }
 
 // Authorization represents the detail authorization configuration.
@@ -267,19 +267,19 @@ type Log struct {
 
 // Transport exposes a subset of Transport parameters. reference: https://github.com/golang/go/blob/master/src/net/http/transport.go#L95
 type Transport struct {
-	TLSHandshakeTimeout    time.Duration `yaml:"tlsHandshakeTimeout"`
-	DisableKeepAlives      bool          `yaml:"disableKeepAlives"`
-	DisableCompression     bool          `yaml:"disableCompression"`
-	MaxIdleConns           int           `yaml:"maxIdleConns"`
-	MaxIdleConnsPerHost    int           `yaml:"maxIdleConnsPerHost"`
-	MaxConnsPerHost        int           `yaml:"maxConnsPerHost"`
-	IdleConnTimeout        time.Duration `yaml:"idleConnTimeout"`
-	ResponseHeaderTimeout  time.Duration `yaml:"responseHeaderTimeout"`
-	ExpectContinueTimeout  time.Duration `yaml:"expectContinueTimeout"`
-	MaxResponseHeaderBytes int64         `yaml:"maxResponseHeaderBytes"`
-	WriteBufferSize        int           `yaml:"writeBufferSize"`
-	ReadBufferSize         int           `yaml:"readBufferSize"`
-	ForceAttemptHTTP2      bool          `yaml:"forceAttemptHTTP2"`
+	TLSHandshakeTimeout    time.Duration `yaml:"tlsHandshakeTimeout,omitempty"`
+	DisableKeepAlives      bool          `yaml:"disableKeepAlives,omitempty"`
+	DisableCompression     bool          `yaml:"disableCompression,omitempty"`
+	MaxIdleConns           int           `yaml:"maxIdleConns,omitempty"`
+	MaxIdleConnsPerHost    int           `yaml:"maxIdleConnsPerHost,omitempty"`
+	MaxConnsPerHost        int           `yaml:"maxConnsPerHost,omitempty"`
+	IdleConnTimeout        time.Duration `yaml:"idleConnTimeout,omitempty"`
+	ResponseHeaderTimeout  time.Duration `yaml:"responseHeaderTimeout,omitempty"`
+	ExpectContinueTimeout  time.Duration `yaml:"expectContinueTimeout,omitempty"`
+	MaxResponseHeaderBytes int64         `yaml:"maxResponseHeaderBytes,omitempty"`
+	WriteBufferSize        int           `yaml:"writeBufferSize,omitempty"`
+	ReadBufferSize         int           `yaml:"readBufferSize,omitempty"`
+	ForceAttemptHTTP2      bool          `yaml:"forceAttemptHTTP2,omitempty"`
 }
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
