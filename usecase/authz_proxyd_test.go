@@ -3,12 +3,13 @@ package usecase
 import (
 	"context"
 	"fmt"
-	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 	"reflect"
 	"sort"
 	"sync"
 	"testing"
 	"time"
+
+	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
 	"github.com/yahoojapan/authorization-proxy/v4/config"
 	"github.com/yahoojapan/authorization-proxy/v4/service"
@@ -581,7 +582,7 @@ func Test_newAuthzD(t *testing.T) {
 				},
 			},
 			want:       false,
-			wantErrStr: "newAuthzD(): Athenz.Timeout: time: invalid duration invalid",
+			wantErrStr: `newAuthzD(): Athenz.Timeout: time: invalid duration "invalid"`,
 		},
 		{
 			name: "test new Authorization fail, Athenz.CAPath",
@@ -607,7 +608,7 @@ func Test_newAuthzD(t *testing.T) {
 				},
 			},
 			want:       false,
-			wantErrStr: "error create pubkeyd: invalid refresh period: time: invalid duration invalid_period",
+			wantErrStr: `error create pubkeyd: invalid refresh period: time: invalid duration "invalid_period"`,
 		},
 		{
 			name: "test new Authorization fail, invalid MappingRules",
