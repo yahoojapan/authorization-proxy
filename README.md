@@ -13,23 +13,22 @@
 
 ![logo](./images/logo.png)
 
-<!-- TOC insertAnchor:false -->
+<!-- TOC depthFrom:1 insertAnchor:false -->
 
-- [Authorization Proxy](#authorization-proxy)
-    - [What is Authorization Proxy](#what-is-authorization-proxy)
-    - [Use case](#use-case)
-        - [Authorization and Authorization request](#authorization-and-authorization-request)
-            - [Athenz authorizer](#athenz-authorizer)
-            - [Authorization success](#authorization-success)
-            - [Authorization failed](#authorization-failed)
-        - [Mapping rules](#mapping-rules)
-        - [HTTP request headers](#http-request-headers)
-    - [Features to Debug](#features-to-debug)
-    - [Configuration](#configuration)
-    - [License](#license)
-    - [Contributor License Agreement](#contributor-license-agreement)
-    - [About releases](#about-releases)
-    - [Authors](#authors)
+- [What is Authorization Proxy](#what-is-authorization-proxy)
+- [Use case](#use-case)
+    - [Authorization and Authorization request](#authorization-and-authorization-request)
+        - [Athenz authorizer](#athenz-authorizer)
+        - [Authorization success](#authorization-success)
+        - [Authorization failed](#authorization-failed)
+    - [Mapping rules](#mapping-rules)
+    - [HTTP request headers](#http-request-headers)
+- [Features to Debug](#features-to-debug)
+- [Configuration](#configuration)
+- [License](#license)
+- [Contributor License Agreement](#contributor-license-agreement)
+- [About releases](#about-releases)
+- [Authors](#authors)
 
 <!-- /TOC -->
 
@@ -42,7 +41,7 @@ Client request can be authenticated and authorized by:
 1. Role token in the HTTP/HTTPS request header
 1. Role certificate on mTLS
 
-Requires go 1.14 or later.
+Requires go 1.16 or later.
 
 ## Use case
 
