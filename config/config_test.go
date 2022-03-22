@@ -112,6 +112,9 @@ func TestNew(t *testing.T) {
 					Port:                   80,
 					BufferSize:             4096,
 					OriginHealthCheckPaths: []string{},
+					Request: Request{
+						Host: "remote.host",
+					},
 					Transport: Transport{
 						TLSHandshakeTimeout:    10 * time.Second,
 						DisableKeepAlives:      false,

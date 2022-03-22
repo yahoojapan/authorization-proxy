@@ -59,6 +59,10 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			}
 			req.Header = r.Header
 			req.TLS = r.TLS
+			if cfg.Request.Host != "" {
+				req.Host = cfg.Request.Host
+			}
+
 			*r = *req
 		},
 		Transport: &transport{
