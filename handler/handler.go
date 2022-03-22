@@ -61,6 +61,7 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			req.TLS = r.TLS
 			if cfg.Request.Host != "" {
 				req.Host = cfg.Request.Host
+				glg.Debugf("set request host from config: %s\n", req.Host)
 			}
 
 			*r = *req
