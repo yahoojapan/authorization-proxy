@@ -59,9 +59,9 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			}
 			req.Header = r.Header
 			req.TLS = r.TLS
-			if cfg.Request.Host != "" {
-				req.Host = cfg.Request.Host
-				glg.Debugf("set request host from config: %s\n", req.Host)
+			if cfg.PreserveHost {
+				req.Host = r.Host
+				glg.Debugf("proxy.PreserveHost enabled, forward host header: %s\n", req.Host)
 			}
 
 			*r = *req

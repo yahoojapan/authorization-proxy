@@ -147,8 +147,8 @@ type Proxy struct {
 	// Tips for performance: define your health check endpoint with a different length from the most frequently used endpoint, for example, use `/healthcheck` (len: 12) when `/most_used` (len: 10), instead of `/healthccc` (len: 10)
 	OriginHealthCheckPaths []string `yaml:"originHealthCheckPaths"`
 
-	// Request exposes http.Request parameters
-	Request Request `yaml:"request,omitempty"`
+	// PreserveHost represents whether to preserve the host header from the request.
+	PreserveHost bool `yaml:"preserveHost"`
 
 	// Transport exposes http.Transport parameters
 	Transport Transport `yaml:"transport,omitempty"`
@@ -266,11 +266,6 @@ type Log struct {
 
 	// Color represents whether to print ANSI escape code.
 	Color bool `yaml:"color"`
-}
-
-// Request exposes a subset of Request parameters. reference: https://github.com/golang/go/blob/master/src/net/http/request.go#L103
-type Request struct {
-	Host string `yaml:"host,omitempty"`
 }
 
 // Transport exposes a subset of Transport parameters. reference: https://github.com/golang/go/blob/master/src/net/http/transport.go#L95

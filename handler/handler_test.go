@@ -437,7 +437,7 @@ func TestNew(t *testing.T) {
 		func() test {
 			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				// check host header
-				if r.Host != "remote.host.460" {
+				if r.Host != "remote.host.469" {
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
@@ -446,7 +446,7 @@ func TestNew(t *testing.T) {
 			srv := httptest.NewServer(handler)
 
 			return test{
-				name: "check custom host header is used",
+				name: "check preserve host",
 				args: args{
 					cfg: config.Proxy{
 						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
@@ -454,9 +454,7 @@ func TestNew(t *testing.T) {
 							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
 							return uint16(a)
 						}(),
-						Request: config.Request{
-							Host: "remote.host.460",
-						},
+						PreserveHost: true,
 					},
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{
@@ -468,6 +466,7 @@ func TestNew(t *testing.T) {
 				checkFunc: func(h http.Handler) error {
 					rw := httptest.NewRecorder()
 					r := httptest.NewRequest("GET", "http://dummy.com", nil)
+					r.Host = "remote.host.469"
 					h.ServeHTTP(rw, r)
 					if rw.Code != http.StatusOK {
 						return errors.Errorf("unexpected status code (invalid host header), got: %v, want: %v", rw.Code, http.StatusOK)
