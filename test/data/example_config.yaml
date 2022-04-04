@@ -29,6 +29,7 @@ proxy:
   port: 80
   bufferSize: 4096
   originHealthCheckPaths: []
+  preserveHost: true
   transport:
     tlsHandshakeTimeout: "10s"
     disableKeepAlives: false
