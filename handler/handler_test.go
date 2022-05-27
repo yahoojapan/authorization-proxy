@@ -340,7 +340,7 @@ func TestNew(t *testing.T) {
 				args: args{
 					cfg: config.Proxy{
 						Host: "dummyHost",
-						Port: 9999,
+						Port: 59999,
 					},
 					bp: infra.NewBuffer(64),
 					prov: &service.AuthorizerdMock{

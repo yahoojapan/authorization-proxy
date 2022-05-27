@@ -122,6 +122,7 @@ func (gh *GRPCHandler) dialContext(ctx context.Context, target string, dialOpts 
 }
 
 func isHealthy(conn *grpc.ClientConn) bool {
+	glg.Debugf("conn.GetState(): %s", conn.GetState().String())
 	switch conn.GetState() {
 	case connectivity.Ready, connectivity.Idle, connectivity.Connecting:
 		return true

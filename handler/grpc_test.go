@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/errors"
@@ -84,13 +85,13 @@ func TestNewGRPC(t *testing.T) {
 				grpc.CustomCodec(proxy.Codec()),
 				grpc.UnknownServiceHandler(grpcHandler),
 			)
-			l, err := net.Listen("tcp", ":9997")
+			l, err := net.Listen("tcp", "127.0.0.1:19997")
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var proxySrv *grpc.Server
-			pl, err := net.Listen("tcp", ":9998")
+			pl, err := net.Listen("tcp", "127.0.0.1:19998")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -102,7 +103,7 @@ func TestNewGRPC(t *testing.T) {
 						WithProxyConfig(config.Proxy{
 							Scheme: "grpc",
 							Host:   "127.0.0.1",
-							Port:   9997,
+							Port:   19997,
 						}),
 						WithRoleTokenConfig(config.RoleToken{
 							Enable:         true,
@@ -134,7 +135,7 @@ func TestNewGRPC(t *testing.T) {
 				beforeFunc: func() {
 					go func() {
 						if err := grpcSrv.Serve(l); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 				},
@@ -147,11 +148,11 @@ func TestNewGRPC(t *testing.T) {
 					// start proxy server
 					go func() {
 						if err := proxySrv.Serve(pl); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 
-					if err := checkGRPCSrvRunning("127.0.0.1:9998", "roletok"); err != nil {
+					if err := checkGRPCSrvRunning("127.0.0.1:19998", "roletok"); err != nil {
 						return err
 					}
 					if !targetExecuted {
@@ -179,13 +180,13 @@ func TestNewGRPC(t *testing.T) {
 				grpc.CustomCodec(proxy.Codec()),
 				grpc.UnknownServiceHandler(grpcHandler),
 			)
-			l, err := net.Listen("tcp", ":9996")
+			l, err := net.Listen("tcp", "127.0.0.1:19996")
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var proxySrv *grpc.Server
-			pl, err := net.Listen("tcp", ":9999")
+			pl, err := net.Listen("tcp", "127.0.0.1:19999")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -197,7 +198,7 @@ func TestNewGRPC(t *testing.T) {
 						WithProxyConfig(config.Proxy{
 							Scheme: "grpc",
 							Host:   "127.0.0.1",
-							Port:   9996,
+							Port:   19996,
 						}),
 						WithRoleTokenConfig(config.RoleToken{
 							Enable:         true,
@@ -208,7 +209,7 @@ func TestNewGRPC(t *testing.T) {
 				beforeFunc: func() {
 					go func() {
 						if err := grpcSrv.Serve(l); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 				},
@@ -221,11 +222,11 @@ func TestNewGRPC(t *testing.T) {
 					// start proxy server
 					go func() {
 						if err := proxySrv.Serve(pl); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 
-					if err := checkGRPCSrvRunning("127.0.0.1:9999", ""); !errors.Is(err, status.Errorf(codes.Unauthenticated, ErrRoleTokenNotFound)) {
+					if err := checkGRPCSrvRunning("127.0.0.1:19999", ""); !errors.Is(err, status.Errorf(codes.Unauthenticated, ErrRoleTokenNotFound)) {
 						return errors.Errorf("unexpected err, got: %s", err)
 					}
 					if targetExecuted {
@@ -253,13 +254,13 @@ func TestNewGRPC(t *testing.T) {
 				grpc.CustomCodec(proxy.Codec()),
 				grpc.UnknownServiceHandler(grpcHandler),
 			)
-			l, err := net.Listen("tcp", ":9995")
+			l, err := net.Listen("tcp", "127.0.0.1:19995")
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var proxySrv *grpc.Server
-			pl, err := net.Listen("tcp", ":9994")
+			pl, err := net.Listen("tcp", "127.0.0.1:19994")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -271,7 +272,7 @@ func TestNewGRPC(t *testing.T) {
 						WithProxyConfig(config.Proxy{
 							Scheme: "grpc",
 							Host:   "127.0.0.1",
-							Port:   9995,
+							Port:   19995,
 						}),
 						WithRoleTokenConfig(config.RoleToken{
 							Enable:         true,
@@ -287,7 +288,7 @@ func TestNewGRPC(t *testing.T) {
 				beforeFunc: func() {
 					go func() {
 						if err := grpcSrv.Serve(l); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 				},
@@ -300,11 +301,11 @@ func TestNewGRPC(t *testing.T) {
 					// start proxy server
 					go func() {
 						if err := proxySrv.Serve(pl); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 
-					if err := checkGRPCSrvRunning("127.0.0.1:9994", "roletok"); errors.Is(err, errors.New("rpc error: code = Unauthenticated desc = unauthenticated")) {
+					if err := checkGRPCSrvRunning("127.0.0.1:19994", "roletok"); errors.Is(err, errors.New("rpc error: code = Unauthenticated desc = unauthenticated")) {
 						return errors.Errorf("unexpected err, got: %s", err)
 					}
 					if targetExecuted {
@@ -332,13 +333,13 @@ func TestNewGRPC(t *testing.T) {
 				grpc.CustomCodec(proxy.Codec()),
 				grpc.UnknownServiceHandler(grpcHandler),
 			)
-			l, err := net.Listen("tcp", ":9993")
+			l, err := net.Listen("tcp", "127.0.0.1:19993")
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			var proxySrv *grpc.Server
-			pl, err := net.Listen("tcp", ":9992")
+			pl, err := net.Listen("tcp", "127.0.0.1:19992")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -350,7 +351,7 @@ func TestNewGRPC(t *testing.T) {
 						WithProxyConfig(config.Proxy{
 							Scheme: "grpc",
 							Host:   "127.0.0.1",
-							Port:   9993,
+							Port:   19993,
 						}),
 						WithRoleTokenConfig(config.RoleToken{
 							Enable:         true,
@@ -387,7 +388,7 @@ func TestNewGRPC(t *testing.T) {
 				beforeFunc: func() {
 					go func() {
 						if err := grpcSrv.Serve(l); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 				},
@@ -400,11 +401,11 @@ func TestNewGRPC(t *testing.T) {
 					// start proxy server
 					go func() {
 						if err := proxySrv.Serve(pl); err != nil {
-							t.Fatal(err)
+							panic(err)
 						}
 					}()
 
-					if err := checkGRPCSrvRunning("127.0.0.1:9992", "roletok"); err != nil {
+					if err := checkGRPCSrvRunning("127.0.0.1:19992", "roletok"); err != nil {
 						return err
 					}
 					if !targetExecuted {
@@ -537,7 +538,7 @@ func TestGRPCHandler_dialContext(t *testing.T) {
 	}
 	tests := []test{
 		func() test {
-			target := "127.0.0.1:80"
+			target := "127.0.0.1:10080"
 			conn, err := grpc.Dial(target, grpc.WithInsecure())
 			if err != nil {
 				t.Error(err)
@@ -577,7 +578,7 @@ func TestGRPCHandler_dialContext(t *testing.T) {
 			}
 		}(),
 		func() test {
-			target := "127.0.0.1:83"
+			target := "127.0.0.1:10083"
 			conn, err := grpc.Dial(target, grpc.WithInsecure())
 			if err != nil {
 				t.Error(err)
@@ -618,7 +619,7 @@ func TestGRPCHandler_dialContext(t *testing.T) {
 			}
 		}(),
 		func() test {
-			target := "127.0.0.1:85"
+			target := "127.0.0.1:10085"
 			connMap := sync.Map{}
 
 			return test{
@@ -680,56 +681,74 @@ func Test_isHealthy(t *testing.T) {
 		conn *grpc.ClientConn
 	}
 	type test struct {
-		name      string
-		args      args
-		want      bool
-		afterFunc func()
+		name       string
+		want       bool
+		beforeFunc func() (*grpc.ClientConn, error)
+		afterFunc  func(*grpc.ClientConn) error
 	}
 	tests := []test{
 		func() test {
-			conn, err := grpc.Dial("127.0.0.1:92", grpc.WithInsecure())
+			l, err := net.Listen("tcp", "127.0.0.1:10092")
 			if err != nil {
-				t.Error(err)
+				t.Errorf("listen TCP connection err: %v", err.Error())
 			}
 
 			return test{
 				name: "return true when connection state is ready",
-				args: args{
-					conn: conn,
-				},
 				want: true,
-				afterFunc: func() {
-					conn.Close()
+				beforeFunc: func() (*grpc.ClientConn, error) {
+					return grpc.Dial(l.Addr().String(), grpc.WithInsecure(), grpc.WithTimeout(time.Minute))
+				},
+				afterFunc: func(conn *grpc.ClientConn) error {
+					err := conn.Close()
+					if err != nil {
+						return err
+					}
+					return l.Close()
 				},
 			}
 		}(),
 		func() test {
-			conn, err := grpc.Dial("127.0.0.1:93", grpc.WithInsecure())
+			l, err := net.Listen("tcp", "127.0.0.1:10093")
 			if err != nil {
-				t.Error(err)
+				t.Errorf("listen TCP connection err: %v", err.Error())
 			}
-			conn.Close()
 
 			return test{
 				name: "return false when connection state is closed",
-				args: args{
-					conn: conn,
-				},
 				want: false,
-				afterFunc: func() {
-					conn.Close()
+				beforeFunc: func() (*grpc.ClientConn, error) {
+					conn, err := grpc.Dial(l.Addr().String(), grpc.WithInsecure(), grpc.WithTimeout(time.Minute))
+					if err != nil {
+						return nil, err
+					}
+					return conn, conn.Close()
+				},
+				afterFunc: func(conn *grpc.ClientConn) error {
+					return l.Close()
 				},
 			}
 		}(),
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.afterFunc != nil {
-				defer tt.afterFunc()
+			conn, err := tt.beforeFunc()
+			if err != nil {
+				t.Errorf("grpc.Dial() error: %v", err.Error())
+				return
 			}
 
-			if got := isHealthy(tt.args.conn); got != tt.want {
+			// test
+			if got := isHealthy(conn); got != tt.want {
 				t.Errorf("isHealthy() = %v, want %v", got, tt.want)
+			}
+
+			// cleanup
+			err = tt.afterFunc(conn)
+			if err != nil {
+				t.Errorf("stop/close error: %v", err.Error())
+				return
 			}
 		})
 	}
