@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
@@ -391,7 +393,7 @@ func TestNew(t *testing.T) {
 					r := httptest.NewRequest("GET", "http://dummy.com", nil)
 					h.ServeHTTP(rw, r)
 					if rw.Code != http.StatusRequestTimeout {
-						return errors.Errorf("unexpected status code, got: %v, want: %v", rw.Code, http.StatusOK)
+						return errors.Errorf("unexpected status code, got: %v, want: %v", rw.Code, http.StatusRequestTimeout)
 					}
 					return nil
 				},
@@ -432,12 +434,132 @@ func TestNew(t *testing.T) {
 				},
 			}
 		}(),
+		func() test {
+			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// check host header
+				if r.Host != "remote.host.469" {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+			}))
+			srv := httptest.NewServer(handler)
+
+			return test{
+				name: "check preserve host",
+				args: args{
+					cfg: config.Proxy{
+						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
+						Port: func() uint16 {
+							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
+							return uint16(a)
+						}(),
+						PreserveHost: true,
+					},
+					bp: infra.NewBuffer(64),
+					prov: &service.AuthorizerdMock{
+						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+							return &pm, nil
+						},
+					},
+				},
+				checkFunc: func(h http.Handler) error {
+					rw := httptest.NewRecorder()
+					r := httptest.NewRequest("GET", "http://dummy.com", nil)
+					r.Host = "remote.host.469"
+					h.ServeHTTP(rw, r)
+					if rw.Code != http.StatusOK {
+						return errors.Errorf("unexpected status code (invalid host header), got: %v, want: %v", rw.Code, http.StatusOK)
+					}
+					return nil
+				},
+			}
+		}(),
+		{
+			name: "check custom transport is used",
+			args: args{
+				cfg: config.Proxy{
+					Transport: config.Transport{
+						MaxIdleConnsPerHost: 442,
+					},
+				},
+			},
+			checkFunc: func(h http.Handler) error {
+				got := h.(*httputil.ReverseProxy).Transport.(*transport).RoundTripper.(*http.Transport).MaxIdleConnsPerHost
+				want := 442
+				if got != want {
+					return errors.Errorf("unexpected MaxConnsPerHost in custom transport, got: %v, want: %v", got, want)
+				}
+				return nil
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := New(tt.args.cfg, tt.args.bp, tt.args.prov)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("New() error: %v", err)
+			}
+		})
+	}
+}
+
+func Test_transportFromCfg(t *testing.T) {
+	type args struct {
+		cfg config.Transport
+	}
+	tests := []struct {
+		name string
+		args args
+		want *http.Transport
+	}{
+		{
+			name: "transport from default",
+			args: args{
+				cfg: config.Transport{},
+			},
+			want: &http.Transport{},
+		},
+		{
+			name: "transport from custom values",
+			args: args{
+				cfg: config.Transport{
+					TLSHandshakeTimeout:    468 * time.Second,
+					DisableKeepAlives:      true,
+					DisableCompression:     true,
+					MaxIdleConns:           471,
+					MaxIdleConnsPerHost:    472,
+					MaxConnsPerHost:        473,
+					IdleConnTimeout:        474 * time.Second,
+					ResponseHeaderTimeout:  475 * time.Second,
+					ExpectContinueTimeout:  476 * time.Second,
+					MaxResponseHeaderBytes: 477,
+					WriteBufferSize:        478,
+					ReadBufferSize:         479,
+					ForceAttemptHTTP2:      true,
+				},
+			},
+			want: &http.Transport{
+				TLSHandshakeTimeout:    468 * time.Second,
+				DisableKeepAlives:      true,
+				DisableCompression:     true,
+				MaxIdleConns:           471,
+				MaxIdleConnsPerHost:    472,
+				MaxConnsPerHost:        473,
+				IdleConnTimeout:        474 * time.Second,
+				ResponseHeaderTimeout:  475 * time.Second,
+				ExpectContinueTimeout:  476 * time.Second,
+				MaxResponseHeaderBytes: 477,
+				WriteBufferSize:        478,
+				ReadBufferSize:         479,
+				ForceAttemptHTTP2:      true,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := transportFromCfg(tt.args.cfg); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("transportFromCfg() = %v, want %v", got, tt.want)
 			}
 		})
 	}

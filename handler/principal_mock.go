@@ -40,6 +40,11 @@ func (p *PrincipalMock) ExpiryTime() int64 {
 	return p.ExpiryTimeFunc()
 }
 
+// AuthorizedRoles is a mock implementation of Principal
+func (p *PrincipalMock) AuthorizedRoles() []string {
+	return p.AuthorizedRoles()
+}
+
 // ClientID is a mock implementation of OAuthAccessToken
 func (oat *OAuthAccessTokenMock) ClientID() string {
 	return oat.ClientIDFunc()

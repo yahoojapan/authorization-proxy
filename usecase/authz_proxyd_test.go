@@ -582,7 +582,7 @@ func Test_newAuthzD(t *testing.T) {
 				},
 			},
 			want:       false,
-			wantErrStr: "newAuthzD(): Athenz.Timeout: time: invalid duration invalid",
+			wantErrStr: `newAuthzD(): Athenz.Timeout: time: invalid duration "invalid"`,
 		},
 		{
 			name: "test new Authorization fail, Athenz.CAPath",
@@ -608,7 +608,7 @@ func Test_newAuthzD(t *testing.T) {
 				},
 			},
 			want:       false,
-			wantErrStr: "error create pubkeyd: invalid refresh period: time: invalid duration invalid_period",
+			wantErrStr: `error create pubkeyd: invalid refresh period: time: invalid duration "invalid_period"`,
 		},
 		{
 			name: "test new Authorization fail, invalid MappingRules",

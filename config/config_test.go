@@ -21,6 +21,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	authorizerd "github.com/yahoojapan/athenz-authorizer/v5"
 
@@ -111,6 +112,22 @@ func TestNew(t *testing.T) {
 					Port:                   80,
 					BufferSize:             4096,
 					OriginHealthCheckPaths: []string{},
+					PreserveHost:           true,
+					Transport: Transport{
+						TLSHandshakeTimeout:    10 * time.Second,
+						DisableKeepAlives:      false,
+						DisableCompression:     false,
+						MaxIdleConns:           100,
+						MaxIdleConnsPerHost:    0,
+						MaxConnsPerHost:        0,
+						IdleConnTimeout:        90 * time.Second,
+						ResponseHeaderTimeout:  time.Duration(0),
+						ExpectContinueTimeout:  1 * time.Second,
+						MaxResponseHeaderBytes: 0,
+						WriteBufferSize:        0,
+						ReadBufferSize:         0,
+						ForceAttemptHTTP2:      true,
+					},
 				},
 				Authorization: Authorization{
 					PublicKey: PublicKey{

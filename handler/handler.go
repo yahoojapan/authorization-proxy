@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"time"
 
 	"github.com/kpango/glg"
 	"github.com/pkg/errors"
@@ -58,15 +59,82 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 			}
 			req.Header = r.Header
 			req.TLS = r.TLS
+			if cfg.PreserveHost {
+				req.Host = r.Host
+				glg.Debugf("proxy.PreserveHost enabled, forward host header: %s\n", req.Host)
+			}
+
 			*r = *req
 		},
 		Transport: &transport{
 			prov:         prov,
-			RoundTripper: &http.Transport{},
+			RoundTripper: transportFromCfg(cfg.Transport),
 			cfg:          cfg,
 		},
 		ErrorHandler: handleError,
 	}
+}
+
+func transportFromCfg(cfg config.Transport) *http.Transport {
+	isZero := func(v interface{}) bool {
+		switch v.(type) {
+		case int:
+			return v == 0
+		case int64:
+			return v == 0
+		case time.Duration:
+			return v == time.Duration(0)
+		case bool:
+			return v == false
+		default:
+			glg.Fatal("Undefined type on proxy transport config")
+			return false
+		}
+	}
+
+	t := &http.Transport{}
+	if !isZero(cfg.TLSHandshakeTimeout) {
+		t.TLSHandshakeTimeout = cfg.TLSHandshakeTimeout
+	}
+	if !isZero(cfg.DisableKeepAlives) {
+		t.DisableKeepAlives = cfg.DisableKeepAlives
+	}
+	if !isZero(cfg.DisableCompression) {
+		t.DisableCompression = cfg.DisableCompression
+	}
+	if !isZero(cfg.MaxIdleConns) {
+		t.MaxIdleConns = cfg.MaxIdleConns
+	}
+	if !isZero(cfg.MaxIdleConnsPerHost) {
+		t.MaxIdleConnsPerHost = cfg.MaxIdleConnsPerHost
+	}
+	if !isZero(cfg.MaxConnsPerHost) {
+		t.MaxConnsPerHost = cfg.MaxConnsPerHost
+	}
+	if !isZero(cfg.IdleConnTimeout) {
+		t.IdleConnTimeout = cfg.IdleConnTimeout
+	}
+	if !isZero(cfg.ResponseHeaderTimeout) {
+		t.ResponseHeaderTimeout = cfg.ResponseHeaderTimeout
+	}
+	if !isZero(cfg.ExpectContinueTimeout) {
+		t.ExpectContinueTimeout = cfg.ExpectContinueTimeout
+	}
+	if !isZero(cfg.MaxResponseHeaderBytes) {
+		t.MaxResponseHeaderBytes = cfg.MaxResponseHeaderBytes
+	}
+	if !isZero(cfg.WriteBufferSize) {
+		t.WriteBufferSize = cfg.WriteBufferSize
+	}
+	if !isZero(cfg.ReadBufferSize) {
+		t.ReadBufferSize = cfg.ReadBufferSize
+	}
+	if !isZero(cfg.ForceAttemptHTTP2) {
+		t.ForceAttemptHTTP2 = cfg.ForceAttemptHTTP2
+	}
+
+	glg.Debugf("proxy transport: %+v\n", t)
+	return t
 }
 
 func handleError(rw http.ResponseWriter, r *http.Request, err error) {

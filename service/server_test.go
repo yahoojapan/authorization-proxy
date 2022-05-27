@@ -1167,6 +1167,7 @@ func Test_server_hcShutdown(t *testing.T) {
 				name: "hcShutdown works",
 				fields: fields{
 					hcsrv: hcsrv.Config,
+					sdt:   time.Minute,
 				},
 				args: args{
 					ctx: context.Background(),
@@ -1248,6 +1249,7 @@ func Test_server_apiShutdown(t *testing.T) {
 				name: "apiShutdown works",
 				fields: fields{
 					srv: apisrv.Config,
+					sdt: time.Minute,
 				},
 				args: args{
 					ctx: context.Background(),

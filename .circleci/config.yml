@@ -3,7 +3,7 @@ alias:
   default: &default
     working_directory: /go/src/github.com/yahoojapan/authorization-proxy
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.16
         environment:
           GOPATH: "/go"
           GO111MODULE: "on"
@@ -138,7 +138,7 @@ jobs:
             fi
             printf 'LAST_COMMIT: %s\n' "${LAST_COMMIT}"
             touch ./.tag
-            VERSION="$(git describe --abbrev=0 --tags)"
+            VERSION="$(git tag -l --sort=-creatordate 'v*' | head -n 1)"
             # Diff to prevent pipeline re-runs.
             if [ -n "$(git diff "$VERSION")" ]; then
               VERSION=${VERSION:-'v0.0.0'}

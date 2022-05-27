@@ -45,9 +45,10 @@ func TestNewDebugRoutes(t *testing.T) {
 					if gotValue.Pattern != wantValue.Pattern {
 						return errors.New("pattern not match")
 					}
-					if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
-						return errors.New("handler not match")
-					}
+					// toHandler() should return a new function with different pointer
+					// if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
+					// 	return errors.New(gotValue.Name + " handler not match")
+					// }
 				}
 				return nil
 			},
@@ -156,7 +157,7 @@ func TestNewDebugRoutes(t *testing.T) {
 						return errors.New("pattern not match")
 					}
 					if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
-						return errors.New("handler not match")
+						return errors.New(gotValue.Name + " handler not match")
 					}
 				}
 				return nil
@@ -193,9 +194,10 @@ func TestNewDebugRoutes(t *testing.T) {
 					if gotValue.Pattern != wantValue.Pattern {
 						return errors.New("pattern not match")
 					}
-					if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
-						return errors.New("handler not match")
-					}
+					// toHandler() should return a new function with different pointer
+					// if reflect.ValueOf(gotValue.HandlerFunc).Pointer() != reflect.ValueOf(wantValue.HandlerFunc).Pointer() {
+					// 	return errors.New(gotValue.Name + " handler not match")
+					// }
 				}
 				return nil
 			},
