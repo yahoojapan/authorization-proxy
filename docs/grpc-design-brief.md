@@ -23,7 +23,7 @@ File changes:
 
 https://github.com/yahoojapan/authorization-proxy/pull/83/files
 
-We have updated/changed the implementation in the following lawers:
+We have updated/changed the implementation in the following layers:
 
 - usecase
 - service
@@ -57,7 +57,7 @@ If authorization succeeded, the gRPC request will proxy to the backend.
 
 ## Configuration
 
-In handler layer, the gRPC call will be authenicated and authorized by athenz policy.
+In handler layer, the gRPC call will be authenticated and authorized by athenz policy.
 
 Setting the athenz policy is almost the same as before, other than the resource set on the resource.
 
@@ -143,7 +143,7 @@ But [gRPC supports 4 different types](https://grpc.io/docs/what-is-grpc/core-con
 
 Due to the limitation of gRPC, each RPC endpoint support only 1 resource, a separate endpoint is required for each RPC type.
 
-For the reasons above, currently Vald team decided to hardcode `grpc` in the action field and use the when performing authenication and authorization check.
+For the reasons above, currently Vald team decided to hardcode `grpc` in the action field and use the when performing authentication and authorization check.
 
 [Reference](https://github.com/yahoojapan/authorization-proxy/blob/1e14186eb1dd959e246a18be98c92d40a677a56e/handler/grpc.go#L67)
 
