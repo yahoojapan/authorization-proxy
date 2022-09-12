@@ -63,6 +63,11 @@ func New(cfg config.Proxy, bp httputil.BufferPool, prov service.Authorizationd) 
 				req.Host = r.Host
 				glg.Debugf("proxy.PreserveHost enabled, forward host header: %s\n", req.Host)
 			}
+			if cfg.ForceContentLength {
+				req.ContentLength = r.ContentLength
+				req.TransferEncoding = r.TransferEncoding
+				glg.Debugf("proxy.ForceContentLength enabled, forward content-length header: %d\n", req.ContentLength)
+			}
 
 			*r = *req
 		},
