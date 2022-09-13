@@ -150,7 +150,7 @@ type Proxy struct {
 	// PreserveHost represents whether to preserve the host header from the request.
 	PreserveHost bool `yaml:"preserveHost"`
 
-	// Force content-length to disable chunked transfer encoding
+	// ForceContentLength forces content-length header forwarding to disable chunked transfer encoding
 	ForceContentLength bool `yaml:"forceContentLength"`
 
 	// Transport exposes http.Transport parameters
