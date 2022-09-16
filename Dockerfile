@@ -2,7 +2,7 @@ FROM golang:1.18-alpine AS base
 
 RUN set -eux \
     && apk --no-cache add ca-certificates \
-    && apk --no-cache add --virtual build-dependencies cmake g++ make unzip curl git
+    && apk --no-cache add --virtual build-dependencies cmake g++ make unzip curl git libcap
 
 WORKDIR ${GOPATH}/src/github.com/yahoojapan/authorization-proxy
 
@@ -31,6 +31,9 @@ RUN BUILD_TIME=$(date -u +%Y%m%d-%H%M%S) \
     GO111MODULE=on \
     go build -ldflags "-X 'main.Version=${VERSION} at ${BUILD_TIME} by ${GO_VERSION}' -linkmode=external" -a -o "/usr/bin/${APP_NAME}"
 
+# allow well-known port binding
+RUN setcap 'cap_net_bind_service=+ep' "/usr/bin/${APP_NAME}"
+
 # confirm dependency libraries & cleanup
 RUN ldd "/usr/bin/${APP_NAME}"\
     && apk del build-dependencies --purge \
@@ -52,6 +55,7 @@ COPY --from=builder /usr/bin/${APP_NAME} /go/bin/${APP_NAME}
 COPY --from=builder /lib/ld-musl-x86_64.so* /lib/
 # Copy user
 COPY --from=builder /etc/passwd /etc/passwd
+USER ${APP_NAME}
 
 HEALTHCHECK NONE
 ENTRYPOINT ["/go/bin/authorization-proxy"]
