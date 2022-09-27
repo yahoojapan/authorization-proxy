@@ -170,6 +170,7 @@ func TestNew(t *testing.T) {
 								},
 							},
 						},
+						ResourcePrefix: "/public",
 					},
 					JWK: JWK{
 						RefreshPeriod: "",
