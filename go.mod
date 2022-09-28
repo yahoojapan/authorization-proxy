@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/kpango/glg v1.6.12
 	github.com/pkg/errors v0.9.1
-	github.com/yahoojapan/athenz-authorizer/v5 v5.3.2
+	github.com/yahoojapan/athenz-authorizer/v5 v5.4.0
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -32,5 +32,3 @@ require (
 replace golang.org/x/text v0.3.0 => golang.org/x/text v0.3.3
 
 replace golang.org/x/text v0.3.2 => golang.org/x/text v0.3.3
-
-replace github.com/yahoojapan/athenz-authorizer/v5 v5.3.2 => github.com/yahoojapan/athenz-authorizer/v5 v5.3.4-0.20220927072937-32f47bcfa251
