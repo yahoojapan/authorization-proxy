@@ -52,7 +52,6 @@ COPY --from=builder /usr/bin/${APP_NAME} /go/bin/${APP_NAME}
 COPY --from=builder /lib/ld-musl-x86_64.so* /lib/
 # Copy user
 COPY --from=builder /etc/passwd /etc/passwd
-USER ${APP_NAME}
 
 HEALTHCHECK NONE
 ENTRYPOINT ["/go/bin/authorization-proxy"]

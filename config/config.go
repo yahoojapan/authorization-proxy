@@ -218,6 +218,9 @@ type Policy struct {
 
 	// MappingRules represents translation rules for determining action and resource.
 	MappingRules map[string][]authorizerd.Rule `yaml:"mappingRules"`
+
+	// ResourcePrefix represents prefix prepended to mapped resource.
+	ResourcePrefix string `yaml:"resourcePrefix"`
 }
 
 // JWK represents the configuration to fetch Athenz JWK.

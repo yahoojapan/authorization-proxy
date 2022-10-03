@@ -778,6 +778,23 @@ func Test_newAuthzD(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "test success ResourcePrefix set",
+			args: args{
+				cfg: config.Config{
+					Authorization: config.Authorization{
+						Policy: config.Policy{
+							ResourcePrefix: "/public",
+						},
+						RoleToken: config.RoleToken{
+							Enable:         true,
+							RoleAuthHeader: "Athenz-Role-Auth",
+						},
+					},
+				},
+			},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
