@@ -204,10 +204,6 @@ func newAuthzD(cfg config.Config) (service.Authorizationd, error) {
 			}
 			policyOpts = append(policyOpts, authorizerd.WithTranslator(translator))
 		}
-
-		if prefix := authzCfg.Policy.ResourcePrefix; prefix != "" {
-			policyOpts = append(policyOpts, authorizerd.WithResourcePrefix(prefix))
-		}
 	}
 	var rtOpts []authorizerd.Option
 	if authzCfg.RoleToken.Enable {
