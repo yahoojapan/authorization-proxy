@@ -150,6 +150,9 @@ type Proxy struct {
 	// PreserveHost represents whether to preserve the host header from the request.
 	PreserveHost bool `yaml:"preserveHost"`
 
+	// ForceContentLength forces content-length header forwarding to disable chunked transfer encoding
+	ForceContentLength bool `yaml:"forceContentLength"`
+
 	// Transport exposes http.Transport parameters
 	Transport Transport `yaml:"transport,omitempty"`
 }
@@ -215,9 +218,6 @@ type Policy struct {
 
 	// MappingRules represents translation rules for determining action and resource.
 	MappingRules map[string][]authorizerd.Rule `yaml:"mappingRules"`
-
-	// ResourcePrefix represents prefix prepended to mapped resource.
-	ResourcePrefix string `yaml:"resourcePrefix"`
 }
 
 // JWK represents the configuration to fetch Athenz JWK.

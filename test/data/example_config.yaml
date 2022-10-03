@@ -76,7 +76,6 @@ authorization:
           action: action
           path: "/path1/{path2}?param={value}"
           resource: "{path2}.{value}"
-    resourcePrefix: /public
   jwk:
     refreshPeriod: ""
     retryDelay: ""
