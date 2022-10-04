@@ -3,8 +3,8 @@ module github.com/yahoojapan/authorization-proxy/v4
 go 1.18
 
 require (
-	github.com/mwitkow/grpc-proxy v0.0.0-20220126150247-db34e7bfee32
 	github.com/kpango/glg v1.6.12
+	github.com/mwitkow/grpc-proxy v0.0.0-20220126150247-db34e7bfee32
 	github.com/pkg/errors v0.9.1
 	github.com/yahoojapan/athenz-authorizer/v5 v5.3.2
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
@@ -19,6 +19,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.0-20210816181553-5444fa50b93d // indirect
 	github.com/goccy/go-json v0.9.10 // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/kpango/fastime v1.1.4 // indirect
 	github.com/kpango/gache v1.2.7 // indirect
@@ -30,6 +31,10 @@ require (
 	github.com/lestrrat-go/option v1.0.0 // indirect
 	github.com/zeebo/xxh3 v1.0.1 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
+	golang.org/x/net v0.0.0-20220114011407-0dd24b26b47d // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/genproto v0.0.0-20210402141018-6c239bbf2bb1 // indirect
 )
 
 replace golang.org/x/text => golang.org/x/text v0.3.7
