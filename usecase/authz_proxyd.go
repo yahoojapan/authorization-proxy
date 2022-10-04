@@ -57,22 +57,11 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 		return nil, errors.Wrap(err, "cannot newAuthzD(cfg)")
 	}
 
-	var tlsCfg *tls.Config
-
-	if cfg.Server.TLS.Enable {
-		var err error
-		tlsCfg, err = service.NewTLSConfig(cfg.Server.TLS)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	debugMux := router.NewDebugRouter(cfg.Server, athenz)
 	gh, closer := handler.NewGRPC(
 		handler.WithProxyConfig(cfg.Proxy),
 		handler.WithRoleTokenConfig(cfg.Authorization.RoleToken),
 		handler.WithAuthorizationd(athenz),
-		handler.WithTLSConfig(tlsCfg),
 	)
 
 	srv, err := service.NewServer(

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"crypto/tls"
 	"io"
 	"net"
 	"strconv"
@@ -31,7 +30,6 @@ type GRPCHandler struct {
 	proxyCfg       config.Proxy
 	roleCfg        config.RoleToken
 	authorizationd service.Authorizationd
-	tlsCfg         *tls.Config
 	connMap        sync.Map
 	group          singleflight.Group
 }

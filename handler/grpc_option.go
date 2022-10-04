@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"crypto/tls"
-
 	"github.com/yahoojapan/authorization-proxy/v4/config"
 	"github.com/yahoojapan/authorization-proxy/v4/service"
 )
@@ -30,12 +28,5 @@ func WithRoleTokenConfig(cfg config.RoleToken) GRPCOption {
 func WithAuthorizationd(a service.Authorizationd) GRPCOption {
 	return func(h *GRPCHandler) {
 		h.authorizationd = a
-	}
-}
-
-// WithTLSConfig returns a TLS config functional option
-func WithTLSConfig(cfg *tls.Config) GRPCOption {
-	return func(g *GRPCHandler) {
-		g.tlsCfg = cfg
 	}
 }

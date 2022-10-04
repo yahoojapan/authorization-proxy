@@ -493,7 +493,6 @@ func TestGRPCHandler_Close(t *testing.T) {
 				proxyCfg:       tt.fields.proxyCfg,
 				roleCfg:        tt.fields.roleCfg,
 				authorizationd: tt.fields.authorizationd,
-				tlsCfg:         tt.fields.tlsCfg,
 				connMap:        tt.fields.connMap,
 				group:          tt.fields.group,
 			}
@@ -664,7 +663,6 @@ func TestGRPCHandler_dialContext(t *testing.T) {
 				proxyCfg:       tt.fields.proxyCfg,
 				roleCfg:        tt.fields.roleCfg,
 				authorizationd: tt.fields.authorizationd,
-				tlsCfg:         tt.fields.tlsCfg,
 				connMap:        tt.fields.connMap,
 				group:          tt.fields.group,
 			}

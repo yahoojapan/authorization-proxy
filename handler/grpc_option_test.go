@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"crypto/tls"
 	"reflect"
 	"testing"
 
@@ -123,44 +122,6 @@ func TestWithAuthorizationd(t *testing.T) {
 			got := WithAuthorizationd(tt.args.a)
 			if err := tt.checkFunc(got); err != nil {
 				t.Errorf("WithAuthorizationd() error = %v", err)
-			}
-		})
-	}
-}
-
-func TestWithTLSConfig(t *testing.T) {
-	type args struct {
-		cfg *tls.Config
-	}
-	type test struct {
-		name      string
-		args      args
-		checkFunc func(GRPCOption) error
-	}
-	tests := []test{
-		func() test {
-			cfg := &tls.Config{}
-			return test{
-				name: "set success",
-				args: args{
-					cfg: cfg,
-				},
-				checkFunc: func(o GRPCOption) error {
-					h := &GRPCHandler{}
-					o(h)
-					if !reflect.DeepEqual(h.tlsCfg, cfg) {
-						return errors.New("config not match")
-					}
-					return nil
-				},
-			}
-		}(),
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := WithTLSConfig(tt.args.cfg)
-			if err := tt.checkFunc(got); err != nil {
-				t.Errorf("WithTLSConfig() error = %v", err)
 			}
 		})
 	}
