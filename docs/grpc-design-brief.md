@@ -4,8 +4,6 @@
 
 Since provider sidecar is implemented in go, we decided to find a library that supports like reverse proxy feature in gRPC interface, and we found [this library](https://github.com/mwitkow/grpc-proxy).
 
-Unfortunately this library is quite old (last commit is 3 years ago), but this is the only library we can found to support our usecase, so we decided to give it a try.
-
 ## Making code changes
 
 We implemented the feature with the below attention:
@@ -165,12 +163,4 @@ We can easily control the authorization rule for each functionality by using wil
 
 For example we can easily enable or disable all insert resources for the user by configuring the Athenz policy like:
 
-`ALLOW	*	<athenz.domain>:<role.name>	<athenz.domain>:/vald.v1.insert/*`
-
-## Others
-
-- The license of the library is apache, it should be fine :)
-
-https://github.com/mwitkow/grpc-proxy/blob/master/LICENSE.txt
-
-- Authorization proxy using a legacy version of go (1.14 vs 1.17.2), we tried to update it, but the unit test will be failed.
+`ALLOW	grpc	<athenz.domain>:<role.name>	<athenz.domain>:/vald.v1.insert/*`
