@@ -475,6 +475,47 @@ func TestNew(t *testing.T) {
 				},
 			}
 		}(),
+		func() test {
+			postBody := "post.request.body.479"
+			handler := http.HandlerFunc(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// check content length
+				if r.ContentLength != int64(len(postBody)) {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+			}))
+			srv := httptest.NewServer(handler)
+
+			return test{
+				name: "check force content length",
+				args: args{
+					cfg: config.Proxy{
+						Host: strings.Split(strings.Replace(srv.URL, "http://", "", 1), ":")[0],
+						Port: func() uint16 {
+							a, _ := strconv.ParseInt(strings.Split(srv.URL, ":")[2], 0, 64)
+							return uint16(a)
+						}(),
+						ForceContentLength: true,
+					},
+					bp: infra.NewBuffer(64),
+					prov: &service.AuthorizerdMock{
+						VerifyFunc: func(r *http.Request, act, res string) (authorizerd.Principal, error) {
+							return &pm, nil
+						},
+					},
+				},
+				checkFunc: func(h http.Handler) error {
+					rw := httptest.NewRecorder()
+					r := httptest.NewRequest("POST", "http://dummy.com", strings.NewReader(postBody))
+					h.ServeHTTP(rw, r)
+					if rw.Code != http.StatusOK {
+						return errors.Errorf("unexpected status code (invalid content length), got: %v, want: %v", rw.Code, http.StatusOK)
+					}
+					return nil
+				},
+			}
+		}(),
 		{
 			name: "check custom transport is used",
 			args: args{

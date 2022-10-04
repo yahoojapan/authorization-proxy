@@ -1,9 +1,8 @@
-FROM golang:1.16-alpine AS base
+FROM golang:1.18-alpine AS base
 
 RUN set -eux \
-    && apk update \
     && apk --no-cache add ca-certificates \
-    && apk --no-cache add --virtual build-dependencies cmake g++ make unzip curl upx git
+    && apk --no-cache add --virtual build-dependencies cmake g++ make unzip curl git
 
 WORKDIR ${GOPATH}/src/github.com/yahoojapan/authorization-proxy
 
@@ -19,6 +18,8 @@ ARG APP_VERSION='development version'
 
 COPY . .
 
+RUN adduser -H -S ${APP_NAME}
+
 RUN BUILD_TIME=$(date -u +%Y%m%d-%H%M%S) \
     && GO_VERSION=$(go version | cut -d" " -f3,4) \
     && CGO_ENABLED=1 \
@@ -28,10 +29,11 @@ RUN BUILD_TIME=$(date -u +%Y%m%d-%H%M%S) \
     GOOS=$(go env GOOS) \
     GOARCH=$(go env GOARCH) \
     GO111MODULE=on \
-    go build --ldflags "-s -w -linkmode 'external' -extldflags '-static -fPIC -m64 -pthread -std=c++11 -lstdc++' -X 'main.Version=${APP_VERSION} at ${BUILD_TIME} by ${GO_VERSION}'" -a -tags "cgo netgo" -installsuffix "cgo netgo" -o "${APP_NAME}" \
-    && upx --best -o "/usr/bin/${APP_NAME}" "${APP_NAME}"
+    go build -ldflags "-X 'main.Version=${VERSION} at ${BUILD_TIME} by ${GO_VERSION}' -linkmode=external" -a -o "/usr/bin/${APP_NAME}"
 
-RUN apk del build-dependencies --purge \
+# confirm dependency libraries & cleanup
+RUN ldd "/usr/bin/${APP_NAME}"\
+    && apk del build-dependencies --purge \
     && rm -rf "${GOPATH}"
 
 # Start From Scratch For Running Environment
@@ -45,7 +47,11 @@ ENV APP_NAME authorization-proxy
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Copy permissions
 COPY --from=builder /etc/passwd /etc/passwd
-# Copy our static executable
+# Copy our dynamic-linked executable and library
 COPY --from=builder /usr/bin/${APP_NAME} /go/bin/${APP_NAME}
+COPY --from=builder /lib/ld-musl-x86_64.so* /lib/
+# Copy user
+COPY --from=builder /etc/passwd /etc/passwd
 
+HEALTHCHECK NONE
 ENTRYPOINT ["/go/bin/authorization-proxy"]
