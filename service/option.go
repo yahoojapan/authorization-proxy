@@ -25,7 +25,7 @@ func WithRestHandler(h http.Handler) Option {
 	}
 }
 
-// WithRestHandler returns a gRPC Handler functional option
+// WithGRPCHandler returns a gRPC Handler functional option
 func WithGRPCHandler(h grpc.StreamHandler) Option {
 	return func(s *server) {
 		s.grpcHandler = h
