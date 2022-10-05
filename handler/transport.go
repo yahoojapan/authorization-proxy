@@ -59,6 +59,7 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	p, err := t.prov.Authorize(r, r.Method, r.URL.Path)
 	if err != nil {
+		glg.Infof("Got unathorizated access: %s %s", r.Method, r.URL.String())
 		return nil, errors.Wrap(err, ErrMsgUnverified)
 	}
 
