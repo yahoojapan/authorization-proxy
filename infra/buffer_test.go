@@ -1,11 +1,10 @@
 package infra
 
 import (
-	"testing"
-
 	"fmt"
 	"reflect"
 	"sync"
+	"testing"
 )
 
 // NotEqualError reports the name of the field having different value and their values.
@@ -69,7 +68,6 @@ func TestNewBuffer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			got := NewBuffer(tt.args.size)
 
 			if got == nil && tt.want == nil {
@@ -110,7 +108,6 @@ func Test_buffer_Get(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			b := &buffer{
 				pool: tt.fields.pool,
 				size: tt.fields.size,
@@ -208,7 +205,6 @@ func Test_buffer_Put(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			b := &buffer{
 				pool: tt.fields.pool,
 				size: tt.fields.size,
@@ -224,7 +220,6 @@ func Test_buffer_Put(t *testing.T) {
 }
 
 func Test_max(t *testing.T) {
-
 	type args struct {
 		x uint64
 		y uint64
@@ -262,7 +257,6 @@ func Test_max(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			got := max(tt.args.x, tt.args.y)
 			if got != tt.want {
 				t.Errorf("max() %v", &NotEqualError{"", got, tt.want})

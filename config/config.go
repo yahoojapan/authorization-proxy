@@ -293,7 +293,7 @@ type Transport struct {
 
 // New returns the decoded configuration YAML file as *Config struct. Returns non-nil error if any.
 func New(path string) (*Config, error) {
-	f, err := os.OpenFile(path, os.O_RDONLY, 0600)
+	f, err := os.OpenFile(path, os.O_RDONLY, 0o600)
 	if err != nil {
 		return nil, errors.Wrap(err, "OpenFile failed")
 	}

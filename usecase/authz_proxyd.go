@@ -42,9 +42,10 @@ type AuthzProxyDaemon interface {
 }
 
 type authzProxyDaemon struct {
-	cfg    config.Config
-	athenz service.Authorizationd
-	server service.Server
+	cfg        config.Config
+	athenz     service.Authorizationd
+	server     service.Server
+	grpcServer service.Server
 }
 
 // New returns a Authorization Proxy daemon, or error occurred.
@@ -57,14 +58,27 @@ func New(cfg config.Config) (AuthzProxyDaemon, error) {
 	}
 
 	debugMux := router.NewDebugRouter(cfg.Server, athenz)
+	gh, closer := handler.NewGRPC(
+		handler.WithProxyConfig(cfg.Proxy),
+		handler.WithRoleTokenConfig(cfg.Authorization.RoleToken),
+		handler.WithAuthorizationd(athenz),
+	)
+
+	srv, err := service.NewServer(
+		service.WithServerConfig(cfg.Server),
+		service.WithRestHandler(handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
+		service.WithDebugHandler(debugMux),
+		service.WithGRPCHandler(gh),
+		service.WithGRPCCloser(closer),
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &authzProxyDaemon{
 		cfg:    cfg,
 		athenz: athenz,
-		server: service.NewServer(
-			service.WithServerConfig(cfg.Server),
-			service.WithServerHandler(handler.New(cfg.Proxy, infra.NewBuffer(cfg.Proxy.BufferSize), athenz)),
-			service.WithDebugHandler(debugMux)),
+		server: srv,
 	}, nil
 }
 

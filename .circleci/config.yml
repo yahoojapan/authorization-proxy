@@ -13,7 +13,7 @@ alias:
           GITHUB_API: "https://api.github.com/"
           DOCKER_USER: "tatyano"
   setup_remote_docker: &setup_remote_docker
-    version: 19.03.8
+    version: 20.10.14
 
 version: 2
 jobs:
