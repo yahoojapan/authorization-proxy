@@ -197,7 +197,6 @@ func Test_routing(t *testing.T) {
 					},
 				},
 				checkFunc: func(server http.Handler) error {
-
 					request := httptest.NewRequest(http.MethodGet, "/", nil)
 					record := httptest.NewRecorder()
 					server.ServeHTTP(record, request)
@@ -234,7 +233,6 @@ func Test_routing(t *testing.T) {
 					},
 				},
 				checkFunc: func(server http.Handler) error {
-
 					request := httptest.NewRequest(http.MethodGet, "/", nil)
 					record := httptest.NewRecorder()
 					server.ServeHTTP(record, request)
@@ -268,7 +266,6 @@ func Test_routing(t *testing.T) {
 					},
 				},
 				checkFunc: func(server http.Handler) error {
-
 					request := httptest.NewRequest(http.MethodGet, "/", nil)
 					record := httptest.NewRecorder()
 					server.ServeHTTP(record, request)

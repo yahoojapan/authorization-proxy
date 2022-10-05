@@ -19,11 +19,17 @@ package service
 import (
 	"context"
 	"fmt"
+	"io"
+	"net"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/mwitkow/grpc-proxy/proxy"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/kpango/glg"
 	"github.com/yahoojapan/authorization-proxy/v4/config"
@@ -39,6 +45,11 @@ type server struct {
 	srv        *http.Server
 	srvHandler http.Handler
 	srvRunning bool
+
+	grpcSrv        *grpc.Server
+	grpcHandler    grpc.StreamHandler
+	grpcSrvRunning bool
+	grpcCloser     io.Closer
 
 	// Health Check server
 	hcsrv     *http.Server
@@ -72,10 +83,8 @@ const (
 	CharsetUTF8 = "charset=UTF-8"
 )
 
-var (
-	// ErrContextClosed represents a error that the context is closed
-	ErrContextClosed = errors.New("context Closed")
-)
+// ErrContextClosed represents a error that the context is closed
+var ErrContextClosed = errors.New("context Closed")
 
 // NewServer returns a Server interface, which includes authorization proxy server and health check server structs.
 // The authorization proxy server is a http.Server instance, which the port number is read from "config.Server.Port"
@@ -83,7 +92,7 @@ var (
 //
 // The health check server is a http.Server instance, which the port number is read from "config.Server.HealthCheck.Port"
 // , and the handler is as follow - Handle HTTP GET request and always return HTTP Status OK (200) response.
-func NewServer(opts ...Option) Server {
+func NewServer(opts ...Option) (Server, error) {
 	var err error
 
 	s := &server{}
@@ -91,11 +100,29 @@ func NewServer(opts ...Option) Server {
 		o(s)
 	}
 
-	s.srv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
-		Handler: s.srvHandler,
+	if s.grpcSrvEnable() {
+		gopts := []grpc.ServerOption{
+			grpc.CustomCodec(proxy.Codec()),
+			grpc.UnknownServiceHandler(s.grpcHandler),
+		}
+
+		if s.cfg.TLS.Enable {
+			cfg, err := NewTLSConfig(s.cfg.TLS)
+			if err != nil {
+				return nil, err
+			}
+
+			gopts = append(gopts, grpc.Creds(credentials.NewTLS(cfg)))
+		}
+
+		s.grpcSrv = grpc.NewServer(gopts...)
+	} else {
+		s.srv = &http.Server{
+			Addr:    fmt.Sprintf(":%d", s.cfg.Port),
+			Handler: s.srvHandler,
+		}
+		s.srv.SetKeepAlivesEnabled(true)
 	}
-	s.srv.SetKeepAlivesEnabled(true)
 
 	if s.hcSrvEnable() {
 		s.hcsrv = &http.Server{
@@ -123,7 +150,7 @@ func NewServer(opts ...Option) Server {
 		glg.Warn(err)
 	}
 
-	return s
+	return s, nil
 }
 
 // ListenAndServe returns a error channel, which includes error returned from authorization proxy server.
@@ -134,29 +161,54 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 		echan = make(chan []error, 1)
 
 		// error channels to keep track server status
-		sech = make(chan error, 1)
-		hech chan error
-		dech chan error
+		sech  = make(chan error, 1)
+		gsech = make(chan error, 1)
+		hech  chan error
+		dech  chan error
 	)
 
 	wg := new(sync.WaitGroup)
 
 	wg.Add(1)
-	go func() {
-		s.mu.Lock()
-		s.srvRunning = true
-		s.mu.Unlock()
-		wg.Done()
+	if s.grpcSrvEnable() {
+		go func() {
+			s.mu.Lock()
+			s.grpcSrvRunning = true
+			s.mu.Unlock()
+			wg.Done()
 
-		glg.Info("authorization proxy api server starting")
-		sech <- s.listenAndServeAPI()
-		glg.Info("authorization proxy api server closed")
-		close(sech)
+			glg.Info("authorization grpc proxy api server starting")
+			select {
+			case <-ctx.Done():
+			case gsech <- s.listenAndServeGRPCAPI():
+			}
+			glg.Info("authorization grpc proxy api server closed")
+			close(gsech)
 
-		s.mu.Lock()
-		s.srvRunning = false
-		s.mu.Unlock()
-	}()
+			s.mu.Lock()
+			s.grpcSrvRunning = false
+			s.mu.Unlock()
+		}()
+	} else {
+		go func() {
+			s.mu.Lock()
+			s.srvRunning = true
+			s.mu.Unlock()
+			wg.Done()
+
+			glg.Info("authorization proxy api server starting")
+			select {
+			case <-ctx.Done():
+			case sech <- s.listenAndServeAPI():
+			}
+			glg.Info("authorization proxy api server closed")
+			close(sech)
+
+			s.mu.Lock()
+			s.srvRunning = false
+			s.mu.Unlock()
+		}()
+	}
 
 	if s.hcSrvEnable() {
 		wg.Add(1)
@@ -169,7 +221,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			wg.Done()
 
 			glg.Info("authorization proxy health check server starting")
-			hech <- s.hcsrv.ListenAndServe()
+			select {
+			case <-ctx.Done():
+			case hech <- s.hcsrv.ListenAndServe():
+			}
 			glg.Info("authorization proxy health check server closed")
 			close(hech)
 
@@ -190,7 +245,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 			wg.Done()
 
 			glg.Info("authorization proxy debug server starting")
-			dech <- s.dsrv.ListenAndServe()
+			select {
+			case <-ctx.Done():
+			case dech <- s.dsrv.ListenAndServe():
+			}
 			glg.Info("authorization proxy debug server closed")
 			close(dech)
 
@@ -222,6 +280,10 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				glg.Info("authorization proxy api server will shutdown...")
 				errs = appendErr(errs, s.apiShutdown(context.Background()))
 			}
+			if s.grpcSrvRunning {
+				glg.Info("authorization grpc proxy api server will shutdown...")
+				s.grpcShutdown()
+			}
 			if s.dRunning {
 				glg.Info("authorization proxy debug server will shutdown...")
 				appendErr(errs, s.dShutdown(context.Background()))
@@ -240,6 +302,17 @@ func (s *server) ListenAndServe(ctx context.Context) <-chan []error {
 				return
 
 			case err := <-sech: // when authorization proxy server returns, close running servers and return any error
+				if err != nil {
+					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
+				}
+
+				s.mu.RLock()
+				shutdownSrvs(errs)
+				s.mu.RUnlock()
+				echan <- errs
+				return
+
+			case err := <-gsech: // when authorization proxy grpc server returns, close running servers and return any error
 				if err != nil {
 					errs = append(errs, errors.Wrap(err, "close running servers and return any error"))
 				}
@@ -300,6 +373,16 @@ func (s *server) apiShutdown(ctx context.Context) error {
 	return s.srv.Shutdown(sctx)
 }
 
+// apiShutdown returns any error when shutdown the authorization proxy server.
+// Before shutdown the authorization proxy server, it will sleep config.ShutdownDelay to prevent any issue from K8s
+func (s *server) grpcShutdown() {
+	time.Sleep(s.sdd)
+	s.grpcSrv.GracefulStop()
+	if s.grpcCloser != nil {
+		s.grpcCloser.Close()
+	}
+}
+
 // createHealthCheckServiceMux return a *http.ServeMux object
 // The function will register the health check server handler for given pattern, and return
 func createHealthCheckServiceMux(pattern string) *http.ServeMux {
@@ -336,8 +419,23 @@ func (s *server) listenAndServeAPI() error {
 	return s.srv.ListenAndServeTLS("", "")
 }
 
+// listenAndGRPCServeAPI return any error occurred when start a HTTPS server, including any error when loading TLS certificate
+func (s *server) listenAndServeGRPCAPI() error {
+	port := strconv.Itoa(s.cfg.Port)
+	l, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		return err
+	}
+
+	return s.grpcSrv.Serve(l)
+}
+
 func (s *server) hcSrvEnable() bool {
 	return s.cfg.HealthCheck.Port > 0
+}
+
+func (s *server) grpcSrvEnable() bool {
+	return s.grpcHandler != nil
 }
 
 func (s *server) debugSrvEnable() bool {

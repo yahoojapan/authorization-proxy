@@ -60,7 +60,7 @@ func TestNew(t *testing.T) {
 				}
 				defer f.Close()
 
-				err = f.Chmod(0000)
+				err = f.Chmod(0o000)
 				if err != nil {
 					return err
 				}
