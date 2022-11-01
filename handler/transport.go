@@ -62,7 +62,6 @@ func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 		glg.Infof("Got unauthorized access: %s %s", r.Method, r.URL.String())
 		return nil, errors.Wrap(err, ErrMsgUnverified)
 	}
-	glg.Infof("Got authorized access: %s %s %s", p.Name(), r.Method, r.URL.String())
 
 	req2 := cloneRequest(r) // per RoundTripper contract
 
