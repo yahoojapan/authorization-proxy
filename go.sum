@@ -280,8 +280,8 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1 h1:5TQK59W5E3v0r2duFAb7P95B6hEeOyEnHRa8MjYSMTY=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221102063357-b425e42e989d h1:1d1YAmXhlvVCRsuc12B+QDmOc97SBkEm4EiYUPesitQ=
-github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221102063357-b425e42e989d/go.mod h1:tKVy3zc5TVkD1M82OGrMOvLOJtl1e7eO/KJRBWvMqPk=
+github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f h1:ofeP81CIgrmbqyfk1wSMVx9pL7w1U+RwHnzSoWFyR0I=
+github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f/go.mod h1:tKVy3zc5TVkD1M82OGrMOvLOJtl1e7eO/KJRBWvMqPk=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
