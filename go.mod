@@ -6,7 +6,7 @@ require (
 	github.com/kpango/glg v1.6.12
 	github.com/mwitkow/grpc-proxy v0.0.0-20220126150247-db34e7bfee32
 	github.com/pkg/errors v0.9.1
-	github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f
+	github.com/yahoojapan/athenz-authorizer/v5 v5.3.2
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.28.0
