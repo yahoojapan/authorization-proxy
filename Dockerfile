@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine AS base
+FROM golang:1.19-alpine AS base
 
 RUN set -eux \
     && apk --no-cache add ca-certificates \
