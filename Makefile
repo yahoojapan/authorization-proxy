@@ -5,7 +5,6 @@ GO_VERSION:=$(shell go version)
 all: clean install lint test bench
 
 clean:
-	go clean ./...
 	go clean -modcache
 	rm -rf ./*.log
 	rm -rf ./*.svg
@@ -14,6 +13,7 @@ clean:
 	rm -rf bench
 	rm -rf pprof
 	rm -rf vendor
+	cp go.mod.default go.mod
 
 bench: clean init
 	go test -count=5 -run=NONE -bench . -benchmem
@@ -24,9 +24,8 @@ init:
 	sleep 3
 
 deps: clean
-	GO111MODULE=on go mod init
-	GO111MODULE=on go mod vendor
-	rm -rf vendor
+	cp ./go.mod.default ./go.mod
+	GO111MODULE=on go mod tidy
 
 lint:
 	gometalinter --enable-all . | rg -v comment

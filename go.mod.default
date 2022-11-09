@@ -1,0 +1,33 @@
+module github.com/yahoojapan/authorization-proxy/v4
+
+go 1.19
+
+replace (
+	cloud.google.com/go => cloud.google.com/go latest
+	github.com/golang/mock => github.com/golang/mock latest
+	github.com/golang/protobuf => github.com/golang/protobuf latest
+	github.com/google/go-cmp => github.com/google/go-cmp latest
+	github.com/google/pprof => github.com/google/pprof latest
+	github.com/mwitkow/grpc-proxy => github.com/mwitkow/grpc-proxy 0f1106ef9c766333b9acb4b81e705da4bade7215
+	github.com/yahoojapan/athenz-authorizer/v5 => github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f
+	golang.org/x/crypto => golang.org/x/crypto latest
+	golang.org/x/exp => golang.org/x/exp latest
+	golang.org/x/image => golang.org/x/image latest
+	golang.org/x/lint => golang.org/x/lint latest
+	golang.org/x/mobile => golang.org/x/mobile latest
+	golang.org/x/mod => golang.org/x/mod latest
+	golang.org/x/net => golang.org/x/net latest
+	golang.org/x/oauth2 => golang.org/x/oauth2 latest
+	golang.org/x/sync => golang.org/x/sync latest
+	golang.org/x/sys => golang.org/x/sys latest
+	golang.org/x/term => golang.org/x/term latest
+	golang.org/x/text => golang.org/x/text latest
+	golang.org/x/time => golang.org/x/time latest
+	golang.org/x/tools => golang.org/x/tools latest
+	golang.org/x/xerrors => golang.org/x/xerrors latest
+	google.golang.org/api => google.golang.org/api latest
+	google.golang.org/appengine => google.golang.org/appengine latest
+	google.golang.org/genproto => google.golang.org/genproto latest
+	google.golang.org/grpc => google.golang.org/grpc latest
+	google.golang.org/protobuf => google.golang.org/protobuf latest
+)
