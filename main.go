@@ -82,18 +82,11 @@ func run(cfg config.Config) []error {
 			SetLevelMode(glg.ERR, glg.STD).
 			SetLevelMode(glg.WARN, glg.STD).
 			SetLevelMode(glg.INFO, glg.STD)
-	case "log":
-		g = g.SetLevelMode(glg.FATAL, glg.STD).
-			SetLevelMode(glg.ERR, glg.STD).
-			SetLevelMode(glg.WARN, glg.STD).
-			SetLevelMode(glg.INFO, glg.STD).
-			SetLevelMode(glg.LOG, glg.STD)
 	case "debug":
 		g = g.SetLevelMode(glg.FATAL, glg.STD).
 			SetLevelMode(glg.ERR, glg.STD).
 			SetLevelMode(glg.WARN, glg.STD).
 			SetLevelMode(glg.INFO, glg.STD).
-			SetLevelMode(glg.LOG, glg.STD).
 			SetLevelMode(glg.DEBG, glg.STD)
 	default:
 		return []error{errors.New("invalid log level")}
