@@ -9,7 +9,7 @@ replace (
 	github.com/google/go-cmp => github.com/google/go-cmp v0.5.9
 	github.com/google/pprof => github.com/google/pprof v0.0.0-20221103000818-d260c55eee4c
 	github.com/mwitkow/grpc-proxy => github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
-	github.com/yahoojapan/athenz-authorizer/v5 => github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f
+	github.com/yahoojapan/athenz-authorizer/v5 => github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221109102152-60ac6fa16cbd
 	golang.org/x/crypto => golang.org/x/crypto v0.1.0
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20221108223516-5d533826c662
 	golang.org/x/image => golang.org/x/image v0.1.0
@@ -36,7 +36,7 @@ require (
 	github.com/kpango/glg v1.6.13
 	github.com/mwitkow/grpc-proxy v0.0.0-00010101000000-000000000000
 	github.com/pkg/errors v0.9.1
-	github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221109102152-60ac6fa16cbd
+	github.com/yahoojapan/athenz-authorizer/v5 v5.0.0-00010101000000-000000000000
 	golang.org/x/sync v0.1.0
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
