@@ -9,7 +9,7 @@ replace (
 	github.com/google/go-cmp => github.com/google/go-cmp latest
 	github.com/google/pprof => github.com/google/pprof latest
 	github.com/mwitkow/grpc-proxy => github.com/mwitkow/grpc-proxy 0f1106ef9c766333b9acb4b81e705da4bade7215
-	github.com/yahoojapan/athenz-authorizer/v5 => github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221107001904-4d4db0a61e1f
+	github.com/yahoojapan/athenz-authorizer/v5 => github.com/yahoojapan/athenz-authorizer/v5 v5.4.1-0.20221109102152-60ac6fa16cbd
 	golang.org/x/crypto => golang.org/x/crypto latest
 	golang.org/x/exp => golang.org/x/exp latest
 	golang.org/x/image => golang.org/x/image latest
