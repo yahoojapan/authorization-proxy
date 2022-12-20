@@ -1,4 +1,15 @@
-# Authorization Proxy
+# Authorization Proxy (moved)
+
+> ⚠️ **Warning**: This repository has been moved to [AthenZ/authorization-proxy](https://github.com/AthenZ/authorization-proxy).
+
+This repository is submitted to [Athenz Open-Source Community](https://github.com/AthenZ). All ongoing developments and maintenances will continue in the new repository.
+
+```sh
+# update your local clone
+git remote set-url origin https://github.com/AthenZ/authorization-proxy.git
+```
+
+---
 
 [![License: Apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/yahoojapan/authorization-proxy?style=flat-square&label=Github%20version)](https://github.com/yahoojapan/authorization-proxy/releases/latest)
